@@ -4,7 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SIVE – Registro Estudiantil</title>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<!-- ZXing: mejor soporte PDF417 (cédula antigua) y QR (cédula nueva) -->
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -137,6 +138,9 @@ body{font-family:var(--font);background:var(--off-white);color:var(--text);min-h
 .field-input{width:100%;border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);padding:9px 12px;font-family:var(--font);font-size:.88rem;color:var(--text);background:var(--gray-50);margin-top:2px;outline:none;transition:border-color var(--tr),box-shadow var(--tr);resize:vertical}
 .field-input:focus{border-color:var(--navy-light);box-shadow:0 0 0 3px rgba(37,99,176,.1);background:#fff}
 select.field-input{cursor:pointer}
+/* Campos editables del paso 3 */
+.field-val-edit{font-family:var(--mono);font-size:.88rem;font-weight:600;color:var(--navy);background:var(--gray-50);border-color:var(--gray-200)}
+.field-val-edit:focus{background:#fff}
 
 /* DIVIDER */
 .section-divider{display:flex;align-items:center;gap:10px;padding:14px 18px 10px;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
@@ -311,7 +315,7 @@ select.field-input{cursor:pointer}
             <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
             <span>Presiona "Activar Cámara"</span>
           </div>
-          <div id="qr-reader" style="width:100%"></div>
+          <video id="qr-video" style="width:100%;border-radius:12px;display:block;background:#000" playsinline autoplay muted></video>
         </div>
         <div class="camera-actions" style="margin-top:12px">
           <button class="btn-cam btn-cam-start" id="btnStart" onclick="startCamera()">
@@ -412,41 +416,51 @@ select.field-input{cursor:pointer}
     <!-- Datos extraídos -->
     <div class="fields-grid">
       <div class="field-item">
-        <span class="field-key">Número Cédula / Doc</span>
-        <span class="field-val" id="fCedula">—</span>
+        <label class="field-key" for="fCedula">Número Cédula / Doc</label>
+        <input class="field-input field-val-edit" id="fCedula" type="text" placeholder="Número de documento"/>
       </div>
       <div class="field-item">
-        <span class="field-key">Género</span>
-        <span class="field-val" id="fGenero">—</span>
+        <label class="field-key" for="fGenero">Género</label>
+        <select class="field-input field-val-edit" id="fGenero">
+          <option value="">— —</option>
+          <option value="Masculino">Masculino</option>
+          <option value="Femenino">Femenino</option>
+          <option value="Otro">Otro</option>
+        </select>
       </div>
       <div class="field-item">
-        <span class="field-key">Primer Apellido</span>
-        <span class="field-val" id="fAp1">—</span>
+        <label class="field-key" for="fAp1">Primer Apellido</label>
+        <input class="field-input field-val-edit" id="fAp1" type="text" placeholder="Primer apellido"/>
       </div>
       <div class="field-item">
-        <span class="field-key">Segundo Apellido</span>
-        <span class="field-val" id="fAp2">—</span>
+        <label class="field-key" for="fAp2">Segundo Apellido</label>
+        <input class="field-input field-val-edit" id="fAp2" type="text" placeholder="Segundo apellido"/>
       </div>
       <div class="field-item">
-        <span class="field-key">Primer Nombre</span>
-        <span class="field-val" id="fNom1">—</span>
+        <label class="field-key" for="fNom1">Primer Nombre</label>
+        <input class="field-input field-val-edit" id="fNom1" type="text" placeholder="Primer nombre"/>
       </div>
       <div class="field-item">
-        <span class="field-key">Segundo Nombre</span>
-        <span class="field-val" id="fNom2">—</span>
+        <label class="field-key" for="fNom2">Segundo Nombre</label>
+        <input class="field-input field-val-edit" id="fNom2" type="text" placeholder="Segundo nombre"/>
       </div>
       <div class="field-item">
-        <span class="field-key">Fecha Nacimiento</span>
-        <span class="field-val" id="fFechaNac">—</span>
+        <label class="field-key" for="fFechaNac">Fecha Nacimiento</label>
+        <input class="field-input field-val-edit" id="fFechaNac" type="text" placeholder="DD/MM/AAAA"/>
       </div>
       <div class="field-item">
-        <span class="field-key">Fecha Expedición</span>
-        <span class="field-val" id="fFechaExp">—</span>
+        <label class="field-key" for="fFechaExp">Fecha Expedición</label>
+        <input class="field-input field-val-edit" id="fFechaExp" type="text" placeholder="DD/MM/AAAA"/>
       </div>
       <div class="field-item full-width">
-        <span class="field-key">Lugar Expedición</span>
-        <span class="field-val" id="fLugar">—</span>
+        <label class="field-key" for="fLugar">Lugar Expedición</label>
+        <input class="field-input field-val-edit" id="fLugar" type="text" placeholder="Ciudad de expedición"/>
       </div>
+    </div>
+
+    <!-- Aviso QR cifrado: solo se muestra con cédula nueva -->
+    <div id="avisoCifrado" style="display:none;margin:0 22px 4px;padding:12px 16px;background:#fef3c7;border:1px solid rgba(146,64,14,.25);border-radius:10px;font-size:.8rem;color:#92400e;line-height:1.5">
+      <strong>⚠️ QR cifrado (cédula nueva):</strong> El QR de la cédula nueva colombiana está encriptado con clave de la Registraduría Nacional y no puede ser descifrado por terceros. El número de cédula fue extraído automáticamente — <strong>completa los demás datos manualmente</strong> consultando la cédula física.
     </div>
 
     <div class="section-divider"><span>Información SIVE</span></div>
@@ -525,14 +539,15 @@ select.field-input{cursor:pointer}
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
 
 // ─── ESTADO ───────────────────────────────────────────────────
-let mode         = 'nueva';   // 'nueva' | 'antigua' | 'sindoc'
-let activeTab    = 'cam';     // 'cam' | 'text'
-let currentData  = null;
-let qrScanner    = null;
-let camRunning   = false;
-let countToday   = 0;
-let countTotal   = 0;
-let toastTimer   = null;
+let mode        = 'nueva';
+let activeTab   = 'cam';
+let currentData = null;
+let zxingReader = null;
+let camRunning  = false;
+let camStream   = null;
+let countToday  = 0;
+let countTotal  = 0;
+let toastTimer  = null;
 
 // ─── INIT ─────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -543,16 +558,12 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// ─── SELECCIÓN DE MODO ────────────────────────────────────────
+// ─── MODO ─────────────────────────────────────────────────────
 function selectMode(m) {
   if (camRunning) stopCamera();
   mode = m;
-
-  // Resaltar botón activo
   document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('mode' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
-
-  // Ocultar paso 3
   document.getElementById('sectionData').style.display = 'none';
   currentData = null;
 
@@ -563,8 +574,9 @@ function selectMode(m) {
     document.getElementById('sectionScanner').style.display = '';
     document.getElementById('sectionManual').style.display  = 'none';
     document.getElementById('scannerTitle').textContent =
-      m === 'nueva' ? 'Escanear Cédula Nueva (PDF417)' : 'Escanear Cédula Antigua (Código 39)';
-    // Si el tab de cámara está activo, arrancar
+      m === 'nueva'
+        ? 'Cédula Nueva — QR cifrado (cámara trasera)'
+        : 'Cédula Antigua — PDF417 (cámara trasera)';
     if (activeTab === 'cam') setTimeout(startCamera, 300);
   }
 }
@@ -576,24 +588,26 @@ function switchTab(t) {
   document.getElementById('tabText').classList.toggle('active', t === 'text');
   document.getElementById('panelCam').style.display  = t === 'cam'  ? '' : 'none';
   document.getElementById('panelText').style.display = t === 'text' ? '' : 'none';
-
   if (t === 'text') {
-    if (camRunning) stopCamera();
+    stopCamera();
     setTimeout(() => document.getElementById('barcodeInput').focus(), 80);
   } else {
     startCamera();
   }
 }
 
-// ─── CÁMARA ───────────────────────────────────────────────────
-function startCamera() {
+// ─── CÁMARA CON ZXing ─────────────────────────────────────────
+// ZXing soporta: PDF417 (cédula antigua) y QR_CODE (cédula nueva)
+async function startCamera() {
   if (camRunning) return;
 
-  if (!window.Html5Qrcode) {
-    showToast('⚠️ Librería de cámara no cargada. Recarga la página.', 'error'); return;
+  if (typeof ZXing === 'undefined') {
+    showToast('⚠️ Librería ZXing no cargada. Recarga la página.', 'error');
+    return;
   }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('⚠️ Tu navegador no permite acceso a la cámara. Usa la pestaña Lector/Texto.', 'warn'); return;
+    showToast('⚠️ Tu navegador no soporta cámara. Usa la pestaña Lector/Texto.', 'warn');
+    return;
   }
 
   document.getElementById('camPlaceholder').style.display = 'none';
@@ -601,48 +615,74 @@ function startCamera() {
   document.getElementById('btnStop').style.display  = '';
 
   try {
-    qrScanner = new Html5Qrcode('qr-reader');
-    // Sin filtro de formatos: detecta PDF417, Code39, Code128, DataMatrix, QR
-    const cfg = {
-      fps: 15,
-      qrbox: (w, h) => ({ width: Math.min(w - 20, 340), height: Math.min(h - 20, 200) }),
-      aspectRatio: 1.6,
-      disableFlip: false,
-      experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-    };
+    // Elegir formato según modo
+    const hints = new Map();
+    if (mode === 'antigua') {
+      // Cédula antigua: PDF417
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
+    } else {
+      // Cédula nueva: QR cifrado — intentar QR + DataMatrix + Aztec
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.QR_CODE,
+        ZXing.BarcodeFormat.DATA_MATRIX,
+        ZXing.BarcodeFormat.AZTEC,
+        ZXing.BarcodeFormat.PDF_417   // por si acaso
+      ]);
+    }
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
 
-    qrScanner.start({ facingMode: 'environment' }, cfg, onScanOk, () => {})
-      .then(() => {
-        camRunning = true;
-        showToast('📷 Cámara activa — apunta al código de barras', '');
-      })
-      .catch(err => {
-        resetCamUI();
-        const msg = (err || '').toString();
-        if (msg.includes('NotAllowed') || msg.includes('Permission')) {
-          showToast('🚫 Permiso denegado. Permite el acceso a la cámara en el navegador y recarga.', 'error');
-        } else if (msg.includes('NotFound') || msg.includes('Devices')) {
-          showToast('⚠️ No se encontró cámara. Usa la pestaña Lector/Texto.', 'warn');
-        } else {
-          showToast('⚠️ Error de cámara. Usa la pestaña Lector/Texto.', 'warn');
-        }
-      });
-  } catch(e) {
+    zxingReader = new ZXing.BrowserMultiFormatReader(hints, {
+      delayBetweenScanAttempts: 100,
+      delayBetweenScanSuccess: 500
+    });
+
+    const video = document.getElementById('qr-video');
+
+    // Obtener cámara trasera
+    const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
+    // Preferir cámara trasera (environment)
+    let deviceId = undefined;
+    if (devices.length > 1) {
+      const back = devices.find(d =>
+        /back|rear|environment|trasera|posterior/i.test(d.label)
+      );
+      deviceId = back ? back.deviceId : devices[devices.length - 1].deviceId;
+    }
+
+    await zxingReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
+      if (result) {
+        onScanOk(result.getText());
+      }
+      // err es normal en frames sin código — ignorar
+    });
+
+    camRunning = true;
+    showToast('📷 Cámara activa — apunta al código de barras', '');
+
+  } catch (err) {
     resetCamUI();
-    showToast('Error iniciando escáner: ' + e.message, 'error');
+    const msg = (err || '').toString();
+    console.error('ZXing error:', msg);
+    if (msg.includes('NotAllowed') || msg.includes('Permission')) {
+      showToast('🚫 Permiso denegado. Activa la cámara en el navegador y recarga.', 'error');
+    } else if (msg.includes('NotFound') || msg.includes('Devices')) {
+      showToast('⚠️ No se encontró cámara. Usa la pestaña Lector/Texto.', 'warn');
+    } else {
+      showToast('⚠️ Error cámara: ' + msg.slice(0, 60), 'warn');
+    }
   }
 }
 
 function stopCamera() {
-  if (!qrScanner || !camRunning) return;
-  qrScanner.stop().catch(() => {}).finally(() => {
-    camRunning = false;
-    resetCamUI();
-  });
+  if (zxingReader) {
+    try { zxingReader.reset(); } catch(e) {}
+    zxingReader = null;
+  }
+  camRunning = false;
+  resetCamUI();
 }
 
 function resetCamUI() {
-  camRunning = false;
   document.getElementById('btnStart').style.display = '';
   document.getElementById('btnStop').style.display  = 'none';
   document.getElementById('camPlaceholder').style.display = '';
@@ -650,21 +690,21 @@ function resetCamUI() {
 
 function onScanOk(decoded) {
   stopCamera();
-  // Mostrar código crudo en debug
-  const dbg = document.getElementById('debugRaw');
-  const dbgPanel = document.getElementById('panelDebug');
-  dbg.textContent = decoded;
-  dbgPanel.style.display = '';
+  console.log('ZXing leído:', JSON.stringify(decoded));
+
+  // Mostrar código crudo en debug siempre
+  document.getElementById('debugRaw').textContent = decoded;
+  document.getElementById('panelDebug').style.display = '';
 
   const data = processCode(decoded);
   if (data) {
     presentData(data);
-    dbgPanel.style.display = 'none';
+    document.getElementById('panelDebug').style.display = 'none';
   } else {
-    // Mostrar panel de debug y pestaña texto para que el usuario vea el código
+    // Pasar el código al input de texto para que el usuario lo vea
     switchTab('text');
     document.getElementById('barcodeInput').value = decoded;
-    showToast('⚠️ Código capturado — puedes editarlo y presionar Procesar', 'warn');
+    showToast('⚠️ Código capturado — revisa el código crudo abajo', 'warn');
   }
 }
 
@@ -675,11 +715,11 @@ function parsearDebug() {
     presentData(data);
     document.getElementById('panelDebug').style.display = 'none';
   } else {
-    showToast('❌ Formato no reconocido. Revisa el código en la consola (F12).', 'error');
+    showToast('❌ Formato no reconocido. Abre la consola (F12) para ver detalles.', 'error');
   }
 }
 
-// ─── PARSEO DESDE INPUT ───────────────────────────────────────
+// ─── PARSEO DESDE INPUT TEXTO ─────────────────────────────────
 function parseBarcode() {
   const raw = document.getElementById('barcodeInput').value.trim();
   if (!raw) { showToast('Ingresa o escanea un código primero.', 'warn'); return; }
@@ -691,155 +731,158 @@ function parseBarcode() {
   }
 }
 
-// ─── PROCESADOR PRINCIPAL ─────────────────────────────────────
-// Formatos reales cédula colombiana (basado en muestras reales):
-//
-// NUEVA (PDF417) – ejemplo real:
-//   1CCOL085579499825001←791129M35112880COL82←55←FIGUEREDO←VEGA←←FAB10←←←←←
-//   Línea 1: 1C COL [NúmDoc] [FechaNac AAMMDD] [Género] [FechaExp AAMMDD] 00 [País]
-//   Línea 2: [Apellido1] ← [Apellido2] ← ← [Nombre1] [Nombre2] ← ← ← ←
-//
-// ANTIGUA (Code39/Code128) – ejemplo real:
-//   P-2500100-01296101-M-1095298343-20220507... 0079190253A 2 8504084167
-//   Campos separados por guión: P-[cod]-[cod]-[Género]-[NumDoc]-[FechaExp AAAAMMDD]
-
+// ─── PROCESADOR CENTRAL ───────────────────────────────────────
+// Orden: antigua PDF417 → nueva QR → genérico separadores
 function processCode(raw) {
-  // Mostrar en consola para depuración
-  console.log('Código recibido:', JSON.stringify(raw));
-  const r = parseCedulaNueva(raw)
-         || parseCedulaAntigua(raw)
-         || parseFormatoGenerico(raw);
-  if (!r) console.warn('No se reconoció el formato');
-  return r;
+  // Log para diagnóstico en consola del navegador (F12)
+  console.log('RAW escaneado:', JSON.stringify(raw));
+
+  // ── Detectar tipo por contenido ──
+  const data = parseCedulaAntigua(raw)
+            || parseCedulaNuevaCifrada(raw)
+            || parseGenerico(raw);
+
+  return data;
 }
 
-// ── CÉDULA NUEVA – Formato ICAO / MRZ-like con ← como separador ──────────────
-// Ejemplo: 1CCOL085579499825001←791129M35112880COL82←55←FIGUEREDO←VEGA←←FAB10←←←←←
-function parseCedulaNueva(raw) {
-  // Separador ← (carácter especial del PDF417 colombiano) o < (MRZ estándar)
-  const SEP = /[←<]/g;
-  if (!SEP.test(raw)) return null;
-
-  // Limpiar y separar
-  const clean = raw.replace(/\r|\n/g, '');
-  const partes = clean.split(/[←<]/).map(p => p.trim()).filter(Boolean);
-
-  // Buscar número de cédula: secuencia de 8-12 dígitos
-  // En el formato real está al inicio tipo: "1CCOL085579499825001" → el número es 085579499825001? No,
-  // el número real es 1095298343 (10 dígitos). En el código leído está embebido.
-  // Estrategia: buscar en todo el string la secuencia de 8-12 dígitos que sea el número de cédula
-  
-  // Buscar apellidos/nombres (partes con solo letras mayúsculas, len > 2)
-  const soloLetras = partes.filter(p => /^[A-ZÁÉÍÓÚÑ]{2,}$/.test(p));
-  
-  // Buscar número de cédula en las partes numéricas largas
-  let cedula = '';
-  // El número de cédula en la cédula nueva aparece en la línea 1 como número largo
-  // Ejemplo: "085579499825001" → últimos 10 dígitos podrían ser la cédula
-  // O buscar parte que matchee patrón de cédula colombiana (7-12 dígitos)
-  for (const p of partes) {
-    const solo = p.replace(/[^0-9]/g,'');
-    if (/^\d{7,12}$/.test(solo) && solo.length >= 7 && solo.length <= 12) {
-      cedula = solo; break;
-    }
-  }
-
-  // También buscar en el string completo un número de 7-12 dígitos no rodeado de más dígitos
-  if (!cedula) {
-    const m = clean.match(/(?<![0-9])(\d{7,12})(?![0-9])/);
-    if (m) cedula = m[1];
-  }
-
-  // Extraer fecha de nacimiento: patrón AAMMDD (6 dígitos) precedido por letra género
-  let fechaNac = '', genero = '', fechaExp = '';
-  const fechaM = clean.match(/(\d{6})[MF](\d{6})/i);
-  if (fechaM) {
-    fechaNac = fmtFechaAA(fechaM[1]);
-    genero   = clean.includes(fechaM[0].charAt(6) === 'M' ? 'M' : 'F') 
-               ? (fechaM[0].charAt(6) === 'M' ? 'Masculino' : 'Femenino') : '';
-    // Re-detectar género con regex más preciso
-  }
-  const genM = clean.match(/(\d{6})([MF])(\d{6})/i);
-  if (genM) {
-    fechaNac = fmtFechaAA(genM[1]);
-    genero   = genM[2].toUpperCase() === 'M' ? 'Masculino' : 'Femenino';
-    fechaExp = fmtFechaAA(genM[3]);
-  }
-
-  // Apellidos y nombres de las partes con solo letras
-  const apellido1 = soloLetras[0] || '';
-  const apellido2 = soloLetras[1] || '';
-  const nombre1   = soloLetras[2] || '';
-  const nombre2   = soloLetras[3] || '';
-
-  if (!cedula && !apellido1) return null;
-  if (!cedula && !genero)    return null;
-
-  return {
-    tipo: 'NUEVA (PDF417)',
-    cedula, apellido1, apellido2, nombre1, nombre2,
-    fechaNac, genero, fechaExp, lugarExp: ''
-  };
-}
-
-// ── CÉDULA ANTIGUA – Formato separado por guiones ────────────────────────────
-// Ejemplo: P-2500100-01296101-M-1095298343-20220507
-// Campos:  P - cod1 - cod2 - Género - NumCédula - FechaExpAAAAAMMDD
+// ══════════════════════════════════════════════════════════════════
+// CÉDULA ANTIGUA – PDF417 2D
+// Formato real RNEC: P-2500100-01296101-M-1095298343-20220507...
+// Campos separados por guión: P-CodMun-CodReg-Género-NúmDoc-FechaExpAAAAMMDD
+// ══════════════════════════════════════════════════════════════════
 function parseCedulaAntigua(raw) {
-  // Formato con guiones tipo P-...-...-M/F-NumDoc-Fecha
-  const mGuion = raw.match(/P[-–][\d\w]+[-–][\d\w]+[-–]([MF])[-–](\d{7,12})[-–](\d{8})/i);
-  if (mGuion) {
+  // Patrón principal con guión normal o en dash
+  // Ejemplo: P-2500100-01296101-M-1095298343-20220507
+  const m = raw.match(/P[-\u2013\u2014](\d+)[-\u2013\u2014](\d+)[-\u2013\u2014]([MF])[-\u2013\u2014](\d{6,12})[-\u2013\u2014](\d{8})/i);
+  if (m) {
     return {
-      tipo:      'ANTIGUA (Code 39)',
-      cedula:    mGuion[2],
-      apellido1: '', apellido2: '', nombre1: '', nombre2: '',
+      tipo:      'ANTIGUA (PDF417)',
+      cedula:    m[4],
+      apellido1: '', apellido2: '',
+      nombre1:   '', nombre2:   '',
       fechaNac:  '',
-      genero:    mGuion[1].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
-      fechaExp:  fmtFechaAAAA(mGuion[3]),
+      genero:    m[3].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
+      fechaExp:  fmtFechaAAAAMMDD(m[5]),
       lugarExp:  ''
     };
   }
 
-  // Fallback: solo número puro (lector antiguo que solo lee el número)
-  const clean = raw.replace(/[\s\-\.]/g,'');
-  if (/^\d{7,12}$/.test(clean)) {
+  // Variante sin P inicial: solo guiones con género en medio
+  const m2 = raw.match(/(\d{5,10})[-]([MF])[-](\d{6,12})[-](\d{8})/i);
+  if (m2) {
     return {
-      tipo: 'ANTIGUA (Code 39)',
-      cedula: clean,
-      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
-      fechaNac:'', genero:'', fechaExp:'', lugarExp:''
+      tipo:      'ANTIGUA (PDF417)',
+      cedula:    m2[3],
+      apellido1: '', apellido2: '',
+      nombre1:   '', nombre2:   '',
+      fechaNac:  '',
+      genero:    m2[2].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
+      fechaExp:  fmtFechaAAAAMMDD(m2[4]),
+      lugarExp:  ''
     };
   }
 
-  // Con prefijo de letras: CC1234567890
-  const mPref = clean.match(/^(?:CC|CE|TI|PA|RC)?(\d{7,12})$/i);
-  if (mPref) {
+  // Fallback: solo dígitos (lector que extrae únicamente el número)
+  const clean = raw.replace(/[\s.\-]/g, '');
+  if (/^\d{6,12}$/.test(clean)) {
     return {
-      tipo: 'ANTIGUA (Code 39)',
-      cedula: mPref[1],
-      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
-      fechaNac:'', genero:'', fechaExp:'', lugarExp:''
+      tipo:      'ANTIGUA (PDF417)',
+      cedula:    clean,
+      apellido1: '', apellido2: '',
+      nombre1:   '', nombre2:   '',
+      fechaNac:  '', genero:    '',
+      fechaExp:  '', lugarExp:  ''
     };
   }
 
   return null;
 }
 
-// ── FORMATO GENÉRICO – separadores ; | tabulador ──────────────────────────────
-function parseFormatoGenerico(raw) {
+// ══════════════════════════════════════════════════════════════════
+// CÉDULA NUEVA – QR cifrado con RSA (Registraduría Colombia)
+// El QR de la cédula nueva está encriptado con clave privada de la
+// Registraduría Nacional. Ninguna app de terceros puede descifrarlo.
+// Lo que hace el sistema: detecta que es un QR cifrado, extrae el
+// número de cédula si está visible, y pide al usuario completar
+// los datos manualmente.
+// ══════════════════════════════════════════════════════════════════
+function parseCedulaNuevaCifrada(raw) {
+  // El QR cifrado de la cédula nueva produce una cadena Base64 larga
+  // o una secuencia binaria/hexadecimal. Detectamos por longitud y contenido.
+  const isBase64Like = /^[A-Za-z0-9+/=]{40,}$/.test(raw.replace(/\s/g,''));
+  const isBinaryLike = raw.length > 50 && /[\x00-\x1F\x80-\xFF]/.test(raw);
+  const isHexLike    = /^[0-9A-Fa-f]{40,}$/.test(raw.replace(/\s/g,''));
+
+  if (isBase64Like || isBinaryLike || isHexLike) {
+    // Intentar extraer número de cédula si aparece embebido en texto
+    const numM = raw.match(/\d{8,12}/);
+    return {
+      tipo:      'NUEVA (QR cifrado)',
+      cedula:    numM ? numM[0] : '',
+      apellido1: '', apellido2: '',
+      nombre1:   '', nombre2:   '',
+      fechaNac:  '', genero:    '',
+      fechaExp:  '', lugarExp:  '',
+      cifrado:   true   // flag para mostrar aviso en UI
+    };
+  }
+
+  // Formato MRZ / ICAO con separador < o ← (algunas versiones de lectores)
+  // Ejemplo: COL1095298343M031210...
+  const mMRZ = raw.match(/COL(\d{7,12})[MF<](\d{6})/i);
+  if (mMRZ) {
+    return {
+      tipo:      'NUEVA (PDF417)',
+      cedula:    mMRZ[1],
+      apellido1: '', apellido2: '',
+      nombre1:   '', nombre2:   '',
+      fechaNac:  fmtFechaAAMMDD(mMRZ[2]),
+      genero:    '', fechaExp:  '', lugarExp:  ''
+    };
+  }
+
+  // Separador ← o < (MRZ estándar)
+  if (/[←<]/.test(raw)) {
+    const partes = raw.split(/[←<]/).map(p => p.trim()).filter(Boolean);
+    const letras = partes.filter(p => /^[A-ZÁÉÍÓÚÑ]{2,}$/.test(p));
+    const numDoc = partes.find(p => /^\d{7,12}$/.test(p)) || '';
+
+    // Buscar patrón DDMMAA-G-DDMMAA en el raw
+    const genM = raw.match(/(\d{6})([MF])(\d{6})/i);
+    let fechaNac = '', genero = '', fechaExp = '';
+    if (genM) {
+      fechaNac = fmtFechaAAMMDD(genM[1]);
+      genero   = genM[2].toUpperCase() === 'M' ? 'Masculino' : 'Femenino';
+      fechaExp = fmtFechaAAMMDD(genM[3]);
+    }
+
+    if (letras.length >= 1 || numDoc) {
+      return {
+        tipo:      'NUEVA (PDF417)',
+        cedula:    numDoc,
+        apellido1: letras[0] || '', apellido2: letras[1] || '',
+        nombre1:   letras[2] || '', nombre2:   letras[3] || '',
+        fechaNac, genero, fechaExp, lugarExp: ''
+      };
+    }
+  }
+
+  return null;
+}
+
+// ══════════════════════════════════════════════════════════════════
+// FORMATO GENÉRICO – separadores ; | tabulador
+// ══════════════════════════════════════════════════════════════════
+function parseGenerico(raw) {
   if (!/[;|\t]/.test(raw)) return null;
   const parts = raw.split(/[;|\t]/).map(p => p.trim());
-
-  let idx = parts.findIndex(p => /^\d{7,12}$/.test(p));
+  const idx   = parts.findIndex(p => /^\d{7,12}$/.test(p));
   if (idx < 0) return null;
-
   return {
     tipo:      'NUEVA (PDF417)',
     cedula:    parts[idx],
-    apellido1: parts[idx+1] || '',
-    apellido2: parts[idx+2] || '',
-    nombre1:   parts[idx+3] || '',
-    nombre2:   parts[idx+4] || '',
+    apellido1: parts[idx+1] || '', apellido2: parts[idx+2] || '',
+    nombre1:   parts[idx+3] || '', nombre2:   parts[idx+4] || '',
     fechaNac:  fmtFecha(parts[idx+5] || ''),
     genero:    fmtGenero(parts[idx+6] || ''),
     fechaExp:  fmtFecha(parts[idx+7] || ''),
@@ -847,12 +890,14 @@ function parseFormatoGenerico(raw) {
   };
 }
 
-// ─── FORMULARIO MANUAL (sin doc) ─────────────────────────────
+// ─── FORMULARIO MANUAL ────────────────────────────────────────
 function buildManualData() {
   const ap1  = document.getElementById('mAp1').value.trim();
   const nom1 = document.getElementById('mNom1').value.trim();
-  if (!ap1 || !nom1) { showToast('⚠️ Primer apellido y primer nombre son obligatorios.', 'warn'); return; }
-
+  if (!ap1 || !nom1) {
+    showToast('⚠️ Primer apellido y primer nombre son obligatorios.', 'warn');
+    return;
+  }
   const docAlt  = document.getElementById('mDocAlt').value.trim();
   const fechaRaw = document.getElementById('mFecha').value;
   presentData({
@@ -869,61 +914,71 @@ function buildManualData() {
   });
 }
 
-// ─── MOSTRAR PASO 3 ───────────────────────────────────────────
+// ─── PASO 3: MOSTRAR DATOS ────────────────────────────────────
 function presentData(data) {
   currentData = data;
-
-  document.getElementById('fCedula').textContent  = data.cedula    || '—';
-  document.getElementById('fAp1').textContent     = data.apellido1 || '—';
-  document.getElementById('fAp2').textContent     = data.apellido2 || '—';
-  document.getElementById('fNom1').textContent    = data.nombre1   || '—';
-  document.getElementById('fNom2').textContent    = data.nombre2   || '—';
-  document.getElementById('fFechaNac').textContent= data.fechaNac  || '—';
-  document.getElementById('fGenero').textContent  = data.genero    || '—';
-  document.getElementById('fFechaExp').textContent= data.fechaExp  || '—';
-  document.getElementById('fLugar').textContent   = data.lugarExp  || '—';
+  // Los campos del paso 3 son ahora inputs editables (permite corrección manual)
+  document.getElementById('fCedula').value   = data.cedula    || '';
+  document.getElementById('fAp1').value      = data.apellido1 || '';
+  document.getElementById('fAp2').value      = data.apellido2 || '';
+  document.getElementById('fNom1').value     = data.nombre1   || '';
+  document.getElementById('fNom2').value     = data.nombre2   || '';
+  document.getElementById('fFechaNac').value = data.fechaNac  || '';
+  document.getElementById('fGenero').value   = data.genero    || '';
+  document.getElementById('fFechaExp').value = data.fechaExp  || '';
+  document.getElementById('fLugar').value    = data.lugarExp  || '';
 
   const badge = document.getElementById('badgeTipo');
-  badge.textContent = data.tipo;
+  badge.textContent   = data.tipo;
   badge.style.cssText = '';
   if (data.tipo === 'SIN DOCUMENTO')
     badge.style.cssText = 'background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)';
   else if (data.tipo.includes('ANTIGUA'))
     badge.style.cssText = 'background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.3)';
+  else if (data.tipo.includes('cifrado'))
+    badge.style.cssText = 'background:#fef3c7;color:#92400e;border-color:rgba(146,64,14,.3)';
+
+  // Mostrar/ocultar aviso QR cifrado
+  const aviso = document.getElementById('avisoCifrado');
+  if (aviso) aviso.style.display = data.cifrado ? '' : 'none';
 
   document.getElementById('sectionData').style.display = '';
   document.getElementById('sectionData').scrollIntoView({ behavior:'smooth', block:'start' });
-  showToast('✓ Datos cargados — completa la información SIVE y guarda', 'success');
+
+  if (data.cifrado) {
+    showToast('⚠️ QR cifrado detectado — completa los datos manualmente', 'warn');
+  } else {
+    showToast('✓ Datos extraídos — completa la info SIVE y guarda', 'success');
+  }
 }
 
-// ─── GUARDAR EN SHEETS ────────────────────────────────────────
+
 async function saveRecord() {
   if (!currentData) return;
-
   const programa = document.getElementById('sPrograma').value.trim();
   if (!programa) {
     showToast('⚠️ El campo Programa / Carrera es obligatorio.', 'warn');
     document.getElementById('sPrograma').focus();
     return;
   }
-
   const btn = document.getElementById('btnSave');
   btn.disabled = true;
   btn.classList.add('loading');
   btn.innerHTML = 'Guardando…';
 
   const payload = {
-    action:        'save',
-    cedula:        currentData.cedula,
-    apellido1:     currentData.apellido1,
-    apellido2:     currentData.apellido2,
-    nombre1:       currentData.nombre1,
-    nombre2:       currentData.nombre2,
-    fechaNac:      currentData.fechaNac,
-    genero:        currentData.genero,
-    fechaExp:      currentData.fechaExp,
-    lugarExp:      currentData.lugarExp,
-    tipo:          currentData.tipo,
+    action: 'save',
+    // Leer inputs editables del paso 3 (el usuario pudo corregir datos)
+    cedula:    document.getElementById('fCedula').value   || currentData.cedula,
+    apellido1: document.getElementById('fAp1').value      || currentData.apellido1,
+    apellido2: document.getElementById('fAp2').value      || currentData.apellido2,
+    nombre1:   document.getElementById('fNom1').value     || currentData.nombre1,
+    nombre2:   document.getElementById('fNom2').value     || currentData.nombre2,
+    fechaNac:  document.getElementById('fFechaNac').value || currentData.fechaNac,
+    genero:    document.getElementById('fGenero').value   || currentData.genero,
+    fechaExp:  document.getElementById('fFechaExp').value || currentData.fechaExp,
+    lugarExp:  document.getElementById('fLugar').value    || currentData.lugarExp,
+    tipo:      currentData.tipo,
     programa,
     semestre:      document.getElementById('sSemestre').value.trim(),
     jornada:       document.getElementById('sJornada').value,
@@ -933,23 +988,17 @@ async function saveRecord() {
 
   try {
     const res  = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload),
-      mode: 'cors'
+      method: 'POST', headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload), mode: 'cors'
     });
     const json = await res.json();
     if (json.status === 'ok') {
-      showToast('✅ Registro guardado correctamente en Google Sheets', 'success');
-      countToday++;
-      countTotal++;
+      showToast('✅ Registro guardado en Google Sheets', 'success');
+      countToday++; countTotal++;
       document.getElementById('countToday').textContent = countToday;
       document.getElementById('countTotal').textContent = countTotal;
-      cancelar();
-      loadRecent();
-    } else {
-      throw new Error(json.message || 'Error desconocido');
-    }
+      cancelar(); loadRecent();
+    } else throw new Error(json.message || 'Error desconocido');
   } catch(err) {
     showToast('❌ Error al guardar: ' + err.message, 'error');
   } finally {
@@ -959,19 +1008,21 @@ async function saveRecord() {
   }
 }
 
-// ─── CANCELAR / LIMPIAR ───────────────────────────────────────
+// ─── CANCELAR ─────────────────────────────────────────────────
 function cancelar() {
   currentData = null;
   document.getElementById('sectionData').style.display = 'none';
-  // Limpiar campos SIVE
   ['sPrograma','sSemestre','sObs'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('sJornada').value = '';
-  // Limpiar campos manuales
   ['mDocAlt','mAp1','mAp2','mNom1','mNom2','mFecha'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('mGenero').value = '';
-  // Limpiar barcode
   document.getElementById('barcodeInput').value = '';
-  // Reactivar cámara si aplica
+  document.getElementById('panelDebug').style.display = 'none';
+  // Limpiar inputs editables del paso 3
+  ['fCedula','fAp1','fAp2','fNom1','fNom2','fFechaNac','fFechaExp','fLugar'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fGenero').value = '';
+  const aviso = document.getElementById('avisoCifrado');
+  if (aviso) aviso.style.display = 'none';
   if (activeTab === 'cam' && mode !== 'sindoc') setTimeout(startCamera, 400);
 }
 
@@ -996,7 +1047,7 @@ async function loadRecent() {
         <td>${r.fechaRegistro||'—'}</td>
       </tr>`).join('');
   } catch {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No se pudo cargar. Verifica la conexión.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No se pudo cargar.</td></tr>';
   }
 }
 
@@ -1007,35 +1058,33 @@ async function checkConnection() {
   try {
     const res = await fetch(APPS_SCRIPT_URL + '?action=ping', { mode:'cors' });
     if (res.ok) {
-      pill.textContent = '⬤ Conectado'; pill.classList.add('online');
-      txt.textContent  = 'Conectado';
+      pill.textContent = '⬤ Conectado'; pill.classList.add('online'); txt.textContent = 'Conectado';
     } else throw new Error();
   } catch {
-    pill.textContent = '⬤ Sin conexión'; pill.classList.add('offline');
-    txt.textContent  = 'Sin conexión';
+    pill.textContent = '⬤ Sin conexión'; pill.classList.add('offline'); txt.textContent = 'Sin conexión';
   }
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────
 function fmtFecha(s) {
-  const d = s.replace(/\D/g,'');
+  const d = (s||'').replace(/\D/g,'');
   if (d.length === 8) return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4);
   return s;
 }
-// AAMMDD → DD/MM/20AA (cédula nueva)
-function fmtFechaAA(s) {
-  const d = s.replace(/\D/g,'');
+// AAAAMMDD → DD/MM/AAAA  (cédula antigua: 20220507 → 07/05/2022)
+function fmtFechaAAAAMMDD(s) {
+  const d = (s||'').replace(/\D/g,'');
+  if (d.length === 8) return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4);
+  return s;
+}
+// AAMMDD → DD/MM/AAAA  (cédula nueva: 031210 → 10/12/2003)
+function fmtFechaAAMMDD(s) {
+  const d = (s||'').replace(/\D/g,'');
   if (d.length === 6) {
     const aa = parseInt(d.slice(0,2));
     const yyyy = aa <= 30 ? '20'+d.slice(0,2) : '19'+d.slice(0,2);
     return d.slice(4,6)+'/'+d.slice(2,4)+'/'+yyyy;
   }
-  return s;
-}
-// AAAAMMDD → DD/MM/AAAA (cédula antigua)
-function fmtFechaAAAA(s) {
-  const d = s.replace(/\D/g,'');
-  if (d.length === 8) return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4);
   return s;
 }
 function fmtGenero(g) {
