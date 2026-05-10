@@ -728,26 +728,156 @@ function parseBarcode() {
 // ─── PROCESADOR CENTRAL ───────────────────────────────────────
 // Orden: antigua PDF417 → nueva QR → genérico separadores
 function processCode(raw) {
-  // Log para diagnóstico en consola del navegador (F12)
-  console.log('RAW escaneado:', JSON.stringify(raw));
+  console.log('RAW recibido:', JSON.stringify(raw.slice(0, 200)));
+  return parseMRZ(raw)
+      || parseCedulaAntigua(raw)
+      || parseGenerico(raw);
+}
 
-  // ── Detectar tipo por contenido ──
-  const data = parseCedulaAntigua(raw)
-            || parseCedulaNuevaCifrada(raw)
-            || parseGenerico(raw);
+// ══════════════════════════════════════════════════════════════════
+// MRZ – Zona de Lectura Mecánica (cédula nueva colombiana)
+//
+// Formato de 3 líneas (el escáner puede entregarlas juntas o separadas):
+//
+// Línea 1: ICCOL000000012<<<<<<<<<<<<<<<<   (tipo + país + num doc interno)
+// Línea 2: 8808213F3101300COL1234567890<9   (fechas + género + cédula)
+//           ^^                               88 = año nac (1988)
+//             ^^                             08 = mes nac (agosto)
+//               ^^                           21 = día nac
+//                 ^                          3 = dígito verificador
+//                  ^                         F = género (F/M)
+//                   ^^^^^^                   310130 = fecha expedición (2031-01-30 o vence)
+//                          ^^^               COL = país
+//                             ^^^^^^^^^^     número de cédula (hasta <)
+// Línea 3: MARTINEZ<GARCIA<<MARIA<DANIELA   (apellido1<apellido2<<nombre1<nombre2)
+//
+// El escáner puede enviar las 3 líneas con \n o todo junto
+// ══════════════════════════════════════════════════════════════════
+function parseMRZ(raw) {
+  // Normalizar: reemplazar saltos de línea y unificar separadores
+  const normalized = raw.replace(/\r/g, '').trim();
+  
+  // Dividir en líneas (el escáner puede usar \n o entregar todo junto)
+  let lineas = normalized.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  // Si vino todo en una sola línea larga (sin saltos de línea), dividir por patrón MRZ
+  if (lineas.length <= 1) {
+    const single = lineas[0] || normalized;
+    // Patrón línea 2: AAMMDD + dígito_ver + M/F + AAMMDD + dígito_ver + COL + número
+    const mrzPat = single.match(/(\d{6}\d[MF]\d{6}\d[A-Z]{3}[0-9<]{9,})/i);
+    if (mrzPat) {
+      const pos2  = single.indexOf(mrzPat[1]);
+      const l1    = single.slice(0, pos2).trim();
+      const resto = single.slice(pos2);
+      // Línea 2 tiene longitud fija ~30 chars hasta encontrar letras+< de la línea 3
+      const mNombres = resto.match(/([A-Z]+<[A-Z<]+<<[A-Z<]+)/i);
+      let l2, l3;
+      if (mNombres) {
+        const posNom = resto.indexOf(mNombres[1]);
+        l2 = resto.slice(0, posNom).trim();
+        l3 = resto.slice(posNom).trim();
+      } else {
+        l2 = resto.slice(0, 30).trim();
+        l3 = resto.slice(30).trim();
+      }
+      lineas = [l1, l2, l3].filter(l => l.length > 0);
+    } else if (single.includes('<')) {
+      // Tiene < pero no patrón MRZ completo — puede ser solo línea 3 con nombres
+      // Intentar extraer número de cédula y nombres del string completo
+      lineas = [single];
+    }
+  }
 
-  return data;
+  // Necesitamos al menos 2 líneas (línea 2 con fechas/cédula y línea 3 con nombres)
+  if (lineas.length < 2) return null;
+
+  // Identificar línea 2 (contiene patrón AAMMDD + M/F + COL)
+  let linea2 = '', linea3 = '';
+  for (let i = 0; i < lineas.length; i++) {
+    if (/\d{6}[MF]\d{6,7}[A-Z]{3}[0-9<]/i.test(lineas[i])) {
+      linea2 = lineas[i];
+      // Línea 3 es la siguiente que tiene letras y <
+      for (let j = i + 1; j < lineas.length; j++) {
+        if (/[A-Z<]{5,}/i.test(lineas[j])) { linea3 = lineas[j]; break; }
+      }
+      break;
+    }
+  }
+
+  if (!linea2) return null;
+
+  // ── Parsear Línea 2 ──────────────────────────────────────────
+  // Formato: AAMMDD + VD + [MF] + AAMMDD + VD + COL + NumCédula + < + VD
+  // Ejemplo:  8808213F3101300COL1234567890<9
+  const m2 = linea2.match(/(\d{2})(\d{2})(\d{2})\d?([MF])(\d{2})(\d{2})(\d{2})\d?[A-Z]{3}([0-9]{6,12})/i);
+  if (!m2) return null;
+
+  const anioNac = parseInt(m2[1]) <= 30 ? '20' + m2[1] : '19' + m2[1];
+  const fechaNac = m2[3] + '/' + m2[2] + '/' + anioNac;   // DD/MM/AAAA
+  const genero   = m2[4].toUpperCase() === 'M' ? 'Masculino' : 'Femenino';
+  
+  // Fecha expedición/vencimiento (línea 2 posición 8-13)
+  const anioExp  = parseInt(m2[5]) <= 30 ? '20' + m2[5] : '19' + m2[5];
+  const fechaExp = m2[7] + '/' + m2[6] + '/' + anioExp;
+
+  const cedula = m2[8].replace(/</g, '');
+
+  // ── Parsear Línea 3 (nombres y apellidos) ───────────────────
+  // Formato: APELLIDO1<APELLIDO2<<NOMBRE1<NOMBRE2...
+  // El << separa apellidos de nombres
+  let apellido1 = '', apellido2 = '', nombre1 = '', nombre2 = '';
+
+  if (linea3) {
+    // Quitar caracteres < del inicio/fin y normalizar
+    const limpia = linea3.replace(/^[<\s]+|[<\s]+$/g, '');
+    
+    // Dividir por << (separador apellidos-nombres)
+    const partesMayor = limpia.split('<<');
+    
+    if (partesMayor.length >= 2) {
+      // Apellidos (antes del <<)
+      const aps = partesMayor[0].split('<').filter(Boolean);
+      apellido1 = aps[0] || '';
+      apellido2 = aps[1] || '';
+      
+      // Nombres (después del <<)
+      const noms = partesMayor[1].split('<').filter(Boolean);
+      nombre1 = noms[0] || '';
+      nombre2 = noms[1] || '';
+    } else {
+      // No hay << → todo son apellidos o todo son nombres, separar por <
+      const partes = limpia.split('<').filter(Boolean);
+      apellido1 = partes[0] || '';
+      apellido2 = partes[1] || '';
+      nombre1   = partes[2] || '';
+      nombre2   = partes[3] || '';
+    }
+  }
+
+  // Capitalizar nombres (MARTINEZ → Martinez)
+  const cap = s => s ? s.charAt(0) + s.slice(1).toLowerCase() : '';
+
+  return {
+    tipo:      'NUEVA (MRZ)',
+    cedula:    cedula,
+    apellido1: cap(apellido1),
+    apellido2: cap(apellido2),
+    nombre1:   cap(nombre1),
+    nombre2:   cap(nombre2),
+    fechaNac,
+    genero,
+    fechaExp,
+    lugarExp:  'Colombia'
+  };
 }
 
 // ══════════════════════════════════════════════════════════════════
 // CÉDULA ANTIGUA – PDF417 2D
-// Formato real RNEC: P-2500100-01296101-M-1095298343-20220507...
-// Campos separados por guión: P-CodMun-CodReg-Género-NúmDoc-FechaExpAAAAMMDD
+// Formato: P-CodMun-CodReg-Género-NúmDoc-FechaExpAAAAMMDD
+// Ejemplo: P-2500100-01296101-M-1095298343-20220507
 // ══════════════════════════════════════════════════════════════════
 function parseCedulaAntigua(raw) {
-  // Patrón principal con guión normal o en dash
-  // Ejemplo: P-2500100-01296101-M-1095298343-20220507
-  const m = raw.match(/P[-\u2013\u2014](\d+)[-\u2013\u2014](\d+)[-\u2013\u2014]([MF])[-\u2013\u2014](\d{6,12})[-\u2013\u2014](\d{8})/i);
+  const m = raw.match(/P[-](\d+)[-](\d+)[-]([MF])[-](\d{6,12})[-](\d{8})/i);
   if (m) {
     return {
       tipo:      'ANTIGUA (PDF417)',
@@ -761,111 +891,21 @@ function parseCedulaAntigua(raw) {
     };
   }
 
-  // Variante sin P inicial: solo guiones con género en medio
-  const m2 = raw.match(/(\d{5,10})[-]([MF])[-](\d{6,12})[-](\d{8})/i);
-  if (m2) {
-    return {
-      tipo:      'ANTIGUA (PDF417)',
-      cedula:    m2[3],
-      apellido1: '', apellido2: '',
-      nombre1:   '', nombre2:   '',
-      fechaNac:  '',
-      genero:    m2[2].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
-      fechaExp:  fmtFechaAAAAMMDD(m2[4]),
-      lugarExp:  ''
-    };
-  }
-
-  // Fallback: solo dígitos (lector que extrae únicamente el número)
+  // Solo número puro
   const clean = raw.replace(/[\s.\-]/g, '');
-  if (/^\d{6,12}$/.test(clean)) {
+  if (/^\d{7,12}$/.test(clean)) {
     return {
-      tipo:      'ANTIGUA (PDF417)',
-      cedula:    clean,
-      apellido1: '', apellido2: '',
-      nombre1:   '', nombre2:   '',
-      fechaNac:  '', genero:    '',
-      fechaExp:  '', lugarExp:  ''
+      tipo: 'ANTIGUA (PDF417)',
+      cedula: clean,
+      apellido1: '', apellido2: '', nombre1: '', nombre2: '',
+      fechaNac: '', genero: '', fechaExp: '', lugarExp: ''
     };
   }
-
   return null;
 }
 
 // ══════════════════════════════════════════════════════════════════
-// CÉDULA NUEVA – QR cifrado con RSA (Registraduría Colombia)
-// El QR de la cédula nueva está encriptado con clave privada de la
-// Registraduría Nacional. Ninguna app de terceros puede descifrarlo.
-// Lo que hace el sistema: detecta que es un QR cifrado, extrae el
-// número de cédula si está visible, y pide al usuario completar
-// los datos manualmente.
-// ══════════════════════════════════════════════════════════════════
-function parseCedulaNuevaCifrada(raw) {
-  // El QR cifrado de la cédula nueva produce una cadena Base64 larga
-  // o una secuencia binaria/hexadecimal. Detectamos por longitud y contenido.
-  const isBase64Like = /^[A-Za-z0-9+/=]{40,}$/.test(raw.replace(/\s/g,''));
-  const isBinaryLike = raw.length > 50 && /[\x00-\x1F\x80-\xFF]/.test(raw);
-  const isHexLike    = /^[0-9A-Fa-f]{40,}$/.test(raw.replace(/\s/g,''));
-
-  if (isBase64Like || isBinaryLike || isHexLike) {
-    // Intentar extraer número de cédula si aparece embebido en texto
-    const numM = raw.match(/\d{8,12}/);
-    return {
-      tipo:      'NUEVA (QR cifrado)',
-      cedula:    numM ? numM[0] : '',
-      apellido1: '', apellido2: '',
-      nombre1:   '', nombre2:   '',
-      fechaNac:  '', genero:    '',
-      fechaExp:  '', lugarExp:  '',
-      cifrado:   true   // flag para mostrar aviso en UI
-    };
-  }
-
-  // Formato MRZ / ICAO con separador < o ← (algunas versiones de lectores)
-  // Ejemplo: COL1095298343M031210...
-  const mMRZ = raw.match(/COL(\d{7,12})[MF<](\d{6})/i);
-  if (mMRZ) {
-    return {
-      tipo:      'NUEVA (PDF417)',
-      cedula:    mMRZ[1],
-      apellido1: '', apellido2: '',
-      nombre1:   '', nombre2:   '',
-      fechaNac:  fmtFechaAAMMDD(mMRZ[2]),
-      genero:    '', fechaExp:  '', lugarExp:  ''
-    };
-  }
-
-  // Separador ← o < (MRZ estándar)
-  if (/[←<]/.test(raw)) {
-    const partes = raw.split(/[←<]/).map(p => p.trim()).filter(Boolean);
-    const letras = partes.filter(p => /^[A-ZÁÉÍÓÚÑ]{2,}$/.test(p));
-    const numDoc = partes.find(p => /^\d{7,12}$/.test(p)) || '';
-
-    // Buscar patrón DDMMAA-G-DDMMAA en el raw
-    const genM = raw.match(/(\d{6})([MF])(\d{6})/i);
-    let fechaNac = '', genero = '', fechaExp = '';
-    if (genM) {
-      fechaNac = fmtFechaAAMMDD(genM[1]);
-      genero   = genM[2].toUpperCase() === 'M' ? 'Masculino' : 'Femenino';
-      fechaExp = fmtFechaAAMMDD(genM[3]);
-    }
-
-    if (letras.length >= 1 || numDoc) {
-      return {
-        tipo:      'NUEVA (PDF417)',
-        cedula:    numDoc,
-        apellido1: letras[0] || '', apellido2: letras[1] || '',
-        nombre1:   letras[2] || '', nombre2:   letras[3] || '',
-        fechaNac, genero, fechaExp, lugarExp: ''
-      };
-    }
-  }
-
-  return null;
-}
-
-// ══════════════════════════════════════════════════════════════════
-// FORMATO GENÉRICO – separadores ; | tabulador
+// GENÉRICO – separadores ; | tabulador
 // ══════════════════════════════════════════════════════════════════
 function parseGenerico(raw) {
   if (!/[;|\t]/.test(raw)) return null;
@@ -883,6 +923,7 @@ function parseGenerico(raw) {
     lugarExp:  parts[idx+8] || ''
   };
 }
+
 
 // ─── FORMULARIO MANUAL ────────────────────────────────────────
 function buildManualData() {
