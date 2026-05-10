@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIVE – Registro Estudiantil</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo-wrap">
+        <div class="logo-icon">
+          <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Cruz médica -->
+            <rect x="22" y="4" width="16" height="52" rx="4" fill="#1a3a6b" opacity="0.15"/>
+            <rect x="4" y="22" width="52" height="16" rx="4" fill="#1a3a6b" opacity="0.15"/>
+            <rect x="24" y="6" width="12" height="48" rx="3" fill="#1a3a6b"/>
+            <rect x="6" y="24" width="48" height="12" rx="3" fill="#1a3a6b"/>
+            <!-- Birrete -->
+            <polygon points="30,16 44,22 30,28 16,22" fill="#2a7a5a"/>
+            <rect x="40" y="22" width="2" height="8" fill="#2a7a5a"/>
+            <circle cx="41" cy="31" r="2" fill="#2a7a5a"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">SIVE</span>
+          <span class="logo-sub">Salud Integral Vocacional Estudiantil</span>
+        </div>
+      </div>
+      <div class="header-badge">
+        <span class="pulse-dot"></span>
+        Sistema Activo
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HERO STRIP -->
+    <section class="hero-strip">
+      <div class="hero-content">
+        <h1 class="hero-title">Registro de <span class="accent">Cédulas</span></h1>
+        <p class="hero-desc">Escanea o digita el código de barras de la cédula colombiana (nueva o antigua) y los datos se registran automáticamente en Google Sheets.</p>
+      </div>
+      <div class="hero-stat-row">
+        <div class="stat-pill"><span id="countToday">0</span> hoy</div>
+        <div class="stat-pill"><span id="countTotal">0</span> total</div>
+        <div class="stat-pill status-pill" id="statusPill">⬤ Conectando…</div>
+      </div>
+    </section>
+
+    <!-- SCANNER CARD -->
+    <section class="card scanner-card">
+      <div class="card-header">
+        <div class="card-icon">⊞</div>
+        <h2 class="card-title">Escanear / Ingresar Código</h2>
+      </div>
+
+      <div class="scan-area">
+        <div class="scan-frame" id="scanFrame">
+          <div class="scan-line"></div>
+          <svg class="scan-corner tl" viewBox="0 0 40 40"><path d="M4 36 L4 4 L36 4" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+          <svg class="scan-corner tr" viewBox="0 0 40 40"><path d="M4 4 L36 4 L36 36" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+          <svg class="scan-corner bl" viewBox="0 0 40 40"><path d="M4 4 L4 36 L36 36" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+          <svg class="scan-corner br" viewBox="0 0 40 40"><path d="M36 4 L36 36 L4 36" stroke="currentColor" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+          <div class="scan-hint">Apunta el lector de códigos aquí</div>
+        </div>
+
+        <div class="input-group">
+          <label class="field-label" for="barcodeInput">Código de barras</label>
+          <div class="input-row">
+            <input type="text" id="barcodeInput"
+              class="barcode-input"
+              placeholder="Escanea o pega el código aquí…"
+              autocomplete="off"
+              inputmode="text"
+            />
+            <button class="btn-parse" id="parseBtn" onclick="parseBarcode()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Procesar
+            </button>
+          </div>
+          <p class="field-hint">Soporta cédula <strong>nueva</strong> (PDF417) y <strong>antigua</strong> (Código 39 / texto plano)</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DATOS EXTRAÍDOS -->
+    <section class="card data-card" id="dataCard" style="display:none">
+      <div class="card-header">
+        <div class="card-icon">✦</div>
+        <h2 class="card-title">Datos Extraídos</h2>
+        <span class="badge-tipo" id="badgeTipo">—</span>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-item">
+          <span class="field-key">Número de Cédula</span>
+          <span class="field-val" id="fCedula">—</span>
+        </div>
+        <div class="field-item">
+          <span class="field-key">Primer Apellido</span>
+          <span class="field-val" id="fApellido1">—</span>
+        </div>
+        <div class="field-item">
+          <span class="field-key">Segundo Apellido</span>
+          <span class="field-val" id="fApellido2">—</span>
+        </div>
+        <div class="field-item">
+          <span class="field-key">Primer Nombre</span>
+          <span class="field-val" id="fNombre1">—</span>
+        </div>
+        <div class="field-item">
+          <span class="field-key">Segundo Nombre</span>
+          <span class="field-val" id="fNombre2">—</span>
+        </div>
+        <div class="field-item">
+          <span class="field-key">Fecha de Nacimiento</span>
+          <span class="field-val" id="fFechaNac">—</span>
+        </div>
+        <div class="field-item">
+          <span class="field-key">Género</span>
+          <span class="field-val" id="fGenero">—</span>
+        </div>
+        <div class="field-item">
+          <span class="field-key">Fecha de Expedición</span>
+          <span class="field-val" id="fFechaExp">—</span>
+        </div>
+        <div class="field-item full-width">
+          <span class="field-key">Lugar de Expedición</span>
+          <span class="field-val" id="fLugarExp">—</span>
+        </div>
+      </div>
+
+      <!-- CAMPOS ADICIONALES SIVE -->
+      <div class="section-divider">
+        <span>Información SIVE</span>
+      </div>
+      <div class="fields-grid">
+        <div class="field-item full-width">
+          <label class="field-key" for="fPrograma">Programa / Carrera</label>
+          <input class="field-input" id="fPrograma" type="text" placeholder="Ej: Medicina, Enfermería…"/>
+        </div>
+        <div class="field-item full-width">
+          <label class="field-key" for="fSemestre">Semestre</label>
+          <input class="field-input" id="fSemestre" type="number" min="1" max="12" placeholder="1 – 12"/>
+        </div>
+        <div class="field-item full-width">
+          <label class="field-key" for="fObservaciones">Observaciones</label>
+          <textarea class="field-input" id="fObservaciones" rows="2" placeholder="Notas adicionales…"></textarea>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-secondary" onclick="clearForm()">✕ Cancelar</button>
+        <button class="btn-primary" id="saveBtn" onclick="saveRecord()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Guardar en Sheets
+        </button>
+      </div>
+    </section>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- TABLA RECIENTES -->
+    <section class="card table-card">
+      <div class="card-header">
+        <div class="card-icon">☰</div>
+        <h2 class="card-title">Registros Recientes</h2>
+        <button class="btn-refresh" onclick="loadRecent()">↺ Actualizar</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="recentTable">
+          <thead>
+            <tr>
+              <th>Cédula</th>
+              <th>Nombre completo</th>
+              <th>Programa</th>
+              <th>Fecha reg.</th>
+            </tr>
+          </thead>
+          <tbody id="recentBody">
+            <tr><td colspan="4" class="empty-row">Sin registros aún.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>© 2025 SIVE – Salud Integral Vocacional Estudiantil</span>
+    <span class="footer-sep">·</span>
+    <span>Desarrollado con Google Apps Script</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
