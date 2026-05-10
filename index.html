@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SIVE – Registro Estudiantil</title>
 <!-- ZXing: mejor soporte PDF417 (cédula antigua) y QR (cédula nueva) -->
-<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -602,11 +602,11 @@ async function startCamera() {
   if (camRunning) return;
 
   if (typeof ZXing === 'undefined') {
-    showToast('⚠️ Librería ZXing no cargada. Recarga la página.', 'error');
+    showToast('⚠️ Librería no cargada. Recarga la página.', 'error');
     return;
   }
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('⚠️ Tu navegador no soporta cámara. Usa la pestaña Lector/Texto.', 'warn');
+    showToast('⚠️ Tu navegador no permite cámara. Usa Lector/Texto.', 'warn');
     return;
   }
 
@@ -614,62 +614,59 @@ async function startCamera() {
   document.getElementById('btnStart').style.display = 'none';
   document.getElementById('btnStop').style.display  = '';
 
-  try {
-    // Elegir formato según modo
-    const hints = new Map();
-    if (mode === 'antigua') {
-      // Cédula antigua: PDF417
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [ZXing.BarcodeFormat.PDF_417]);
-    } else {
-      // Cédula nueva: QR cifrado — intentar QR + DataMatrix + Aztec
-      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
-        ZXing.BarcodeFormat.QR_CODE,
-        ZXing.BarcodeFormat.DATA_MATRIX,
-        ZXing.BarcodeFormat.AZTEC,
-        ZXing.BarcodeFormat.PDF_417   // por si acaso
-      ]);
-    }
-    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+  // Parar instancia anterior si existe
+  if (zxingReader) {
+    try { zxingReader.reset(); } catch(e) {}
+    zxingReader = null;
+  }
 
-    zxingReader = new ZXing.BrowserMultiFormatReader(hints, {
-      delayBetweenScanAttempts: 100,
-      delayBetweenScanSuccess: 500
-    });
+  try {
+    zxingReader = new ZXing.BrowserMultiFormatReader();
 
     const video = document.getElementById('qr-video');
+    video.style.display = 'block';
 
-    // Obtener cámara trasera
-    const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
-    // Preferir cámara trasera (environment)
-    let deviceId = undefined;
-    if (devices.length > 1) {
-      const back = devices.find(d =>
-        /back|rear|environment|trasera|posterior/i.test(d.label)
-      );
-      deviceId = back ? back.deviceId : devices[devices.length - 1].deviceId;
-    }
+    // Buscar cámara trasera
+    ZXing.BrowserCodeReader.listVideoInputDevices()
+      .then(devices => {
+        let deviceId = undefined;
+        if (devices && devices.length > 1) {
+          const back = devices.find(d =>
+            /back|rear|environment|trasera|posterior/i.test(d.label)
+          );
+          deviceId = back ? back.deviceId : devices[devices.length - 1].deviceId;
+        }
 
-    await zxingReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
-      if (result) {
-        onScanOk(result.getText());
-      }
-      // err es normal en frames sin código — ignorar
-    });
+        return zxingReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
+          if (result) {
+            const text = result.getText();
+            console.log('ZXing detectó:', JSON.stringify(text.slice(0, 120)));
+            onScanOk(text);
+          }
+          // err en frames sin código es normal — no hacer nada
+        });
+      })
+      .then(() => {
+        camRunning = true;
+        showToast('📷 Cámara activa — apunta al código de barras', '');
+      })
+      .catch(err => {
+        console.error('Error cámara:', err);
+        resetCamUI();
+        const msg = (err && err.toString()) || '';
+        if (msg.includes('NotAllowed') || msg.includes('Permission') || msg.includes('denied')) {
+          showToast('🚫 Permiso denegado — activa la cámara en el navegador y recarga.', 'error');
+        } else if (msg.includes('NotFound') || msg.includes('Devices') || msg.includes('device')) {
+          showToast('⚠️ No se encontró cámara. Usa la pestaña Lector/Texto.', 'warn');
+        } else {
+          showToast('⚠️ Error iniciando cámara: ' + msg.slice(0,60), 'error');
+        }
+      });
 
-    camRunning = true;
-    showToast('📷 Cámara activa — apunta al código de barras', '');
-
-  } catch (err) {
+  } catch(e) {
+    console.error('startCamera error:', e);
     resetCamUI();
-    const msg = (err || '').toString();
-    console.error('ZXing error:', msg);
-    if (msg.includes('NotAllowed') || msg.includes('Permission')) {
-      showToast('🚫 Permiso denegado. Activa la cámara en el navegador y recarga.', 'error');
-    } else if (msg.includes('NotFound') || msg.includes('Devices')) {
-      showToast('⚠️ No se encontró cámara. Usa la pestaña Lector/Texto.', 'warn');
-    } else {
-      showToast('⚠️ Error cámara: ' + msg.slice(0, 60), 'warn');
-    }
+    showToast('Error: ' + e.message, 'error');
   }
 }
 
@@ -678,11 +675,17 @@ function stopCamera() {
     try { zxingReader.reset(); } catch(e) {}
     zxingReader = null;
   }
+  const video = document.getElementById('qr-video');
+  if (video && video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
   camRunning = false;
   resetCamUI();
 }
 
 function resetCamUI() {
+  camRunning = false;
   document.getElementById('btnStart').style.display = '';
   document.getElementById('btnStop').style.display  = 'none';
   document.getElementById('camPlaceholder').style.display = '';
@@ -690,36 +693,39 @@ function resetCamUI() {
 
 function onScanOk(decoded) {
   stopCamera();
-  console.log('ZXing leído:', JSON.stringify(decoded));
 
-  // Mostrar código crudo en debug siempre
-  document.getElementById('debugRaw').textContent = decoded;
-  document.getElementById('panelDebug').style.display = '';
+  // Mostrar código crudo en debug
+  const dbgPanel = document.getElementById('panelDebug');
+  const dbgRaw   = document.getElementById('debugRaw');
+  if (dbgPanel && dbgRaw) {
+    dbgRaw.textContent   = decoded;
+    dbgPanel.style.display = '';
+  }
 
   const data = processCode(decoded);
   if (data) {
     presentData(data);
-    document.getElementById('panelDebug').style.display = 'none';
+    if (dbgPanel) dbgPanel.style.display = 'none';
   } else {
-    // Pasar el código al input de texto para que el usuario lo vea
+    // Pasar a tab de texto con el código crudo para que el usuario lo vea
     switchTab('text');
     document.getElementById('barcodeInput').value = decoded;
-    showToast('⚠️ Código capturado — revisa el código crudo abajo', 'warn');
+    showToast('⚠️ Código capturado — presiona Procesar o edítalo', 'warn');
   }
 }
 
 function parsearDebug() {
-  const raw = document.getElementById('debugRaw').textContent;
+  const raw  = document.getElementById('debugRaw').textContent;
   const data = processCode(raw);
   if (data) {
     presentData(data);
     document.getElementById('panelDebug').style.display = 'none';
   } else {
-    showToast('❌ Formato no reconocido. Abre la consola (F12) para ver detalles.', 'error');
+    showToast('❌ Formato no reconocido. Revisa la consola (F12).', 'error');
   }
 }
 
-// ─── PARSEO DESDE INPUT TEXTO ─────────────────────────────────
+
 function parseBarcode() {
   const raw = document.getElementById('barcodeInput').value.trim();
   if (!raw) { showToast('Ingresa o escanea un código primero.', 'warn'); return; }
