@@ -4,508 +4,347 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SIVE – Registro Estudiantil</title>
-<!-- Tesseract OCR para leer texto MRZ de cédula -->
-<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <style>
-:root {
-  --navy:       #1a3a6b;
-  --navy-mid:   #1e4d8c;
-  --navy-light: #2563b0;
-  --teal:       #2a7a5a;
-  --teal-light: #38a376;
-  --teal-pale:  #e6f5ef;
-  --orange:     #e65100;
-  --white:      #ffffff;
-  --off-white:  #f5f7fb;
-  --gray-50:    #f8fafc;
-  --gray-100:   #eef1f7;
-  --gray-200:   #e2e8f0;
-  --gray-300:   #c8d0df;
-  --gray-500:   #7a8699;
-  --gray-700:   #3a4558;
-  --text:       #0f1d36;
-  --shadow-sm:  0 1px 3px rgba(26,58,107,.08);
-  --shadow-md:  0 4px 16px rgba(26,58,107,.12);
-  --shadow-lg:  0 12px 40px rgba(26,58,107,.16);
-  --radius-sm:  8px;
-  --radius-md:  14px;
-  --radius-lg:  20px;
-  --font:       'Outfit', sans-serif;
-  --mono:       'JetBrains Mono', monospace;
-  --tr:         0.22s cubic-bezier(.4,0,.2,1);
+:root{
+  --navy:#1a3a6b;--navy2:#2563b0;--teal:#2a7a5a;--teal2:#38a376;
+  --teal-pale:#e6f5ef;--orange:#e65100;--white:#fff;--bg:#f5f7fb;
+  --g50:#f8fafc;--g100:#eef1f7;--g200:#e2e8f0;--g300:#c8d0df;
+  --g500:#7a8699;--g700:#3a4558;--text:#0f1d36;
+  --sh:0 4px 16px rgba(26,58,107,.12);--shl:0 12px 40px rgba(26,58,107,.16);
+  --r:8px;--r2:14px;--r3:20px;--f:'Outfit',sans-serif;--m:'JetBrains Mono',monospace;
+  --tr:.22s cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{font-family:var(--font);background:var(--off-white);color:var(--text);min-height:100vh;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 
 /* HEADER */
-.header{background:var(--navy);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(26,58,107,.35)}
-.header::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(42,122,90,.18) 0%,transparent 60%);pointer-events:none}
-.header-inner{max-width:920px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative}
-.logo-wrap{display:flex;align-items:center;gap:12px}
-.logo-icon{width:44px;height:44px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.logo-icon svg{width:30px;height:30px}
-.logo-text{display:flex;flex-direction:column;line-height:1.1}
-.logo-title{font-size:1.45rem;font-weight:800;color:#fff;letter-spacing:.04em}
-.logo-sub{font-size:.62rem;font-weight:400;color:rgba(255,255,255,.65);letter-spacing:.06em;text-transform:uppercase}
-.header-badge{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:30px;padding:5px 12px;font-size:.72rem;font-weight:500;color:rgba(255,255,255,.9);white-space:nowrap}
-.pulse-dot{width:8px;height:8px;background:#4ade80;border-radius:50%;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+.hdr{background:var(--navy);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(26,58,107,.4)}
+.hdr-in{max-width:900px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ico{width:42px;height:42px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:var(--r);display:flex;align-items:center;justify-content:center}
+.logo-ico svg{width:28px;height:28px}
+.logo-t{display:flex;flex-direction:column;line-height:1.1}
+.logo-t b{font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:.04em}
+.logo-t small{font-size:.6rem;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase}
+.badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:30px;padding:4px 12px;font-size:.72rem;color:rgba(255,255,255,.9);white-space:nowrap}
+.dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pu 2s ease-in-out infinite}
+@keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
 /* MAIN */
-.main{max-width:920px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:20px}
+.main{max-width:900px;margin:0 auto;padding:20px 14px 60px;display:flex;flex-direction:column;gap:18px}
 
 /* HERO */
-.hero-strip{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-mid) 60%,#1e5f8c 100%);border-radius:var(--radius-lg);padding:28px 28px 24px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow-lg)}
-.hero-strip::before{content:'';position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(42,122,90,.25);pointer-events:none}
-.hero-content{position:relative;z-index:1}
-.hero-title{font-size:clamp(1.5rem,5vw,2.1rem);font-weight:800;line-height:1.15;margin-bottom:8px;letter-spacing:-.01em}
-.accent{color:#6ee7b7}
-.hero-desc{font-size:.88rem;color:rgba(255,255,255,.75);max-width:520px;line-height:1.55}
-.hero-stat-row{display:flex;gap:8px;margin-top:20px;flex-wrap:wrap;position:relative;z-index:1}
-.stat-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:5px 14px;font-size:.78rem;font-weight:500;color:rgba(255,255,255,.9)}
-.stat-pill span{font-weight:700;color:#6ee7b7;margin-right:3px}
-.status-pill.online{border-color:rgba(74,222,128,.4);color:#4ade80}
-.status-pill.offline{border-color:rgba(248,113,113,.4);color:#f87171}
+.hero{background:linear-gradient(135deg,var(--navy) 0%,#1e4d8c 60%,#1e5f8c 100%);border-radius:var(--r3);padding:26px 26px 22px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shl)}
+.hero::before{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(42,122,90,.25);pointer-events:none}
+.hero h1{font-size:clamp(1.4rem,5vw,2rem);font-weight:800;line-height:1.15;margin-bottom:6px}
+.hero h1 span{color:#6ee7b7}
+.hero p{font-size:.85rem;color:rgba(255,255,255,.72);max-width:500px;line-height:1.5;position:relative;z-index:1}
+.pills{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;position:relative;z-index:1}
+.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:4px 13px;font-size:.76rem;color:rgba(255,255,255,.88)}
+.pill b{color:#6ee7b7;margin-right:3px}
+.pill.online{border-color:rgba(74,222,128,.4);color:#4ade80}
+.pill.offline{border-color:rgba(248,113,113,.4);color:#f87171}
 
 /* CARD */
-.card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--gray-100);animation:slideUp .35s cubic-bezier(.4,0,.2,1) both}
-@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.card-header{display:flex;align-items:center;gap:10px;padding:18px 22px 14px;border-bottom:1px solid var(--gray-100);background:var(--gray-50)}
-.card-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:#fff;flex-shrink:0;font-weight:700}
-.card-title{font-size:.95rem;font-weight:700;color:var(--navy);flex:1;letter-spacing:-.01em}
-.badge-tipo{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:20px;background:var(--teal-pale);color:var(--teal);border:1px solid rgba(42,122,90,.2)}
+.card{background:#fff;border-radius:var(--r3);box-shadow:var(--sh);border:1px solid var(--g100);overflow:hidden}
+.card-hdr{display:flex;align-items:center;gap:10px;padding:16px 20px 12px;border-bottom:1px solid var(--g100);background:var(--g50)}
+.ci{width:30px;height:30px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff;font-weight:700;flex-shrink:0}
+.ct{font-size:.92rem;font-weight:700;color:var(--navy);flex:1}
+.badge-tipo{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;background:var(--teal-pale);color:var(--teal);border:1px solid rgba(42,122,90,.2)}
 
-/* MODO SELECTOR */
-.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:20px 22px 22px}
-.mode-btn{display:flex;flex-direction:column;align-items:center;gap:8px;padding:20px 12px 18px;border:2px solid var(--gray-200);border-radius:var(--radius-md);background:var(--gray-50);cursor:pointer;transition:all var(--tr);font-family:var(--font);position:relative;overflow:hidden}
-.mode-btn.active{border-color:var(--navy);background:#fff;box-shadow:0 4px 14px rgba(26,58,107,.18)}
-.mode-btn:hover:not(.active){border-color:var(--gray-500);background:#fff;transform:translateY(-2px)}
-.mode-icon{width:46px;height:46px;border-radius:var(--radius-sm);background:var(--gray-100);display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
-.mode-btn.active .mode-icon{background:linear-gradient(135deg,var(--navy),var(--navy-light))}
-.mode-btn.active .mode-icon svg{stroke:#fff}
-.mode-icon svg{width:22px;height:22px;stroke:var(--gray-500);transition:stroke var(--tr);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.mode-label{font-size:.85rem;font-weight:700;color:var(--navy);text-align:center;line-height:1.2}
-.mode-desc{font-size:.68rem;color:var(--gray-500);text-align:center;line-height:1.3}
-.mode-btn.sindoc-btn.active{border-color:var(--orange)}
-.mode-btn.sindoc-btn.active .mode-icon{background:linear-gradient(135deg,#e65100,#ff6d00)}
+/* MODO */
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 20px 20px}
+.mbtn{display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 10px 16px;border:2px solid var(--g200);border-radius:var(--r2);background:var(--g50);cursor:pointer;font-family:var(--f);transition:all var(--tr)}
+.mbtn.on{border-color:var(--navy);background:#fff;box-shadow:0 4px 14px rgba(26,58,107,.16)}
+.mbtn:hover:not(.on){border-color:var(--g500);background:#fff;transform:translateY(-2px)}
+.mico{width:44px;height:44px;border-radius:var(--r);background:var(--g100);display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
+.mbtn.on .mico{background:linear-gradient(135deg,var(--navy),var(--navy2))}
+.mbtn.on .mico svg,.mbtn.on .mico{stroke:#fff}
+.mico svg{width:22px;height:22px;stroke:var(--g500);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke var(--tr)}
+.mbtn.on .mico svg{stroke:#fff}
+.mlabel{font-size:.82rem;font-weight:700;color:var(--navy);text-align:center;line-height:1.2}
+.mdesc{font-size:.66rem;color:var(--g500);text-align:center}
+.mbtn.sd.on{border-color:var(--orange)}
+.mbtn.sd.on .mico{background:linear-gradient(135deg,#e65100,#ff6d00)}
 
-/* SCAN TABS */
-.scan-area{padding:20px 22px 22px;display:flex;flex-direction:column;gap:16px}
-.scan-tabs{display:flex;gap:6px}
-.scan-tab{flex:1;height:42px;display:flex;align-items:center;justify-content:center;gap:7px;border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);background:var(--gray-50);font-family:var(--font);font-size:.82rem;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all var(--tr)}
-.scan-tab.active{background:var(--navy);border-color:var(--navy);color:#fff}
-.scan-tab:hover:not(.active){border-color:var(--navy-light);color:var(--navy)}
-.scan-tab svg{flex-shrink:0}
+/* TABS */
+.tabs{display:flex;gap:6px;padding:16px 20px 0}
+.tab{flex:1;height:40px;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--g300);border-radius:var(--r);background:var(--g50);font-family:var(--f);font-size:.8rem;font-weight:600;color:var(--g500);cursor:pointer;transition:all var(--tr)}
+.tab.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.tab:hover:not(.on){border-color:var(--navy2);color:var(--navy)}
 
-/* CÁMARA */
-.camera-wrap{border-radius:var(--radius-md);overflow:hidden;background:#111;min-height:260px;position:relative;display:flex;align-items:center;justify-content:center}
-.camera-placeholder{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,.4);font-size:.85rem}
-.camera-placeholder svg{width:48px;height:48px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:1.5}
-#qr-reader{width:100%!important;border:none!important;background:transparent!important}
-#qr-reader video{width:100%!important;border-radius:var(--radius-md);display:block}
-#qr-reader img{display:none!important}
-#qr-reader__header_message,#qr-reader__status_span,#qr-reader__dashboard_section_swaplink{display:none!important}
-#qr-reader__dashboard{display:none!important}
-#qr-reader__scan_region{border:none!important}
-.camera-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.btn-cam{height:46px;padding:0 24px;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all var(--tr)}
-.btn-cam-start{background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;box-shadow:0 3px 10px rgba(26,58,107,.3)}
-.btn-cam-start:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 6px 16px rgba(26,58,107,.35)}
-.btn-cam-stop{background:#c0392b;color:#fff}
-.btn-cam-stop:hover{opacity:.88}
-.cam-hint{font-size:.75rem;color:var(--gray-500);text-align:center;line-height:1.4}
+/* CAM PANEL */
+.cam-wrap{margin:14px 20px 0;position:relative;background:#000;border-radius:var(--r2);overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center}
+.cam-ph{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,.4);font-size:.82rem;padding:40px}
+.cam-ph svg{width:44px;height:44px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#camVideo{width:100%;display:block;max-height:320px;object-fit:cover;border-radius:var(--r2)}
+
+/* Zona MRZ */
+.mrz-zone{position:absolute;left:5%;right:5%;bottom:14%;height:26%;border:2.5px solid #6ee7b7;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.52);pointer-events:none}
+.mrz-c{position:absolute;width:16px;height:16px}
+.mrz-c.tl{top:-2px;left:-2px;border-top:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:3px 0 0 0}
+.mrz-c.tr{top:-2px;right:-2px;border-top:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 3px 0 0}
+.mrz-c.bl{bottom:-2px;left:-2px;border-bottom:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:0 0 0 3px}
+.mrz-c.br{bottom:-2px;right:-2px;border-bottom:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 0 3px 0}
+.mrz-lbl{position:absolute;bottom:-26px;left:0;right:0;text-align:center;font-size:.66rem;color:#6ee7b7;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.ocr-st{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#fff;padding:4px 14px;border-radius:20px;font-size:.7rem;font-weight:600;white-space:nowrap;display:none}
+#camCanvas{display:none}
+
+/* BOTONES CÁMARA */
+.cam-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:12px 20px 4px}
+.bcam{height:44px;padding:0 20px;border:none;border-radius:var(--r);font-family:var(--f);font-size:.83rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all var(--tr)}
+.bcam-start{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 3px 10px rgba(26,58,107,.28)}
+.bcam-start:hover{opacity:.88;transform:translateY(-1px)}
+.bcam-stop{background:#c0392b;color:#fff}
+.bcam-read{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;box-shadow:0 3px 10px rgba(42,122,90,.28)}
+.bcam-read:hover{opacity:.88;transform:translateY(-1px)}
+.bcam svg{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.cam-hint{font-size:.73rem;color:var(--g500);text-align:center;line-height:1.45;padding:8px 20px 16px}
 
 /* INPUT TEXTO */
-.input-group{display:flex;flex-direction:column;gap:8px}
-.field-label{font-size:.75rem;font-weight:700;color:var(--navy);letter-spacing:.05em;text-transform:uppercase}
-.input-row{display:flex;gap:8px}
-.barcode-input{flex:1;height:48px;border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);padding:0 14px;font-family:var(--mono);font-size:.9rem;color:var(--text);background:var(--gray-50);outline:none;transition:border-color var(--tr),box-shadow var(--tr),background var(--tr)}
-.barcode-input:focus{border-color:var(--navy-light);background:#fff;box-shadow:0 0 0 3px rgba(37,99,176,.12)}
-.barcode-input::placeholder{color:var(--gray-500)}
-.btn-parse{height:48px;padding:0 18px;background:linear-gradient(135deg,var(--navy),var(--navy-light));color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all var(--tr);white-space:nowrap;box-shadow:0 3px 10px rgba(26,58,107,.3)}
-.btn-parse:hover{opacity:.88;transform:translateY(-1px)}
-.field-hint{font-size:.74rem;color:var(--gray-500);line-height:1.45}
+.txt-panel{padding:14px 20px 20px;display:flex;flex-direction:column;gap:8px}
+.flabel{font-size:.72rem;font-weight:700;color:var(--navy);letter-spacing:.05em;text-transform:uppercase}
+.irow{display:flex;gap:8px}
+.binput{flex:1;height:48px;border:1.5px solid var(--g300);border-radius:var(--r);padding:0 13px;font-family:var(--m);font-size:.88rem;color:var(--text);background:var(--g50);outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
+.binput:focus{border-color:var(--navy2);background:#fff;box-shadow:0 0 0 3px rgba(37,99,176,.1)}
+.binput::placeholder{color:var(--g500)}
+.bproc{height:48px;padding:0 18px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.83rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all var(--tr);white-space:nowrap;box-shadow:0 3px 10px rgba(26,58,107,.28)}
+.bproc:hover{opacity:.88;transform:translateY(-1px)}
+.bproc svg{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.fhint{font-size:.72rem;color:var(--g500);line-height:1.4}
 
-/* MANUAL FORM */
-.manual-body{padding:0 0 4px}
-.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--gray-100)}
-.field-item{background:#fff;padding:13px 18px;display:flex;flex-direction:column;gap:4px}
-.field-item.full-width{grid-column:1/-1}
-.field-key{font-size:.68rem;font-weight:700;color:var(--gray-500);letter-spacing:.06em;text-transform:uppercase;display:block}
-.field-val{font-family:var(--mono);font-size:.92rem;color:var(--navy);font-weight:600;word-break:break-all}
-.field-input{width:100%;border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);padding:9px 12px;font-family:var(--font);font-size:.88rem;color:var(--text);background:var(--gray-50);margin-top:2px;outline:none;transition:border-color var(--tr),box-shadow var(--tr);resize:vertical}
-.field-input:focus{border-color:var(--navy-light);box-shadow:0 0 0 3px rgba(37,99,176,.1);background:#fff}
-select.field-input{cursor:pointer}
-/* Campos editables del paso 3 */
-.field-val-edit{font-family:var(--mono);font-size:.88rem;font-weight:600;color:var(--navy);background:var(--gray-50);border-color:var(--gray-200)}
-.field-val-edit:focus{background:#fff}
+/* FORMULARIO MANUAL */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--g100)}
+.fi{background:#fff;padding:12px 18px;display:flex;flex-direction:column;gap:3px}
+.fi.fw{grid-column:1/-1}
+.fk{font-size:.66rem;font-weight:700;color:var(--g500);letter-spacing:.06em;text-transform:uppercase;display:block}
+.fv{font-family:var(--m);font-size:.9rem;color:var(--navy);font-weight:600;word-break:break-all}
+.finput{width:100%;border:1.5px solid var(--g300);border-radius:var(--r);padding:8px 11px;font-family:var(--f);font-size:.86rem;color:var(--text);background:var(--g50);margin-top:2px;outline:none;transition:border-color var(--tr),box-shadow var(--tr);resize:vertical}
+.finput:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(37,99,176,.1);background:#fff}
+select.finput{cursor:pointer}
+.fedit{font-family:var(--m);font-size:.86rem;font-weight:600;color:var(--navy);background:var(--g50);border-color:var(--g200)}
+.fedit:focus{background:#fff}
+.divider{display:flex;align-items:center;gap:10px;padding:13px 18px 9px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--teal-pale),transparent)}
+.acts{display:flex;gap:10px;padding:14px 20px 18px;justify-content:flex-end}
+.bsec{height:42px;padding:0 16px;background:transparent;color:var(--g500);border:1.5px solid var(--g300);border-radius:var(--r);font-family:var(--f);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.bsec:hover{color:var(--text);border-color:var(--g500);background:var(--g50)}
+.bpri{height:42px;padding:0 20px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.83rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all var(--tr);box-shadow:0 3px 12px rgba(42,122,90,.28)}
+.bpri:hover{opacity:.88;transform:translateY(-1px)}
+.bpri:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.bpri svg,.bproc svg,.bcam svg{flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bpri.loading::after{content:'';width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:4px}
 
-/* DIVIDER */
-.section-divider{display:flex;align-items:center;gap:10px;padding:14px 18px 10px;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
-.section-divider::before,.section-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--teal-pale),transparent)}
-
-/* ACTIONS */
-.action-row{display:flex;gap:10px;padding:16px 22px 20px;justify-content:flex-end}
-.btn-secondary{height:44px;padding:0 18px;background:transparent;color:var(--gray-500);border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);font-family:var(--font);font-size:.84rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
-.btn-secondary:hover{color:var(--text);border-color:var(--gray-500);background:var(--gray-50)}
-.btn-primary{height:44px;padding:0 22px;background:linear-gradient(135deg,var(--teal),var(--teal-light));color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:.85rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all var(--tr);box-shadow:0 3px 12px rgba(42,122,90,.3)}
-.btn-primary:hover{opacity:.88;transform:translateY(-1px);box-shadow:0 6px 18px rgba(42,122,90,.35)}
-.btn-primary:active{transform:translateY(0)}
-.btn-primary:disabled{opacity:.55;cursor:not-allowed;transform:none}
-.btn-primary svg,.btn-parse svg,.btn-cam svg{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+/* AVISO */
+.aviso{margin:0 20px 2px;padding:11px 14px;background:#fef3c7;border:1px solid rgba(146,64,14,.2);border-radius:10px;font-size:.78rem;color:#92400e;line-height:1.5;display:none}
 
 /* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#fff;padding:12px 22px;border-radius:30px;font-size:.85rem;font-weight:600;box-shadow:var(--shadow-lg);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;z-index:999;opacity:0;pointer-events:none;max-width:90vw;text-align:center}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:30px;font-size:.83rem;font-weight:600;box-shadow:var(--shl);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;z-index:999;opacity:0;pointer-events:none;max-width:92vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.toast.success{background:var(--teal)}
-.toast.error{background:#c0392b}
+.toast.ok{background:var(--teal)}
+.toast.err{background:#c0392b}
 .toast.warn{background:#d97706}
 
-/* TABLE */
-.table-card .card-header{justify-content:space-between}
-.btn-refresh{height:32px;padding:0 12px;background:transparent;border:1.5px solid var(--gray-300);border-radius:var(--radius-sm);font-family:var(--font);font-size:.75rem;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all var(--tr)}
-.btn-refresh:hover{color:var(--navy);border-color:var(--navy-light)}
-.table-wrap{overflow-x:auto}
-.data-table{width:100%;border-collapse:collapse;font-size:.82rem}
-.data-table thead tr{background:var(--navy);color:#fff}
-.data-table th{padding:11px 16px;text-align:left;font-weight:600;letter-spacing:.04em;font-size:.72rem;text-transform:uppercase;white-space:nowrap}
-.data-table td{padding:10px 16px;border-bottom:1px solid var(--gray-100);color:var(--gray-700);font-family:var(--mono);font-size:.8rem}
-.data-table tbody tr:hover{background:var(--gray-50)}
-.data-table tbody tr:last-child td{border-bottom:none}
-.empty-row{text-align:center;color:var(--gray-500);font-family:var(--font)!important;font-style:italic;padding:28px!important}
-@keyframes rowFadeIn{from{background:rgba(42,122,90,.2)}to{background:transparent}}
-.row-new{animation:rowFadeIn 2s ease forwards}
+/* TABLA */
+.tbl-hdr{justify-content:space-between}
+.bref{height:30px;padding:0 11px;background:transparent;border:1.5px solid var(--g300);border-radius:var(--r);font-family:var(--f);font-size:.73rem;font-weight:600;color:var(--g500);cursor:pointer;transition:all var(--tr)}
+.bref:hover{color:var(--navy);border-color:var(--navy2)}
+.twrap{overflow-x:auto}
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.tbl thead tr{background:var(--navy);color:#fff}
+.tbl th{padding:10px 14px;text-align:left;font-weight:600;letter-spacing:.04em;font-size:.7rem;text-transform:uppercase;white-space:nowrap}
+.tbl td{padding:9px 14px;border-bottom:1px solid var(--g100);color:var(--g700);font-family:var(--m);font-size:.78rem}
+.tbl tbody tr:hover{background:var(--g50)}
+.tbl tbody tr:last-child td{border-bottom:none}
+.empty{text-align:center;color:var(--g500);font-family:var(--f)!important;font-style:italic;padding:26px!important}
+@keyframes rfi{from{background:rgba(42,122,90,.2)}to{background:transparent}}
+.rnew{animation:rfi 2s ease forwards}
 
 /* FOOTER */
-.footer{text-align:center;padding:20px;font-size:.75rem;color:var(--gray-500);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
-.footer-sep{color:var(--gray-300)}
-
-/* SPINNER */
-@keyframes spin{to{transform:rotate(360deg)}}
-.btn-primary.loading::after{content:'';width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:4px}
+footer{text-align:center;padding:18px;font-size:.72rem;color:var(--g500);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
 
 /* RESPONSIVE */
-@media(max-width:600px){
-  .header-inner{padding:10px 14px}
-  .logo-sub{display:none}
-  .logo-title{font-size:1.2rem}
-  .main{padding:14px 12px 40px;gap:14px}
-  .hero-strip{padding:18px 16px 16px;border-radius:var(--radius-md)}
-  .hero-title{font-size:1.35rem}
-  .mode-grid{grid-template-columns:1fr;gap:8px;padding:14px}
-  .mode-btn{flex-direction:row;padding:14px 16px;text-align:left;gap:12px}
-  .mode-icon{width:40px;height:40px;flex-shrink:0}
-  .scan-area{padding:14px 14px 18px}
-  .input-row{flex-direction:column}
-  .btn-parse{justify-content:center}
-  .fields-grid{grid-template-columns:1fr}
-  .field-item.full-width{grid-column:1}
-  .action-row{flex-direction:column-reverse;padding:14px 16px 18px}
-  .btn-primary,.btn-secondary{width:100%;justify-content:center}
-  .card-header{padding:14px 16px 12px}
-}
-@media(max-width:380px){
-  .scan-tabs{flex-direction:column}
+@media(max-width:580px){
+  .logo-t small{display:none}
+  .main{padding:14px 10px 40px;gap:14px}
+  .hero{padding:18px 16px 16px;border-radius:var(--r2)}
+  .hero h1{font-size:1.3rem}
+  .mode-grid{grid-template-columns:1fr;gap:7px;padding:12px}
+  .mbtn{flex-direction:row;padding:13px 14px;gap:12px;text-align:left}
+  .mico{width:38px;height:38px;flex-shrink:0}
+  .tabs{padding:12px 14px 0}
+  .cam-acts{padding:10px 14px 4px}
+  .txt-panel{padding:12px 14px 16px}
+  .irow{flex-direction:column}
+  .bproc{justify-content:center}
+  .fgrid{grid-template-columns:1fr}
+  .fi.fw{grid-column:1}
+  .acts{flex-direction:column-reverse;padding:12px 14px 16px}
+  .bpri,.bsec{width:100%;justify-content:center}
+  .card-hdr{padding:13px 14px 11px}
 }
 </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <div class="logo-wrap">
-      <div class="logo-icon">
-        <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="24" y="6" width="12" height="48" rx="3" fill="#1a3a6b"/>
-          <rect x="6" y="24" width="48" height="12" rx="3" fill="#1a3a6b"/>
-          <polygon points="30,16 44,22 30,28 16,22" fill="#2a7a5a"/>
-          <rect x="40" y="22" width="2" height="8" fill="#2a7a5a"/>
-          <circle cx="41" cy="31" r="2" fill="#2a7a5a"/>
-        </svg>
+<header class="hdr">
+  <div class="hdr-in">
+    <div class="logo">
+      <div class="logo-ico">
+        <svg viewBox="0 0 60 60" fill="none"><rect x="24" y="6" width="12" height="48" rx="3" fill="#1a3a6b"/><rect x="6" y="24" width="48" height="12" rx="3" fill="#1a3a6b"/><polygon points="30,16 44,22 30,28 16,22" fill="#2a7a5a"/><rect x="40" y="22" width="2" height="8" fill="#2a7a5a"/><circle cx="41" cy="31" r="2" fill="#2a7a5a"/></svg>
       </div>
-      <div class="logo-text">
-        <span class="logo-title">SIVE</span>
-        <span class="logo-sub">Salud Integral Vocacional Estudiantil</span>
-      </div>
+      <div class="logo-t"><b>SIVE</b><small>Salud Integral Vocacional Estudiantil</small></div>
     </div>
-    <div class="header-badge">
-      <span class="pulse-dot"></span>
-      <span id="statusText">Conectando…</span>
-    </div>
+    <div class="badge"><span class="dot"></span><span id="statusTxt">Conectando…</span></div>
   </div>
 </header>
 
 <main class="main">
 
   <!-- HERO -->
-  <section class="hero-strip">
-    <div class="hero-content">
-      <h1 class="hero-title">Registro de <span class="accent">Estudiantes</span></h1>
-      <p class="hero-desc">Escanea la cédula con la cámara, usa un lector físico, o registra manualmente si la persona no tiene documento.</p>
+  <section class="hero">
+    <div style="position:relative;z-index:1">
+      <h1>Registro de <span>Estudiantes</span></h1>
+      <p>Cédula nueva: fotografía la zona de letras (MRZ). Cédula antigua: usa el lector físico. Sin documento: registro manual.</p>
     </div>
-    <div class="hero-stat-row">
-      <div class="stat-pill"><span id="countToday">0</span> hoy</div>
-      <div class="stat-pill"><span id="countTotal">0</span> total</div>
-      <div class="stat-pill status-pill" id="statusPill">⬤ Conectando…</div>
+    <div class="pills">
+      <div class="pill"><b id="cntHoy">0</b> hoy</div>
+      <div class="pill"><b id="cntTotal">0</b> total</div>
+      <div class="pill" id="stPill">⬤ Conectando…</div>
     </div>
   </section>
 
-  <!-- PASO 1: TIPO DE REGISTRO -->
+  <!-- PASO 1 -->
   <section class="card">
-    <div class="card-header">
-      <div class="card-icon">1</div>
-      <h2 class="card-title">¿Cómo deseas registrar?</h2>
-    </div>
+    <div class="card-hdr"><div class="ci">1</div><h2 class="ct">¿Cómo registrar?</h2></div>
     <div class="mode-grid">
-      <button class="mode-btn active" id="modeNueva" onclick="selectMode('nueva')">
-        <div class="mode-icon">
-          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="16" y2="14"/></svg>
-        </div>
-        <div>
-          <div class="mode-label">Cédula Nueva</div>
-          <div class="mode-desc">PDF417 · Desde 2010</div>
-        </div>
+      <button class="mbtn on" id="mNueva" onclick="setMode('nueva')">
+        <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="16" y2="14"/></svg></div>
+        <div><div class="mlabel">Cédula Nueva</div><div class="mdesc">Foto zona MRZ</div></div>
       </button>
-      <button class="mode-btn" id="modeAntigua" onclick="selectMode('antigua')">
-        <div class="mode-icon">
-          <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg>
-        </div>
-        <div>
-          <div class="mode-label">Cédula Antigua</div>
-          <div class="mode-desc">Código 39 · Antes 2010</div>
-        </div>
+      <button class="mbtn" id="mAntigua" onclick="setMode('antigua')">
+        <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg></div>
+        <div><div class="mlabel">Cédula Antigua</div><div class="mdesc">Lector de código</div></div>
       </button>
-      <button class="mode-btn sindoc-btn" id="modeSindoc" onclick="selectMode('sindoc')">
-        <div class="mode-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><line x1="18" y1="10" x2="22" y2="10"/></svg>
-        </div>
-        <div>
-          <div class="mode-label">Sin Documento</div>
-          <div class="mode-desc">Registro manual</div>
-        </div>
+      <button class="mbtn sd" id="mSinDoc" onclick="setMode('sindoc')">
+        <div class="mico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><line x1="18" y1="10" x2="22" y2="10"/></svg></div>
+        <div><div class="mlabel">Sin Documento</div><div class="mdesc">Manual</div></div>
       </button>
     </div>
   </section>
 
-  <!-- PASO 2A: ESCÁNER (cédula nueva/antigua) -->
-  <section class="card" id="sectionScanner">
-    <div class="card-header">
-      <div class="card-icon">2</div>
-      <h2 class="card-title" id="scannerTitle">Escanear Cédula Nueva</h2>
+  <!-- PASO 2A: CÉDULA NUEVA (cámara + OCR nativo) -->
+  <section class="card" id="secNueva">
+    <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Fotografiar zona MRZ</h2></div>
+
+    <!-- Vista cámara -->
+    <div class="cam-wrap" id="camWrap">
+      <div class="cam-ph" id="camPh">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span>Presiona "Activar Cámara"</span>
+      </div>
+      <video id="camVideo" playsinline autoplay muted style="display:none;width:100%;max-height:320px;object-fit:cover"></video>
+      <!-- Zona MRZ superpuesta -->
+      <div class="mrz-zone" id="mrzZone" style="display:none">
+        <div class="mrz-c tl"></div><div class="mrz-c tr"></div>
+        <div class="mrz-c bl"></div><div class="mrz-c br"></div>
+        <div class="mrz-lbl">Alinea aquí las 3 líneas de letras (parte inferior del reverso)</div>
+      </div>
+      <div class="ocr-st" id="ocrSt">📷 Procesando…</div>
     </div>
-    <div class="scan-area">
-      <!-- TABS -->
-      <div class="scan-tabs">
-        <button class="scan-tab active" id="tabCam" onclick="switchTab('cam')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-          Cámara
-        </button>
-        <button class="scan-tab" id="tabText" onclick="switchTab('text')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="4" y1="14" x2="14" y2="14"/></svg>
-          Lector / Texto
-        </button>
-      </div>
+    <canvas id="camCanvas" style="display:none"></canvas>
 
-      <!-- PANEL CÁMARA -->
-      <div id="panelCam">
-        <div id="camPlaceholder" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px;background:#111;border-radius:12px;color:rgba(255,255,255,.5);font-size:.85rem;min-height:220px">
-            <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>Presiona "Activar Cámara"</span>
-          </div>
+    <div class="cam-acts">
+      <button class="bcam bcam-start" id="btnOn" onclick="camStart()">
+        <svg viewBox="0 0 24 24" width="17" height="17"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Activar Cámara
+      </button>
+      <button class="bcam bcam-stop" id="btnOff" onclick="camStop()" style="display:none">⬛ Detener</button>
+      <button class="bcam bcam-read" id="btnRead" onclick="capturar()" style="display:none">📷 Capturar y Leer</button>
+    </div>
+    <p class="cam-hint">Reverso de la cédula · Letras pequeñas con &lt;&lt;&lt; dentro del recuadro verde · Presiona <b>Capturar y Leer</b></p>
 
-          <div id="camLive" style="display:none;position:relative;width:100%;background:#000;border-radius:12px;overflow:hidden">
-            <video id="camVideo" playsinline autoplay muted style="width:100%;display:block;max-height:340px;object-fit:cover"></video>
-            <!-- Zona MRZ delimitada -->
-            <div id="mrzZone" style="position:absolute;left:4%;right:4%;bottom:16%;height:24%;border:2.5px solid #6ee7b7;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);pointer-events:none">
-              <div style="position:absolute;top:-2px;left:-2px;width:18px;height:18px;border-top:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:3px 0 0 0"></div>
-              <div style="position:absolute;top:-2px;right:-2px;width:18px;height:18px;border-top:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 3px 0 0"></div>
-              <div style="position:absolute;bottom:-2px;left:-2px;width:18px;height:18px;border-bottom:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:0 0 0 3px"></div>
-              <div style="position:absolute;bottom:-2px;right:-2px;width:18px;height:18px;border-bottom:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 0 3px 0"></div>
-              <div style="position:absolute;bottom:-26px;left:0;right:0;text-align:center;font-size:.68rem;color:#6ee7b7;font-weight:700;letter-spacing:.04em;text-transform:uppercase">Alinea las 3 líneas de letras aquí</div>
-            </div>
-            <div id="ocrStatus" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.65);color:#fff;padding:4px 14px;border-radius:20px;font-size:.72rem;font-weight:600;white-space:nowrap;display:none">Leyendo…</div>
-          </div>
-          <canvas id="camCanvas" style="display:none"></canvas>
-        <div class="camera-actions" style="margin-top:12px">
-          <button class="btn-cam btn-cam-start" id="btnStart" onclick="startCamera()">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            Activar Cámara
-          </button>
-          <button class="btn-cam btn-cam-stop" id="btnStop" onclick="stopCamera()" style="display:none">⬛ Detener</button>
-          <button class="btn-cam" id="btnCapture" onclick="captureAndRead()" style="display:none;background:linear-gradient(135deg,#2a7a5a,#38a376);color:#fff;box-shadow:0 3px 10px rgba(42,122,90,.3)">
-            📷 Leer MRZ
-          </button>
-        </div>
-        <p class="cam-hint" style="margin-top:8px">Coloca la <strong>parte inferior del reverso</strong> de la cédula dentro del recuadro verde · Presiona <strong>Leer MRZ</strong></p>
-      </div>
-
-      <!-- PANEL TEXTO -->
-      <div id="panelText" style="display:none">
-        <div class="input-group">
-          <label class="field-label" for="barcodeInput">Código de barras</label>
-          <div class="input-row">
-            <input type="text" id="barcodeInput" class="barcode-input"
-              placeholder="Escanea con lector físico o pega el código…"
-              autocomplete="off" inputmode="text"/>
-            <button class="btn-parse" onclick="parseBarcode()">
-              <svg viewBox="0 0 24 24" width="16" height="16"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-              Procesar
-            </button>
-          </div>
-          <p class="field-hint">El lector USB/Bluetooth escribe el código y presiona Enter automáticamente</p>
-        </div>
-      </div>
-
-      <!-- PANEL DEBUG: código crudo leído por la cámara -->
-      <div id="panelDebug" style="display:none;margin-top:12px;padding:12px;background:#f1f5f9;border-radius:8px;border:1px solid #c8d0df">
-        <p style="font-size:.7rem;font-weight:700;color:#7a8699;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Código crudo leído (para diagnóstico)</p>
-        <pre id="debugRaw" style="font-family:monospace;font-size:.75rem;color:#0f1d36;white-space:pre-wrap;word-break:break-all;max-height:100px;overflow:auto"></pre>
-        <button onclick="parsearDebug()" style="margin-top:8px;height:34px;padding:0 14px;background:#1a3a6b;color:#fff;border:none;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer">Procesar este código</button>
-      </div>
+    <!-- Resultado OCR crudo editable -->
+    <div id="ocrPanel" style="display:none;padding:0 20px 16px">
+      <p style="font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Texto leído — puedes editarlo:</p>
+      <textarea id="ocrTxt" rows="4" style="width:100%;font-family:var(--m);font-size:.8rem;border:1.5px solid var(--g300);border-radius:var(--r);padding:9px 11px;background:var(--g50);outline:none;resize:vertical;line-height:1.6" placeholder="El texto aparecerá aquí…"></textarea>
+      <button onclick="procesarOCR()" style="margin-top:8px;height:38px;padding:0 16px;background:var(--navy);color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.8rem;font-weight:700;cursor:pointer">Organizar datos →</button>
     </div>
   </section>
 
-  <!-- PASO 2B: FORMULARIO MANUAL (sin documento) -->
-  <section class="card" id="sectionManual" style="display:none">
-    <div class="card-header">
-      <div class="card-icon" style="background:linear-gradient(135deg,#e65100,#ff6d00)">2</div>
-      <h2 class="card-title">Datos del Estudiante</h2>
+  <!-- PASO 2B: CÉDULA ANTIGUA (lector físico) -->
+  <section class="card" id="secAntigua" style="display:none">
+    <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Leer Cédula Antigua</h2></div>
+    <div class="txt-panel">
+      <label class="flabel" for="barcodeIn">Código de barras (PDF417)</label>
+      <div class="irow">
+        <input type="text" id="barcodeIn" class="binput" placeholder="Escanea con lector USB/Bluetooth o pega el código…" autocomplete="off"/>
+        <button class="bproc" onclick="parsearAntigua()">
+          <svg viewBox="0 0 24 24" width="16" height="16"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Procesar
+        </button>
+      </div>
+      <p class="fhint">El lector físico escribe el código automáticamente al escanear · Formato: <code>P-XXXXXXXX-XXXXXXXX-M-NUMEROCEDULA-FECHAAAAAMMDD</code></p>
+    </div>
+  </section>
+
+  <!-- PASO 2C: SIN DOCUMENTO -->
+  <section class="card" id="secSinDoc" style="display:none">
+    <div class="card-hdr">
+      <div class="ci" style="background:linear-gradient(135deg,#e65100,#ff6d00)">2</div>
+      <h2 class="ct">Datos del Estudiante</h2>
       <span class="badge-tipo" style="background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)">Sin Documento</span>
     </div>
-    <div class="fields-grid manual-body">
-      <div class="field-item full-width">
-        <label class="field-key" for="mDocAlt">Documento alternativo (opcional)</label>
-        <input class="field-input" id="mDocAlt" type="text" placeholder="Tarjeta identidad, pasaporte, NUIP…"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="mAp1">Primer Apellido *</label>
-        <input class="field-input" id="mAp1" type="text" placeholder="Apellido 1"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="mAp2">Segundo Apellido</label>
-        <input class="field-input" id="mAp2" type="text" placeholder="Apellido 2"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="mNom1">Primer Nombre *</label>
-        <input class="field-input" id="mNom1" type="text" placeholder="Nombre 1"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="mNom2">Segundo Nombre</label>
-        <input class="field-input" id="mNom2" type="text" placeholder="Nombre 2"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="mFecha">Fecha de Nacimiento</label>
-        <input class="field-input" id="mFecha" type="date"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="mGenero">Género</label>
-        <select class="field-input" id="mGenero">
-          <option value="">— Seleccionar —</option>
-          <option value="Masculino">Masculino</option>
-          <option value="Femenino">Femenino</option>
-          <option value="Otro">Otro / No especifica</option>
-        </select>
+    <div class="fgrid">
+      <div class="fi fw"><label class="fk" for="sdDoc">Documento alternativo (opcional)</label><input class="finput" id="sdDoc" type="text" placeholder="Tarjeta identidad, pasaporte, NUIP…"/></div>
+      <div class="fi"><label class="fk" for="sdAp1">Primer Apellido *</label><input class="finput" id="sdAp1" type="text" placeholder="Apellido 1"/></div>
+      <div class="fi"><label class="fk" for="sdAp2">Segundo Apellido</label><input class="finput" id="sdAp2" type="text" placeholder="Apellido 2"/></div>
+      <div class="fi"><label class="fk" for="sdNom1">Primer Nombre *</label><input class="finput" id="sdNom1" type="text" placeholder="Nombre 1"/></div>
+      <div class="fi"><label class="fk" for="sdNom2">Segundo Nombre</label><input class="finput" id="sdNom2" type="text" placeholder="Nombre 2"/></div>
+      <div class="fi"><label class="fk" for="sdFecha">Fecha de Nacimiento</label><input class="finput" id="sdFecha" type="date"/></div>
+      <div class="fi"><label class="fk" for="sdGenero">Género</label>
+        <select class="finput" id="sdGenero"><option value="">— Seleccionar —</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
       </div>
     </div>
-    <div class="action-row">
-      <button class="btn-primary" onclick="buildManualData()">
-        <svg viewBox="0 0 24 24" width="18" height="18"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Continuar con estos datos
-      </button>
-    </div>
+    <div class="acts"><button class="bpri" onclick="confirmarSinDoc()">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Continuar →
+    </button></div>
   </section>
 
-  <!-- PASO 3: CONFIRMAR + DATOS SIVE -->
-  <section class="card" id="sectionData" style="display:none">
-    <div class="card-header">
-      <div class="card-icon">3</div>
-      <h2 class="card-title">Confirmar y Guardar</h2>
-      <span class="badge-tipo" id="badgeTipo">—</span>
+  <!-- PASO 3: CONFIRMAR + GUARDAR -->
+  <section class="card" id="secData" style="display:none">
+    <div class="card-hdr"><div class="ci">3</div><h2 class="ct">Confirmar y Guardar</h2><span class="badge-tipo" id="badgeTipo">—</span></div>
+    <div class="aviso" id="avisoEdit">✏️ Revisa y corrige los datos si es necesario antes de guardar.</div>
+    <div class="fgrid">
+      <div class="fi"><label class="fk" for="dCed">Número Cédula / Doc</label><input class="finput fedit" id="dCed" type="text" placeholder="Número"/></div>
+      <div class="fi"><label class="fk" for="dGen">Género</label>
+        <select class="finput fedit" id="dGen"><option value="">—</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
+      </div>
+      <div class="fi"><label class="fk" for="dAp1">Primer Apellido</label><input class="finput fedit" id="dAp1" type="text"/></div>
+      <div class="fi"><label class="fk" for="dAp2">Segundo Apellido</label><input class="finput fedit" id="dAp2" type="text"/></div>
+      <div class="fi"><label class="fk" for="dNom1">Primer Nombre</label><input class="finput fedit" id="dNom1" type="text"/></div>
+      <div class="fi"><label class="fk" for="dNom2">Segundo Nombre</label><input class="finput fedit" id="dNom2" type="text"/></div>
+      <div class="fi"><label class="fk" for="dFnac">Fecha Nacimiento</label><input class="finput fedit" id="dFnac" type="text" placeholder="DD/MM/AAAA"/></div>
+      <div class="fi"><label class="fk" for="dFexp">Fecha Expedición</label><input class="finput fedit" id="dFexp" type="text" placeholder="DD/MM/AAAA"/></div>
+      <div class="fi fw"><label class="fk" for="dLug">Lugar Expedición</label><input class="finput fedit" id="dLug" type="text" placeholder="Ciudad"/></div>
     </div>
-
-    <!-- Datos extraídos -->
-    <div class="fields-grid">
-      <div class="field-item">
-        <label class="field-key" for="fCedula">Número Cédula / Doc</label>
-        <input class="field-input field-val-edit" id="fCedula" type="text" placeholder="Número de documento"/>
+    <div class="divider"><span>Información SIVE</span></div>
+    <div class="fgrid">
+      <div class="fi fw"><label class="fk" for="sProg">Programa / Carrera *</label><input class="finput" id="sProg" type="text" placeholder="Ej: Medicina, Enfermería…"/></div>
+      <div class="fi"><label class="fk" for="sSem">Semestre</label><input class="finput" id="sSem" type="number" min="1" max="12" placeholder="1–12"/></div>
+      <div class="fi"><label class="fk" for="sJor">Jornada</label>
+        <select class="finput" id="sJor"><option value="">—</option><option>Diurna</option><option>Nocturna</option><option>Sabatina</option><option>Virtual</option></select>
       </div>
-      <div class="field-item">
-        <label class="field-key" for="fGenero">Género</label>
-        <select class="field-input field-val-edit" id="fGenero">
-          <option value="">— —</option>
-          <option value="Masculino">Masculino</option>
-          <option value="Femenino">Femenino</option>
-          <option value="Otro">Otro</option>
-        </select>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="fAp1">Primer Apellido</label>
-        <input class="field-input field-val-edit" id="fAp1" type="text" placeholder="Primer apellido"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="fAp2">Segundo Apellido</label>
-        <input class="field-input field-val-edit" id="fAp2" type="text" placeholder="Segundo apellido"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="fNom1">Primer Nombre</label>
-        <input class="field-input field-val-edit" id="fNom1" type="text" placeholder="Primer nombre"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="fNom2">Segundo Nombre</label>
-        <input class="field-input field-val-edit" id="fNom2" type="text" placeholder="Segundo nombre"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="fFechaNac">Fecha Nacimiento</label>
-        <input class="field-input field-val-edit" id="fFechaNac" type="text" placeholder="DD/MM/AAAA"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="fFechaExp">Fecha Expedición</label>
-        <input class="field-input field-val-edit" id="fFechaExp" type="text" placeholder="DD/MM/AAAA"/>
-      </div>
-      <div class="field-item full-width">
-        <label class="field-key" for="fLugar">Lugar Expedición</label>
-        <input class="field-input field-val-edit" id="fLugar" type="text" placeholder="Ciudad de expedición"/>
-      </div>
+      <div class="fi fw"><label class="fk" for="sObs">Observaciones</label><textarea class="finput" id="sObs" rows="2" placeholder="Notas…"></textarea></div>
     </div>
-
-    <!-- Aviso QR cifrado: solo se muestra con cédula nueva -->
-    <div id="avisoCifrado" style="display:none;margin:0 22px 4px;padding:12px 16px;background:#fef3c7;border:1px solid rgba(146,64,14,.25);border-radius:10px;font-size:.8rem;color:#92400e;line-height:1.5">
-      <strong>⚠️ QR cifrado (cédula nueva):</strong> El QR de la cédula nueva colombiana está encriptado con clave de la Registraduría Nacional y no puede ser descifrado por terceros. El número de cédula fue extraído automáticamente — <strong>completa los demás datos manualmente</strong> consultando la cédula física.
-    </div>
-
-    <div class="section-divider"><span>Información SIVE</span></div>
-
-    <div class="fields-grid">
-      <div class="field-item full-width">
-        <label class="field-key" for="sPrograma">Programa / Carrera *</label>
-        <input class="field-input" id="sPrograma" type="text" placeholder="Ej: Medicina, Enfermería, Bacteriología…"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="sSemestre">Semestre</label>
-        <input class="field-input" id="sSemestre" type="number" min="1" max="12" placeholder="1 – 12"/>
-      </div>
-      <div class="field-item">
-        <label class="field-key" for="sJornada">Jornada</label>
-        <select class="field-input" id="sJornada">
-          <option value="">— Seleccionar —</option>
-          <option>Diurna</option>
-          <option>Nocturna</option>
-          <option>Sabatina</option>
-          <option>Virtual</option>
-        </select>
-      </div>
-      <div class="field-item full-width">
-        <label class="field-key" for="sObs">Observaciones</label>
-        <textarea class="field-input" id="sObs" rows="2" placeholder="Notas adicionales…"></textarea>
-      </div>
-    </div>
-
-    <div class="action-row">
-      <button class="btn-secondary" onclick="cancelar()">✕ Cancelar</button>
-      <button class="btn-primary" id="btnSave" onclick="saveRecord()">
-        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+    <div class="acts">
+      <button class="bsec" onclick="cancelar()">✕ Cancelar</button>
+      <button class="bpri" id="btnSave" onclick="guardar()">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         Guardar en Google Sheets
       </button>
     </div>
@@ -513,683 +352,454 @@ select.field-input{cursor:pointer}
 
   <div class="toast" id="toast"></div>
 
-  <!-- TABLA RECIENTES -->
-  <section class="card table-card">
-    <div class="card-header">
-      <div class="card-icon">☰</div>
-      <h2 class="card-title">Registros Recientes</h2>
-      <button class="btn-refresh" onclick="loadRecent()">↺ Actualizar</button>
-    </div>
-    <div class="table-wrap">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Cédula / Doc</th>
-            <th>Nombre Completo</th>
-            <th>Programa</th>
-            <th>Tipo</th>
-            <th>Fecha Registro</th>
-          </tr>
-        </thead>
-        <tbody id="recentBody">
-          <tr><td colspan="5" class="empty-row">Sin registros aún.</td></tr>
-        </tbody>
+  <!-- TABLA -->
+  <section class="card">
+    <div class="card-hdr tbl-hdr"><div class="ci">☰</div><h2 class="ct">Registros Recientes</h2><button class="bref" onclick="cargarRecientes()">↺ Actualizar</button></div>
+    <div class="twrap">
+      <table class="tbl">
+        <thead><tr><th>Cédula</th><th>Nombre Completo</th><th>Programa</th><th>Tipo</th><th>Fecha</th></tr></thead>
+        <tbody id="tblBody"><tr><td colspan="5" class="empty">Sin registros aún.</td></tr></tbody>
       </table>
     </div>
   </section>
 
 </main>
-
-<footer class="footer">
-  <span>© 2025 SIVE – Salud Integral Vocacional Estudiantil</span>
-  <span class="footer-sep">·</span>
-  <span>Cúcuta, Norte de Santander</span>
-</footer>
+<footer><span>© 2025 SIVE – Salud Integral Vocacional Estudiantil</span><span>·</span><span>Cúcuta, Norte de Santander</span></footer>
 
 <script>
-// ─── CONFIGURACIÓN ────────────────────────────────────────────
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
+const URL_GAS = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
 
-// ─── ESTADO ───────────────────────────────────────────────────
-let mode        = 'nueva';
-let activeTab   = 'cam';
-let currentData = null;
-let camStream   = null;
-let camRunning  = false;
-let camStream   = null;
-let countToday  = 0;
-let countTotal  = 0;
-let toastTimer  = null;
+let modo       = 'nueva';
+let camStream  = null;
+let camActiva  = false;
+let datosAct   = null;
+let cntHoy     = 0;
+let cntTotal   = 0;
+let toastT     = null;
 
-// ─── INIT ─────────────────────────────────────────────────────
+// ── INIT ─────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  checkConnection();
-  loadRecent();
-  document.getElementById('barcodeInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') parseBarcode();
+  checkConn();
+  cargarRecientes();
+  document.getElementById('barcodeIn').addEventListener('keydown', e => {
+    if (e.key === 'Enter') parsearAntigua();
   });
 });
 
-// ─── MODO ─────────────────────────────────────────────────────
-function selectMode(m) {
-  if (camRunning) stopCamera();
-  mode = m;
-  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('mode' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
-  document.getElementById('sectionData').style.display = 'none';
-  currentData = null;
+// ── MODO ──────────────────────────────────────────────────────────
+function setMode(m) {
+  if (camActiva) camStop();
+  modo = m;
+  ['nueva','antigua','sindoc'].forEach(x => {
+    document.getElementById('m' + x.charAt(0).toUpperCase() + x.slice(1)).classList.toggle('on', x === m);
+  });
+  document.getElementById('secNueva').style.display   = m === 'nueva'   ? '' : 'none';
+  document.getElementById('secAntigua').style.display = m === 'antigua' ? '' : 'none';
+  document.getElementById('secSinDoc').style.display  = m === 'sindoc'  ? '' : 'none';
+  document.getElementById('secData').style.display    = 'none';
+  datosAct = null;
 
-  if (m === 'sindoc') {
-    document.getElementById('sectionScanner').style.display = 'none';
-    document.getElementById('sectionManual').style.display  = '';
-  } else {
-    document.getElementById('sectionScanner').style.display = '';
-    document.getElementById('sectionManual').style.display  = 'none';
-    document.getElementById('scannerTitle').textContent =
-      m === 'nueva'
-        ? 'Cédula Nueva — QR cifrado (cámara trasera)'
-        : 'Cédula Antigua — PDF417 (cámara trasera)';
-    if (activeTab === 'cam') setTimeout(startCamera, 300);
-  }
+  // Botón sindoc activo → color naranja
+  document.getElementById('mSinDoc').classList.toggle('on', m === 'sindoc');
 }
 
-// ─── TABS ─────────────────────────────────────────────────────
-function switchTab(t) {
-  activeTab = t;
-  document.getElementById('tabCam').classList.toggle('active',  t === 'cam');
-  document.getElementById('tabText').classList.toggle('active', t === 'text');
-  document.getElementById('panelCam').style.display  = t === 'cam'  ? '' : 'none';
-  document.getElementById('panelText').style.display = t === 'text' ? '' : 'none';
-  if (t === 'text') {
-    stopCamera();
-    setTimeout(() => document.getElementById('barcodeInput').focus(), 80);
-  } else {
-    startCamera();
-  }
-}
-
-// ─── CÁMARA OCR (Tesseract) ────────────────────────────────────
-// Tesseract soporta: PDF417 (cédula antigua) y QR_CODE (cédula nueva)
-async function startCamera() {
-  if (camRunning) return;
+// ── CÁMARA ────────────────────────────────────────────────────────
+function camStart() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('⚠️ Tu navegador no permite cámara. Usa Lector/Texto.', 'warn');
-    return;
+    toast('⚠️ Tu navegador no soporta cámara.', 'warn'); return;
   }
-
-  document.getElementById('camPlaceholder').style.display = 'none';
-  document.getElementById('btnStart').style.display  = 'none';
-  document.getElementById('btnStop').style.display   = '';
-  document.getElementById('btnCapture').style.display = '';
-  document.getElementById('camLive').style.display   = '';
-
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
     audio: false
   })
   .then(stream => {
     camStream = stream;
-    const video = document.getElementById('camVideo');
-    video.srcObject = stream;
-    return video.play();
-  })
-  .then(() => {
-    camRunning = true;
-    showToast('📷 Cámara activa — alinea la MRZ y presiona Leer MRZ', '');
+    camActiva = true;
+    const v = document.getElementById('camVideo');
+    v.srcObject = stream;
+    v.style.display = 'block';
+    document.getElementById('camPh').style.display     = 'none';
+    document.getElementById('mrzZone').style.display   = '';
+    document.getElementById('btnOn').style.display     = 'none';
+    document.getElementById('btnOff').style.display    = '';
+    document.getElementById('btnRead').style.display   = '';
+    document.getElementById('ocrPanel').style.display  = 'none';
+    toast('📷 Cámara activa — alinea las letras MRZ en el recuadro verde', '');
   })
   .catch(err => {
-    resetCamUI();
     const msg = err.toString();
-    if (msg.includes('NotAllowed') || msg.includes('denied')) {
-      showToast('🚫 Permiso denegado — activa la cámara en el navegador.', 'error');
-    } else {
-      showToast('⚠️ Error de cámara. Usa la pestaña Lector/Texto.', 'warn');
-    }
-    console.error(err);
+    if (msg.includes('NotAllowed') || msg.includes('denied'))
+      toast('🚫 Permiso denegado — activa la cámara en ajustes del navegador.', 'err');
+    else
+      toast('⚠️ No se pudo acceder a la cámara: ' + msg.slice(0,50), 'warn');
   });
 }
 
-function stopCamera() {
-  if (camStream) {
-    camStream.getTracks().forEach(t => t.stop());
-    camStream = null;
-  }
-  camRunning = false;
-  resetCamUI();
+function camStop() {
+  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+  camActiva = false;
+  const v = document.getElementById('camVideo');
+  v.srcObject = null; v.style.display = 'none';
+  document.getElementById('camPh').style.display   = '';
+  document.getElementById('mrzZone').style.display = 'none';
+  document.getElementById('btnOn').style.display   = '';
+  document.getElementById('btnOff').style.display  = 'none';
+  document.getElementById('btnRead').style.display = 'none';
 }
 
-function resetCamUI() {
-  camRunning = false;
-  document.getElementById('btnStart').style.display   = '';
-  document.getElementById('btnStop').style.display    = 'none';
-  document.getElementById('btnCapture').style.display = 'none';
-  document.getElementById('camLive').style.display    = 'none';
-  document.getElementById('camPlaceholder').style.display = '';
-}
+// Capturar fotograma y recortar la zona MRZ inferior
+function capturar() {
+  if (!camActiva) { toast('Activa la cámara primero.', 'warn'); return; }
+  const video  = document.getElementById('camVideo');
+  const canvas = document.getElementById('camCanvas');
+  const st     = document.getElementById('ocrSt');
 
-// Capturar solo la zona MRZ del video y pasarla a Tesseract OCR
-async function captureAndRead() {
-  if (!camRunning) return;
-  const video   = document.getElementById('camVideo');
-  const canvas  = document.getElementById('camCanvas');
-  const mrzZone = document.getElementById('mrzZone');
-  const status  = document.getElementById('ocrStatus');
+  st.style.display = '';
+  st.textContent   = '📷 Capturando…';
 
-  status.style.display = '';
-  status.textContent   = '🔍 Leyendo texto…';
-
-  // Dimensiones reales del video
   const vw = video.videoWidth;
   const vh = video.videoHeight;
 
-  // La zona MRZ en pantalla: bottom:16%, height:24% del elemento video
-  // Traducir a coordenadas del frame real
-  const zTop  = Math.floor(vh * 0.60);   // desde 60% de la altura
-  const zH    = Math.floor(vh * 0.24);   // 24% de altura
-  const zLeft = Math.floor(vw * 0.04);
-  const zW    = Math.floor(vw * 0.92);
+  // Recortar zona MRZ: franja inferior (60%–88% del alto, 4%–96% del ancho)
+  const x = Math.floor(vw * 0.03);
+  const y = Math.floor(vh * 0.58);
+  const w = Math.floor(vw * 0.94);
+  const h = Math.floor(vh * 0.28);
 
-  // Dibujar solo esa franja en el canvas
-  canvas.width  = zW;
-  canvas.height = zH;
+  // Escalar ×2 para mejor resolución
+  canvas.width  = w * 2;
+  canvas.height = h * 2;
   const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, x, y, w, h, 0, 0, w * 2, h * 2);
 
-  // Escalar × 2 para mejor OCR
-  const scale = 2;
-  canvas.width  = zW * scale;
-  canvas.height = zH * scale;
-  ctx.drawImage(video, zLeft, zTop, zW, zH, 0, 0, zW * scale, zH * scale);
-
-  // Preprocesar: aumentar contraste para OCR
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const d = imgData.data;
+  // Preprocesar: escala de grises + alto contraste
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d   = img.data;
   for (let i = 0; i < d.length; i += 4) {
-    // Escala de grises
-    const gray = 0.299 * d[i] + 0.587 * d[i+1] + 0.114 * d[i+2];
-    // Binarización simple: umbral 128
-    const bw = gray > 128 ? 255 : 0;
-    d[i] = d[i+1] = d[i+2] = bw;
+    const g = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+    const v2 = g > 140 ? 255 : 0;
+    d[i] = d[i+1] = d[i+2] = v2;
   }
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(img, 0, 0);
 
-  try {
-    // Tesseract OCR — charset MRZ (solo letras mayúsculas, dígitos y <)
-    const result = await Tesseract.recognize(canvas, 'eng', {
+  // Mostrar imagen recortada en el textarea como referencia visual (opcional)
+  // Usar Tesseract si está disponible, sino mostrar panel editable
+  if (typeof Tesseract !== 'undefined') {
+    st.textContent = '🔍 Leyendo texto…';
+    Tesseract.recognize(canvas, 'eng', {
       tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
-      tessedit_pageseg_mode: '6'   // bloque uniforme de texto
+      tessedit_pageseg_mode: '6'
+    }).then(r => {
+      st.style.display = 'none';
+      const txt = r.data.text.trim().toUpperCase().replace(/[^A-Z0-9<\n]/g, '');
+      mostrarOCR(txt);
+    }).catch(() => {
+      st.style.display = 'none';
+      mostrarOCR('');
+      toast('⚠️ OCR no disponible — pega el texto manualmente.', 'warn');
     });
-
-    const text = result.data.text.trim().toUpperCase();
-    console.log('OCR resultado:', JSON.stringify(text));
-    status.style.display = 'none';
-
-    if (!text || text.length < 10) {
-      showToast('⚠️ No se detectó texto. Acerca la cédula y vuelve a intentar.', 'warn');
-      return;
-    }
-
-    const data = processCode(text);
-    if (data) {
-      stopCamera();
-      presentData(data);
-    } else {
-      // Mostrar el texto crudo para diagnóstico
-      switchTab('text');
-      document.getElementById('barcodeInput').value = text;
-      showToast('⚠️ Texto capturado — revísalo y presiona Procesar', 'warn');
-    }
-
-  } catch(err) {
-    status.style.display = 'none';
-    console.error('OCR error:', err);
-    showToast('❌ Error de OCR. Intenta de nuevo.', 'error');
-  }
-}
-
-function onScanOk(decoded) {
-  stopCamera();
-  const data = processCode(decoded);
-  if (data) {
-    presentData(data);
   } else {
-    switchTab('text');
-    document.getElementById('barcodeInput').value = decoded;
-    showToast('⚠️ Código capturado — presiona Procesar', 'warn');
+    // Sin Tesseract: mostrar panel editable vacío para que el usuario pegue el texto
+    st.style.display = 'none';
+    mostrarOCR('');
+    toast('📋 Pega el texto de la MRZ en el campo y presiona "Organizar datos"', 'warn');
   }
 }
 
-function parsearDebug() {
-  const raw  = document.getElementById('debugRaw').textContent;
-  const data = processCode(raw);
+function mostrarOCR(txt) {
+  const panel = document.getElementById('ocrPanel');
+  const ta    = document.getElementById('ocrTxt');
+  ta.value    = txt;
+  panel.style.display = '';
+  if (txt) toast('✓ Texto capturado — revisa y presiona Organizar datos', 'ok');
+}
+
+function procesarOCR() {
+  const raw = document.getElementById('ocrTxt').value.trim().toUpperCase();
+  if (!raw) { toast('Escribe o pega el texto MRZ primero.', 'warn'); return; }
+  const data = parseMRZ(raw) || parseTextoLibre(raw);
   if (data) {
-    presentData(data);
-    document.getElementById('panelDebug').style.display = 'none';
+    camStop();
+    mostrarPaso3(data);
   } else {
-    showToast('❌ Formato no reconocido. Revisa la consola (F12).', 'error');
+    toast('⚠️ No se reconoció. Revisa que el texto tenga el formato MRZ (con <<< y números).', 'warn');
   }
 }
 
-
-function parseBarcode() {
-  const raw = document.getElementById('barcodeInput').value.trim();
-  if (!raw) { showToast('Ingresa o escanea un código primero.', 'warn'); return; }
-  const data = processCode(raw);
-  if (data) {
-    presentData(data);
-  } else {
-    showToast('❌ Formato no reconocido. Verifica el código.', 'error');
-  }
-}
-
-// ─── PROCESADOR CENTRAL ───────────────────────────────────────
-// Orden: antigua PDF417 → nueva QR → genérico separadores
-function processCode(raw) {
-  console.log('RAW recibido:', JSON.stringify(raw.slice(0, 200)));
-  return parseMRZ(raw)
-      || parseCedulaAntigua(raw)
-      || parseGenerico(raw);
-}
-
-// ══════════════════════════════════════════════════════════════════
-// MRZ – Zona de Lectura Mecánica (cédula nueva colombiana)
-//
-// Formato de 3 líneas (el escáner puede entregarlas juntas o separadas):
-//
-// Línea 1: ICCOL000000012<<<<<<<<<<<<<<<<   (tipo + país + num doc interno)
-// Línea 2: 8808213F3101300COL1234567890<9   (fechas + género + cédula)
-//           ^^                               88 = año nac (1988)
-//             ^^                             08 = mes nac (agosto)
-//               ^^                           21 = día nac
-//                 ^                          3 = dígito verificador
-//                  ^                         F = género (F/M)
-//                   ^^^^^^                   310130 = fecha expedición (2031-01-30 o vence)
-//                          ^^^               COL = país
-//                             ^^^^^^^^^^     número de cédula (hasta <)
-// Línea 3: MARTINEZ<GARCIA<<MARIA<DANIELA   (apellido1<apellido2<<nombre1<nombre2)
-//
-// El escáner puede enviar las 3 líneas con \n o todo junto
-// ══════════════════════════════════════════════════════════════════
+// ── PARSEO MRZ ────────────────────────────────────────────────────
+// Formato cédula nueva Colombia:
+// Línea 1: ICCOL000000012<<<<<<<<<<<<<<<
+// Línea 2: 8808213F3101300COL1234567890<9
+//           AA MM DD  [M/F]  AA MM DD  COL  NUMERO_CEDULA
+// Línea 3: MARTINEZ<GARCIA<<MARIA<DANIELA
+//           Ap1      Ap2    Nom1  Nom2
 function parseMRZ(raw) {
-  // Normalizar: reemplazar saltos de línea y unificar separadores
-  const normalized = raw.replace(/\r/g, '').trim();
-  
-  // Dividir en líneas (el escáner puede usar \n o entregar todo junto)
-  let lineas = normalized.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-  
-  // Si vino todo en una sola línea larga (sin saltos de línea), dividir por patrón MRZ
-  if (lineas.length <= 1) {
-    const single = lineas[0] || normalized;
-    // Patrón línea 2: AAMMDD + dígito_ver + M/F + AAMMDD + dígito_ver + COL + número
-    const mrzPat = single.match(/(\d{6}\d[MF]\d{6}\d[A-Z]{3}[0-9<]{9,})/i);
-    if (mrzPat) {
-      const pos2  = single.indexOf(mrzPat[1]);
-      const l1    = single.slice(0, pos2).trim();
-      const resto = single.slice(pos2);
-      // Línea 2 tiene longitud fija ~30 chars hasta encontrar letras+< de la línea 3
-      const mNombres = resto.match(/([A-Z]+<[A-Z<]+<<[A-Z<]+)/i);
-      let l2, l3;
-      if (mNombres) {
-        const posNom = resto.indexOf(mNombres[1]);
-        l2 = resto.slice(0, posNom).trim();
-        l3 = resto.slice(posNom).trim();
-      } else {
-        l2 = resto.slice(0, 30).trim();
-        l3 = resto.slice(30).trim();
-      }
-      lineas = [l1, l2, l3].filter(l => l.length > 0);
-    } else if (single.includes('<')) {
-      // Tiene < pero no patrón MRZ completo — puede ser solo línea 3 con nombres
-      // Intentar extraer número de cédula y nombres del string completo
-      lineas = [single];
-    }
-  }
+  // Dividir en líneas; normalizar espacios y caracteres raros
+  const lineas = raw.split(/[\n\r]+/).map(l => l.trim().replace(/[^A-Z0-9<]/g,'')).filter(l => l.length > 5);
 
-  // Necesitamos al menos 2 líneas (línea 2 con fechas/cédula y línea 3 con nombres)
-  if (lineas.length < 2) return null;
+  let L2 = '', L3 = '';
 
-  // Identificar línea 2 (contiene patrón AAMMDD + M/F + COL)
-  let linea2 = '', linea3 = '';
+  // Identificar línea 2: contiene patrón AAMMDD + M/F + dígitos + COL
   for (let i = 0; i < lineas.length; i++) {
-    if (/\d{6}[MF]\d{6,7}[A-Z]{3}[0-9<]/i.test(lineas[i])) {
-      linea2 = lineas[i];
-      // Línea 3 es la siguiente que tiene letras y <
-      for (let j = i + 1; j < lineas.length; j++) {
-        if (/[A-Z<]{5,}/i.test(lineas[j])) { linea3 = lineas[j]; break; }
+    if (/\d{6}[MF]\d{6,7}[A-Z]{3}[0-9<]{5,}/.test(lineas[i])) {
+      L2 = lineas[i];
+      // Línea 3 es la siguiente que contiene letras y <<
+      for (let j = i+1; j < lineas.length; j++) {
+        if (lineas[j].includes('<') && /[A-Z]{3,}/.test(lineas[j])) {
+          L3 = lineas[j]; break;
+        }
       }
       break;
     }
   }
 
-  if (!linea2) return null;
-
-  // ── Parsear Línea 2 ──────────────────────────────────────────
-  // Formato: AAMMDD + VD + [MF] + AAMMDD + VD + COL + NumCédula + < + VD
-  // Ejemplo:  8808213F3101300COL1234567890<9
-  const m2 = linea2.match(/(\d{2})(\d{2})(\d{2})\d?([MF])(\d{2})(\d{2})(\d{2})\d?[A-Z]{3}([0-9]{6,12})/i);
-  if (!m2) return null;
-
-  const anioNac = parseInt(m2[1]) <= 30 ? '20' + m2[1] : '19' + m2[1];
-  const fechaNac = m2[3] + '/' + m2[2] + '/' + anioNac;   // DD/MM/AAAA
-  const genero   = m2[4].toUpperCase() === 'M' ? 'Masculino' : 'Femenino';
-  
-  // Fecha expedición/vencimiento (línea 2 posición 8-13)
-  const anioExp  = parseInt(m2[5]) <= 30 ? '20' + m2[5] : '19' + m2[5];
-  const fechaExp = m2[7] + '/' + m2[6] + '/' + anioExp;
-
-  const cedula = m2[8].replace(/</g, '');
-
-  // ── Parsear Línea 3 (nombres y apellidos) ───────────────────
-  // Formato: APELLIDO1<APELLIDO2<<NOMBRE1<NOMBRE2...
-  // El << separa apellidos de nombres
-  let apellido1 = '', apellido2 = '', nombre1 = '', nombre2 = '';
-
-  if (linea3) {
-    // Quitar caracteres < del inicio/fin y normalizar
-    const limpia = linea3.replace(/^[<\s]+|[<\s]+$/g, '');
-    
-    // Dividir por << (separador apellidos-nombres)
-    const partesMayor = limpia.split('<<');
-    
-    if (partesMayor.length >= 2) {
-      // Apellidos (antes del <<)
-      const aps = partesMayor[0].split('<').filter(Boolean);
-      apellido1 = aps[0] || '';
-      apellido2 = aps[1] || '';
-      
-      // Nombres (después del <<)
-      const noms = partesMayor[1].split('<').filter(Boolean);
-      nombre1 = noms[0] || '';
-      nombre2 = noms[1] || '';
-    } else {
-      // No hay << → todo son apellidos o todo son nombres, separar por <
-      const partes = limpia.split('<').filter(Boolean);
-      apellido1 = partes[0] || '';
-      apellido2 = partes[1] || '';
-      nombre1   = partes[2] || '';
-      nombre2   = partes[3] || '';
+  // Si no se encontró con saltos, buscar en texto continuo
+  if (!L2) {
+    const mL2 = raw.replace(/\s/g,'').match(/(\d{6}[MF]\d{6,7}[A-Z]{3}[0-9<]{6,})/);
+    if (mL2) {
+      L2 = mL2[1];
+      // Buscar línea 3 después
+      const pos = raw.indexOf(L2) + L2.length;
+      const resto = raw.slice(pos).replace(/[^A-Z<]/g,'');
+      if (resto.includes('<') && /[A-Z]{3,}/.test(resto)) L3 = resto;
     }
   }
 
-  // Capitalizar nombres (MARTINEZ → Martinez)
-  const cap = s => s ? s.charAt(0) + s.slice(1).toLowerCase() : '';
+  if (!L2) return null;
 
+  // ─── Parsear Línea 2 ───────────────────────────────────────────
+  // AAMMDD + díg_ver? + M/F + AAMMDD + díg_ver? + COL + NumCédula + <* + díg_ver
+  const m = L2.match(/(\d{2})(\d{2})(\d{2})\d?([MF])(\d{2})(\d{2})(\d{2})\d?[A-Z]{3}([0-9]{6,12})/);
+  if (!m) return null;
+
+  const aaFnac = parseInt(m[1]);
+  const aaFexp = parseInt(m[5]);
+  const fnac = m[3]+'/'+m[2]+'/'+(aaFnac <= 30 ? '20' : '19')+m[1];
+  const fexp = m[7]+'/'+m[6]+'/'+(aaFexp <= 30 ? '20' : '19')+m[5];
+  const gen  = m[4] === 'M' ? 'Masculino' : 'Femenino';
+  const ced  = m[8].replace(/</g,'');
+
+  // ─── Parsear Línea 3 (nombres) ─────────────────────────────────
+  let ap1='', ap2='', nom1='', nom2='';
+  if (L3) {
+    const lim = L3.replace(/^<+|<+$/g,'');
+    // << separa apellidos de nombres
+    const pp = lim.split('<<');
+    if (pp.length >= 2) {
+      const aps  = pp[0].split('<').filter(Boolean);
+      const noms = pp[1].split('<').filter(Boolean);
+      ap1=aps[0]||''; ap2=aps[1]||'';
+      nom1=noms[0]||''; nom2=noms[1]||'';
+    } else {
+      const pts = lim.split('<').filter(Boolean);
+      ap1=pts[0]||''; ap2=pts[1]||''; nom1=pts[2]||''; nom2=pts[3]||'';
+    }
+  }
+
+  const cap = s => s ? s[0] + s.slice(1).toLowerCase() : '';
   return {
-    tipo:      'NUEVA (MRZ)',
-    cedula:    cedula,
-    apellido1: cap(apellido1),
-    apellido2: cap(apellido2),
-    nombre1:   cap(nombre1),
-    nombre2:   cap(nombre2),
-    fechaNac,
-    genero,
-    fechaExp,
-    lugarExp:  'Colombia'
+    tipo:'NUEVA (MRZ)', cedula:ced,
+    apellido1:cap(ap1), apellido2:cap(ap2),
+    nombre1:cap(nom1),  nombre2:cap(nom2),
+    fechaNac:fnac, genero:gen, fechaExp:fexp, lugarExp:'Colombia'
   };
 }
 
-// ══════════════════════════════════════════════════════════════════
-// CÉDULA ANTIGUA – PDF417 2D
-// Formato: P-CodMun-CodReg-Género-NúmDoc-FechaExpAAAAMMDD
-// Ejemplo: P-2500100-01296101-M-1095298343-20220507
-// ══════════════════════════════════════════════════════════════════
-function parseCedulaAntigua(raw) {
-  const m = raw.match(/P[-](\d+)[-](\d+)[-]([MF])[-](\d{6,12})[-](\d{8})/i);
-  if (m) {
-    return {
-      tipo:      'ANTIGUA (PDF417)',
-      cedula:    m[4],
-      apellido1: '', apellido2: '',
-      nombre1:   '', nombre2:   '',
-      fechaNac:  '',
-      genero:    m[3].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
-      fechaExp:  fmtFechaAAAAMMDD(m[5]),
-      lugarExp:  ''
-    };
-  }
-
-  // Solo número puro
-  const clean = raw.replace(/[\s.\-]/g, '');
-  if (/^\d{7,12}$/.test(clean)) {
-    return {
-      tipo: 'ANTIGUA (PDF417)',
-      cedula: clean,
-      apellido1: '', apellido2: '', nombre1: '', nombre2: '',
-      fechaNac: '', genero: '', fechaExp: '', lugarExp: ''
-    };
-  }
+// Parseo de texto libre si el usuario escribe/pega directamente
+function parseTextoLibre(raw) {
+  // Intentar extraer líneas manualmente del texto
+  const lineas = raw.split(/[\n\r]+/).map(l=>l.trim()).filter(Boolean);
+  // Buscar línea con nombres (tiene << y letras)
+  const L3c = lineas.find(l => l.includes('<<') && /[A-Z]{3,}/.test(l));
+  // Buscar línea con números y M/F
+  const L2c = lineas.find(l => /\d{6}[MF]\d{6}/.test(l));
+  if (L3c || L2c) return parseMRZ(raw);
   return null;
 }
 
-// ══════════════════════════════════════════════════════════════════
-// GENÉRICO – separadores ; | tabulador
-// ══════════════════════════════════════════════════════════════════
-function parseGenerico(raw) {
-  if (!/[;|\t]/.test(raw)) return null;
-  const parts = raw.split(/[;|\t]/).map(p => p.trim());
-  const idx   = parts.findIndex(p => /^\d{7,12}$/.test(p));
-  if (idx < 0) return null;
-  return {
-    tipo:      'NUEVA (PDF417)',
-    cedula:    parts[idx],
-    apellido1: parts[idx+1] || '', apellido2: parts[idx+2] || '',
-    nombre1:   parts[idx+3] || '', nombre2:   parts[idx+4] || '',
-    fechaNac:  fmtFecha(parts[idx+5] || ''),
-    genero:    fmtGenero(parts[idx+6] || ''),
-    fechaExp:  fmtFecha(parts[idx+7] || ''),
-    lugarExp:  parts[idx+8] || ''
-  };
-}
+// ── CÉDULA ANTIGUA (lector físico) ───────────────────────────────
+function parsearAntigua() {
+  const raw = document.getElementById('barcodeIn').value.trim();
+  if (!raw) { toast('Escanea o pega el código primero.', 'warn'); return; }
+  console.log('Código antiguo:', JSON.stringify(raw));
 
-
-// ─── FORMULARIO MANUAL ────────────────────────────────────────
-function buildManualData() {
-  const ap1  = document.getElementById('mAp1').value.trim();
-  const nom1 = document.getElementById('mNom1').value.trim();
-  if (!ap1 || !nom1) {
-    showToast('⚠️ Primer apellido y primer nombre son obligatorios.', 'warn');
+  // Formato: P-XXXXX-XXXXX-M-NUMEROCEDULA-AAAAMMDD
+  const m = raw.match(/P[-][\d\w]+[-][\d\w]+[-]([MF])[-](\d{6,12})[-](\d{8})/i);
+  if (m) {
+    const d = m[3]; // AAAAMMDD
+    mostrarPaso3({
+      tipo:'ANTIGUA (PDF417)',
+      cedula:m[2], apellido1:'', apellido2:'', nombre1:'', nombre2:'',
+      fechaNac:'',
+      genero: m[1].toUpperCase()==='M' ? 'Masculino' : 'Femenino',
+      fechaExp: d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4),
+      lugarExp:''
+    });
     return;
   }
-  const docAlt  = document.getElementById('mDocAlt').value.trim();
-  const fechaRaw = document.getElementById('mFecha').value;
-  presentData({
-    tipo:      'SIN DOCUMENTO',
-    cedula:    docAlt || ('SD-' + Date.now()),
-    apellido1: ap1,
-    apellido2: document.getElementById('mAp2').value.trim(),
-    nombre1:   nom1,
-    nombre2:   document.getElementById('mNom2').value.trim(),
-    fechaNac:  fechaRaw ? fechaRaw.split('-').reverse().join('/') : '',
-    genero:    document.getElementById('mGenero').value,
-    fechaExp:  '',
-    lugarExp:  ''
+
+  // Solo número
+  const clean = raw.replace(/[\s.\-]/g,'');
+  if (/^\d{6,12}$/.test(clean)) {
+    mostrarPaso3({
+      tipo:'ANTIGUA (PDF417)', cedula:clean,
+      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
+      fechaNac:'', genero:'', fechaExp:'', lugarExp:''
+    });
+    return;
+  }
+
+  // Mostrar crudo en el campo para que editen
+  toast('⚠️ Formato no reconocido. Revisa el código.', 'warn');
+  console.log('RAW:', JSON.stringify(raw));
+}
+
+// ── SIN DOCUMENTO ────────────────────────────────────────────────
+function confirmarSinDoc() {
+  const ap1  = document.getElementById('sdAp1').value.trim();
+  const nom1 = document.getElementById('sdNom1').value.trim();
+  if (!ap1||!nom1) { toast('⚠️ Primer apellido y nombre son obligatorios.', 'warn'); return; }
+  const fecha = document.getElementById('sdFecha').value;
+  mostrarPaso3({
+    tipo:'SIN DOCUMENTO',
+    cedula: document.getElementById('sdDoc').value.trim() || ('SD-'+Date.now()),
+    apellido1:ap1, apellido2:document.getElementById('sdAp2').value.trim(),
+    nombre1:nom1,  nombre2:document.getElementById('sdNom2').value.trim(),
+    fechaNac: fecha ? fecha.split('-').reverse().join('/') : '',
+    genero: document.getElementById('sdGenero').value,
+    fechaExp:'', lugarExp:''
   });
 }
 
-// ─── PASO 3: MOSTRAR DATOS ────────────────────────────────────
-function presentData(data) {
-  currentData = data;
-  // Los campos del paso 3 son ahora inputs editables (permite corrección manual)
-  document.getElementById('fCedula').value   = data.cedula    || '';
-  document.getElementById('fAp1').value      = data.apellido1 || '';
-  document.getElementById('fAp2').value      = data.apellido2 || '';
-  document.getElementById('fNom1').value     = data.nombre1   || '';
-  document.getElementById('fNom2').value     = data.nombre2   || '';
-  document.getElementById('fFechaNac').value = data.fechaNac  || '';
-  document.getElementById('fGenero').value   = data.genero    || '';
-  document.getElementById('fFechaExp').value = data.fechaExp  || '';
-  document.getElementById('fLugar').value    = data.lugarExp  || '';
+// ── PASO 3 ────────────────────────────────────────────────────────
+function mostrarPaso3(data) {
+  datosAct = data;
+  document.getElementById('dCed').value  = data.cedula    || '';
+  document.getElementById('dAp1').value  = data.apellido1 || '';
+  document.getElementById('dAp2').value  = data.apellido2 || '';
+  document.getElementById('dNom1').value = data.nombre1   || '';
+  document.getElementById('dNom2').value = data.nombre2   || '';
+  document.getElementById('dFnac').value = data.fechaNac  || '';
+  document.getElementById('dGen').value  = data.genero    || '';
+  document.getElementById('dFexp').value = data.fechaExp  || '';
+  document.getElementById('dLug').value  = data.lugarExp  || '';
 
   const badge = document.getElementById('badgeTipo');
   badge.textContent   = data.tipo;
   badge.style.cssText = '';
-  if (data.tipo === 'SIN DOCUMENTO')
-    badge.style.cssText = 'background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)';
+  if (data.tipo==='SIN DOCUMENTO')
+    badge.style.cssText='background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)';
   else if (data.tipo.includes('ANTIGUA'))
-    badge.style.cssText = 'background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.3)';
-  else if (data.tipo.includes('cifrado'))
-    badge.style.cssText = 'background:#fef3c7;color:#92400e;border-color:rgba(146,64,14,.3)';
+    badge.style.cssText='background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.3)';
 
-  // Mostrar/ocultar aviso QR cifrado
-  const aviso = document.getElementById('avisoCifrado');
-  if (aviso) aviso.style.display = data.cifrado ? '' : 'none';
+  // Mostrar aviso edición si faltan datos
+  const faltan = !data.apellido1 || !data.nombre1;
+  document.getElementById('avisoEdit').style.display = faltan ? '' : 'none';
 
-  document.getElementById('sectionData').style.display = '';
-  document.getElementById('sectionData').scrollIntoView({ behavior:'smooth', block:'start' });
-
-  if (data.cifrado) {
-    showToast('⚠️ QR cifrado detectado — completa los datos manualmente', 'warn');
-  } else {
-    showToast('✓ Datos extraídos — completa la info SIVE y guarda', 'success');
-  }
+  document.getElementById('secData').style.display = '';
+  document.getElementById('secData').scrollIntoView({ behavior:'smooth', block:'start' });
+  toast('✓ Datos listos — completa la info SIVE y guarda', 'ok');
 }
 
+// ── GUARDAR ───────────────────────────────────────────────────────
+async function guardar() {
+  if (!datosAct) return;
+  const prog = document.getElementById('sProg').value.trim();
+  if (!prog) { toast('⚠️ Programa / Carrera es obligatorio.', 'warn'); document.getElementById('sProg').focus(); return; }
 
-async function saveRecord() {
-  if (!currentData) return;
-  const programa = document.getElementById('sPrograma').value.trim();
-  if (!programa) {
-    showToast('⚠️ El campo Programa / Carrera es obligatorio.', 'warn');
-    document.getElementById('sPrograma').focus();
-    return;
-  }
   const btn = document.getElementById('btnSave');
-  btn.disabled = true;
-  btn.classList.add('loading');
-  btn.innerHTML = 'Guardando…';
+  btn.disabled=true; btn.classList.add('loading'); btn.textContent='Guardando…';
 
-  const payload = {
-    action: 'save',
-    // Leer inputs editables del paso 3 (el usuario pudo corregir datos)
-    cedula:    document.getElementById('fCedula').value   || currentData.cedula,
-    apellido1: document.getElementById('fAp1').value      || currentData.apellido1,
-    apellido2: document.getElementById('fAp2').value      || currentData.apellido2,
-    nombre1:   document.getElementById('fNom1').value     || currentData.nombre1,
-    nombre2:   document.getElementById('fNom2').value     || currentData.nombre2,
-    fechaNac:  document.getElementById('fFechaNac').value || currentData.fechaNac,
-    genero:    document.getElementById('fGenero').value   || currentData.genero,
-    fechaExp:  document.getElementById('fFechaExp').value || currentData.fechaExp,
-    lugarExp:  document.getElementById('fLugar').value    || currentData.lugarExp,
-    tipo:      currentData.tipo,
-    programa,
-    semestre:      document.getElementById('sSemestre').value.trim(),
-    jornada:       document.getElementById('sJornada').value,
+  const p = {
+    action:'save',
+    cedula:    document.getElementById('dCed').value  || datosAct.cedula,
+    apellido1: document.getElementById('dAp1').value  || datosAct.apellido1,
+    apellido2: document.getElementById('dAp2').value  || datosAct.apellido2,
+    nombre1:   document.getElementById('dNom1').value || datosAct.nombre1,
+    nombre2:   document.getElementById('dNom2').value || datosAct.nombre2,
+    fechaNac:  document.getElementById('dFnac').value || datosAct.fechaNac,
+    genero:    document.getElementById('dGen').value  || datosAct.genero,
+    fechaExp:  document.getElementById('dFexp').value || datosAct.fechaExp,
+    lugarExp:  document.getElementById('dLug').value  || datosAct.lugarExp,
+    tipo:      datosAct.tipo,
+    programa:  prog,
+    semestre:  document.getElementById('sSem').value.trim(),
+    jornada:   document.getElementById('sJor').value,
     observaciones: document.getElementById('sObs').value.trim(),
-    fechaRegistro: new Date().toLocaleString('es-CO', { timeZone:'America/Bogota' })
+    fechaRegistro: new Date().toLocaleString('es-CO',{timeZone:'America/Bogota'})
   };
 
   try {
-    const res  = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST', headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(payload), mode: 'cors'
-    });
-    const json = await res.json();
-    if (json.status === 'ok') {
-      showToast('✅ Registro guardado en Google Sheets', 'success');
-      countToday++; countTotal++;
-      document.getElementById('countToday').textContent = countToday;
-      document.getElementById('countTotal').textContent = countTotal;
-      cancelar(); loadRecent();
-    } else throw new Error(json.message || 'Error desconocido');
-  } catch(err) {
-    showToast('❌ Error al guardar: ' + err.message, 'error');
+    const r = await fetch(URL_GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p),mode:'cors'});
+    const j = await r.json();
+    if (j.status==='ok') {
+      toast('✅ Guardado en Google Sheets','ok');
+      cntHoy++; cntTotal++;
+      document.getElementById('cntHoy').textContent   = cntHoy;
+      document.getElementById('cntTotal').textContent = cntTotal;
+      cancelar(); cargarRecientes();
+    } else throw new Error(j.message||'Error');
+  } catch(e) {
+    toast('❌ Error al guardar: '+e.message,'err');
   } finally {
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    btn.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar en Google Sheets`;
+    btn.disabled=false; btn.classList.remove('loading');
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar en Google Sheets';
   }
 }
 
-// ─── CANCELAR ─────────────────────────────────────────────────
+// ── CANCELAR ─────────────────────────────────────────────────────
 function cancelar() {
-  currentData = null;
-  document.getElementById('sectionData').style.display = 'none';
-  ['sPrograma','sSemestre','sObs'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('sJornada').value = '';
-  ['mDocAlt','mAp1','mAp2','mNom1','mNom2','mFecha'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('mGenero').value = '';
-  document.getElementById('barcodeInput').value = '';
-  document.getElementById('panelDebug').style.display = 'none';
-  // Limpiar inputs editables del paso 3
-  ['fCedula','fAp1','fAp2','fNom1','fNom2','fFechaNac','fFechaExp','fLugar'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('fGenero').value = '';
-  const aviso = document.getElementById('avisoCifrado');
-  if (aviso) aviso.style.display = 'none';
-  if (activeTab === 'cam' && mode !== 'sindoc') setTimeout(startCamera, 400);
+  datosAct = null;
+  document.getElementById('secData').style.display = 'none';
+  ['dCed','dAp1','dAp2','dNom1','dNom2','dFnac','dFexp','dLug'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('dGen').value='';
+  ['sProg','sSem','sObs'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('sJor').value='';
+  document.getElementById('ocrPanel').style.display='none';
+  document.getElementById('ocrTxt').value='';
+  document.getElementById('barcodeIn').value='';
 }
 
-// ─── REGISTROS RECIENTES ──────────────────────────────────────
-async function loadRecent() {
-  const tbody = document.getElementById('recentBody');
-  tbody.innerHTML = '<tr><td colspan="5" class="empty-row">Cargando…</td></tr>';
+// ── RECIENTES ─────────────────────────────────────────────────────
+async function cargarRecientes() {
+  const tb = document.getElementById('tblBody');
+  tb.innerHTML='<tr><td colspan="5" class="empty">Cargando…</td></tr>';
   try {
-    const res  = await fetch(APPS_SCRIPT_URL + '?action=getRecent&limit=10', { mode:'cors' });
-    const json = await res.json();
-    if (!json.rows || json.rows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty-row">Sin registros aún.</td></tr>'; return;
-    }
-    countTotal = json.total || json.rows.length;
-    document.getElementById('countTotal').textContent = countTotal;
-    tbody.innerHTML = json.rows.map((r, i) => `
-      <tr class="${i===0?'row-new':''}">
-        <td>${r.cedula||'—'}</td>
-        <td>${[r.apellido1,r.apellido2,r.nombre1,r.nombre2].filter(Boolean).join(' ')||'—'}</td>
-        <td>${r.programa||'—'}</td>
-        <td>${(r.tipo||'—').split(' ')[0]}</td>
-        <td>${r.fechaRegistro||'—'}</td>
-      </tr>`).join('');
+    const r = await fetch(URL_GAS+'?action=getRecent&limit=10',{mode:'cors'});
+    const j = await r.json();
+    if (!j.rows||j.rows.length===0){tb.innerHTML='<tr><td colspan="5" class="empty">Sin registros aún.</td></tr>';return;}
+    cntTotal=j.total||j.rows.length;
+    document.getElementById('cntTotal').textContent=cntTotal;
+    tb.innerHTML=j.rows.map((r,i)=>`<tr class="${i===0?'rnew':''}">
+      <td>${r.cedula||'—'}</td>
+      <td>${[r.apellido1,r.apellido2,r.nombre1,r.nombre2].filter(Boolean).join(' ')||'—'}</td>
+      <td>${r.programa||'—'}</td>
+      <td>${(r.tipo||'—').split(' ')[0]}</td>
+      <td>${r.fechaRegistro||'—'}</td>
+    </tr>`).join('');
   } catch {
-    tbody.innerHTML = '<tr><td colspan="5" class="empty-row">No se pudo cargar.</td></tr>';
+    tb.innerHTML='<tr><td colspan="5" class="empty">Error de conexión.</td></tr>';
   }
 }
 
-// ─── CONEXIÓN ─────────────────────────────────────────────────
-async function checkConnection() {
-  const pill = document.getElementById('statusPill');
-  const txt  = document.getElementById('statusText');
+// ── CONEXIÓN ──────────────────────────────────────────────────────
+async function checkConn() {
+  const pill=document.getElementById('stPill'), txt=document.getElementById('statusTxt');
   try {
-    const res = await fetch(APPS_SCRIPT_URL + '?action=ping', { mode:'cors' });
-    if (res.ok) {
-      pill.textContent = '⬤ Conectado'; pill.classList.add('online'); txt.textContent = 'Conectado';
-    } else throw new Error();
+    const r=await fetch(URL_GAS+'?action=ping',{mode:'cors'});
+    if(r.ok){pill.textContent='⬤ Conectado';pill.classList.add('online');txt.textContent='Conectado';}
+    else throw 0;
   } catch {
-    pill.textContent = '⬤ Sin conexión'; pill.classList.add('offline'); txt.textContent = 'Sin conexión';
+    pill.textContent='⬤ Sin conexión';pill.classList.add('offline');txt.textContent='Sin conexión';
   }
 }
 
-// ─── HELPERS ──────────────────────────────────────────────────
-function fmtFecha(s) {
-  const d = (s||'').replace(/\D/g,'');
-  if (d.length === 8) return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4);
-  return s;
-}
-// AAAAMMDD → DD/MM/AAAA  (cédula antigua: 20220507 → 07/05/2022)
-function fmtFechaAAAAMMDD(s) {
-  const d = (s||'').replace(/\D/g,'');
-  if (d.length === 8) return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4);
-  return s;
-}
-// AAMMDD → DD/MM/AAAA  (cédula nueva: 031210 → 10/12/2003)
-function fmtFechaAAMMDD(s) {
-  const d = (s||'').replace(/\D/g,'');
-  if (d.length === 6) {
-    const aa = parseInt(d.slice(0,2));
-    const yyyy = aa <= 30 ? '20'+d.slice(0,2) : '19'+d.slice(0,2);
-    return d.slice(4,6)+'/'+d.slice(2,4)+'/'+yyyy;
-  }
-  return s;
-}
-function fmtGenero(g) {
-  const u = g.toUpperCase().trim();
-  if (u==='M'||u==='MASCULINO'||u==='1') return 'Masculino';
-  if (u==='F'||u==='FEMENINO' ||u==='2') return 'Femenino';
-  return g;
-}
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { t.className = 'toast'; }, 4000);
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>{t.className='toast';},4000);
 }
 </script>
 </body>
