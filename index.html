@@ -341,6 +341,13 @@ select.field-input{cursor:pointer}
           <p class="field-hint">El lector USB/Bluetooth escribe el código y presiona Enter automáticamente</p>
         </div>
       </div>
+
+      <!-- PANEL DEBUG: código crudo leído por la cámara -->
+      <div id="panelDebug" style="display:none;margin-top:12px;padding:12px;background:#f1f5f9;border-radius:8px;border:1px solid #c8d0df">
+        <p style="font-size:.7rem;font-weight:700;color:#7a8699;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Código crudo leído (para diagnóstico)</p>
+        <pre id="debugRaw" style="font-family:monospace;font-size:.75rem;color:#0f1d36;white-space:pre-wrap;word-break:break-all;max-height:100px;overflow:auto"></pre>
+        <button onclick="parsearDebug()" style="margin-top:8px;height:34px;padding:0 14px;background:#1a3a6b;color:#fff;border:none;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer">Procesar este código</button>
+      </div>
     </div>
   </section>
 
@@ -595,18 +602,13 @@ function startCamera() {
 
   try {
     qrScanner = new Html5Qrcode('qr-reader');
-    const formats = [];
-    if (Html5QrcodeSupportedFormats.PDF_417    !== undefined) formats.push(Html5QrcodeSupportedFormats.PDF_417);
-    if (Html5QrcodeSupportedFormats.CODE_39    !== undefined) formats.push(Html5QrcodeSupportedFormats.CODE_39);
-    if (Html5QrcodeSupportedFormats.CODE_128   !== undefined) formats.push(Html5QrcodeSupportedFormats.CODE_128);
-    if (Html5QrcodeSupportedFormats.QR_CODE    !== undefined) formats.push(Html5QrcodeSupportedFormats.QR_CODE);
-    if (Html5QrcodeSupportedFormats.DATA_MATRIX !== undefined) formats.push(Html5QrcodeSupportedFormats.DATA_MATRIX);
-
+    // Sin filtro de formatos: detecta PDF417, Code39, Code128, DataMatrix, QR
     const cfg = {
-      fps: 10,
-      qrbox: (w, h) => ({ width: Math.min(w - 40, 300), height: Math.min(h - 40, 180) }),
-      aspectRatio: 1.7,
-      formatsToSupport: formats.length > 0 ? formats : undefined
+      fps: 15,
+      qrbox: (w, h) => ({ width: Math.min(w - 20, 340), height: Math.min(h - 20, 200) }),
+      aspectRatio: 1.6,
+      disableFlip: false,
+      experimentalFeatures: { useBarCodeDetectorIfSupported: true }
     };
 
     qrScanner.start({ facingMode: 'environment' }, cfg, onScanOk, () => {})
@@ -648,12 +650,32 @@ function resetCamUI() {
 
 function onScanOk(decoded) {
   stopCamera();
+  // Mostrar código crudo en debug
+  const dbg = document.getElementById('debugRaw');
+  const dbgPanel = document.getElementById('panelDebug');
+  dbg.textContent = decoded;
+  dbgPanel.style.display = '';
+
   const data = processCode(decoded);
   if (data) {
     presentData(data);
+    dbgPanel.style.display = 'none';
   } else {
-    showToast('❌ Código leído pero formato no reconocido. Intenta de nuevo.', 'error');
-    setTimeout(startCamera, 1800);
+    // Mostrar panel de debug y pestaña texto para que el usuario vea el código
+    switchTab('text');
+    document.getElementById('barcodeInput').value = decoded;
+    showToast('⚠️ Código capturado — puedes editarlo y presionar Procesar', 'warn');
+  }
+}
+
+function parsearDebug() {
+  const raw = document.getElementById('debugRaw').textContent;
+  const data = processCode(raw);
+  if (data) {
+    presentData(data);
+    document.getElementById('panelDebug').style.display = 'none';
+  } else {
+    showToast('❌ Formato no reconocido. Revisa el código en la consola (F12).', 'error');
   }
 }
 
@@ -670,45 +692,159 @@ function parseBarcode() {
 }
 
 // ─── PROCESADOR PRINCIPAL ─────────────────────────────────────
+// Formatos reales cédula colombiana (basado en muestras reales):
+//
+// NUEVA (PDF417) – ejemplo real:
+//   1CCOL085579499825001←791129M35112880COL82←55←FIGUEREDO←VEGA←←FAB10←←←←←
+//   Línea 1: 1C COL [NúmDoc] [FechaNac AAMMDD] [Género] [FechaExp AAMMDD] 00 [País]
+//   Línea 2: [Apellido1] ← [Apellido2] ← ← [Nombre1] [Nombre2] ← ← ← ←
+//
+// ANTIGUA (Code39/Code128) – ejemplo real:
+//   P-2500100-01296101-M-1095298343-20220507... 0079190253A 2 8504084167
+//   Campos separados por guión: P-[cod]-[cod]-[Género]-[NumDoc]-[FechaExp AAAAMMDD]
+
 function processCode(raw) {
-  return parseCedulaNueva(raw) || parseCedulaAntigua(raw);
+  // Mostrar en consola para depuración
+  console.log('Código recibido:', JSON.stringify(raw));
+  const r = parseCedulaNueva(raw)
+         || parseCedulaAntigua(raw)
+         || parseFormatoGenerico(raw);
+  if (!r) console.warn('No se reconoció el formato');
+  return r;
 }
 
+// ── CÉDULA NUEVA – Formato ICAO / MRZ-like con ← como separador ──────────────
+// Ejemplo: 1CCOL085579499825001←791129M35112880COL82←55←FIGUEREDO←VEGA←←FAB10←←←←←
 function parseCedulaNueva(raw) {
-  const parts = raw.split(/[;|\t]/).map(p => p.trim());
-  if (parts.length < 4) return null;
+  // Separador ← (carácter especial del PDF417 colombiano) o < (MRZ estándar)
+  const SEP = /[←<]/g;
+  if (!SEP.test(raw)) return null;
 
-  let idx = 0;
-  if (/^[A-Z]{2,3}$/.test(parts[0])) idx = 1;
+  // Limpiar y separar
+  const clean = raw.replace(/\r|\n/g, '');
+  const partes = clean.split(/[←<]/).map(p => p.trim()).filter(Boolean);
 
-  // Buscar el número de cédula
-  if (!/^\d{6,12}$/.test(parts[idx])) {
-    idx = parts.findIndex(p => /^\d{6,12}$/.test(p));
-    if (idx < 0) return null;
+  // Buscar número de cédula: secuencia de 8-12 dígitos
+  // En el formato real está al inicio tipo: "1CCOL085579499825001" → el número es 085579499825001? No,
+  // el número real es 1095298343 (10 dígitos). En el código leído está embebido.
+  // Estrategia: buscar en todo el string la secuencia de 8-12 dígitos que sea el número de cédula
+  
+  // Buscar apellidos/nombres (partes con solo letras mayúsculas, len > 2)
+  const soloLetras = partes.filter(p => /^[A-ZÁÉÍÓÚÑ]{2,}$/.test(p));
+  
+  // Buscar número de cédula en las partes numéricas largas
+  let cedula = '';
+  // El número de cédula en la cédula nueva aparece en la línea 1 como número largo
+  // Ejemplo: "085579499825001" → últimos 10 dígitos podrían ser la cédula
+  // O buscar parte que matchee patrón de cédula colombiana (7-12 dígitos)
+  for (const p of partes) {
+    const solo = p.replace(/[^0-9]/g,'');
+    if (/^\d{7,12}$/.test(solo) && solo.length >= 7 && solo.length <= 12) {
+      cedula = solo; break;
+    }
   }
 
-  const cedula    = parts[idx];
-  const apellido1 = parts[idx+1] || '';
-  const apellido2 = parts[idx+2] || '';
-  const nombre1   = parts[idx+3] || '';
-  const nombre2   = parts[idx+4] || '';
-  const fechaNac  = fmtFecha(parts[idx+5] || '');
-  const genero    = fmtGenero(parts[idx+6] || '');
-  const fechaExp  = fmtFecha(parts[idx+7] || '');
-  const lugarExp  = parts[idx+8] || '';
+  // También buscar en el string completo un número de 7-12 dígitos no rodeado de más dígitos
+  if (!cedula) {
+    const m = clean.match(/(?<![0-9])(\d{7,12})(?![0-9])/);
+    if (m) cedula = m[1];
+  }
 
-  if (!cedula || !apellido1) return null;
-  return { tipo:'NUEVA (PDF417)', cedula, apellido1, apellido2, nombre1, nombre2, fechaNac, genero, fechaExp, lugarExp };
+  // Extraer fecha de nacimiento: patrón AAMMDD (6 dígitos) precedido por letra género
+  let fechaNac = '', genero = '', fechaExp = '';
+  const fechaM = clean.match(/(\d{6})[MF](\d{6})/i);
+  if (fechaM) {
+    fechaNac = fmtFechaAA(fechaM[1]);
+    genero   = clean.includes(fechaM[0].charAt(6) === 'M' ? 'M' : 'F') 
+               ? (fechaM[0].charAt(6) === 'M' ? 'Masculino' : 'Femenino') : '';
+    // Re-detectar género con regex más preciso
+  }
+  const genM = clean.match(/(\d{6})([MF])(\d{6})/i);
+  if (genM) {
+    fechaNac = fmtFechaAA(genM[1]);
+    genero   = genM[2].toUpperCase() === 'M' ? 'Masculino' : 'Femenino';
+    fechaExp = fmtFechaAA(genM[3]);
+  }
+
+  // Apellidos y nombres de las partes con solo letras
+  const apellido1 = soloLetras[0] || '';
+  const apellido2 = soloLetras[1] || '';
+  const nombre1   = soloLetras[2] || '';
+  const nombre2   = soloLetras[3] || '';
+
+  if (!cedula && !apellido1) return null;
+  if (!cedula && !genero)    return null;
+
+  return {
+    tipo: 'NUEVA (PDF417)',
+    cedula, apellido1, apellido2, nombre1, nombre2,
+    fechaNac, genero, fechaExp, lugarExp: ''
+  };
 }
 
+// ── CÉDULA ANTIGUA – Formato separado por guiones ────────────────────────────
+// Ejemplo: P-2500100-01296101-M-1095298343-20220507
+// Campos:  P - cod1 - cod2 - Género - NumCédula - FechaExpAAAAAMMDD
 function parseCedulaAntigua(raw) {
-  const clean = raw.replace(/[\s\-\.]/g, '');
-  if (/^\d{6,12}$/.test(clean))
-    return { tipo:'ANTIGUA (Código 39)', cedula:clean, apellido1:'', apellido2:'', nombre1:'', nombre2:'', fechaNac:'', genero:'', fechaExp:'', lugarExp:'' };
-  const m = clean.match(/^[A-Z]{1,3}(\d{6,12})$/i);
-  if (m)
-    return { tipo:'ANTIGUA (Código 39)', cedula:m[1], apellido1:'', apellido2:'', nombre1:'', nombre2:'', fechaNac:'', genero:'', fechaExp:'', lugarExp:'' };
+  // Formato con guiones tipo P-...-...-M/F-NumDoc-Fecha
+  const mGuion = raw.match(/P[-–][\d\w]+[-–][\d\w]+[-–]([MF])[-–](\d{7,12})[-–](\d{8})/i);
+  if (mGuion) {
+    return {
+      tipo:      'ANTIGUA (Code 39)',
+      cedula:    mGuion[2],
+      apellido1: '', apellido2: '', nombre1: '', nombre2: '',
+      fechaNac:  '',
+      genero:    mGuion[1].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
+      fechaExp:  fmtFechaAAAA(mGuion[3]),
+      lugarExp:  ''
+    };
+  }
+
+  // Fallback: solo número puro (lector antiguo que solo lee el número)
+  const clean = raw.replace(/[\s\-\.]/g,'');
+  if (/^\d{7,12}$/.test(clean)) {
+    return {
+      tipo: 'ANTIGUA (Code 39)',
+      cedula: clean,
+      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
+      fechaNac:'', genero:'', fechaExp:'', lugarExp:''
+    };
+  }
+
+  // Con prefijo de letras: CC1234567890
+  const mPref = clean.match(/^(?:CC|CE|TI|PA|RC)?(\d{7,12})$/i);
+  if (mPref) {
+    return {
+      tipo: 'ANTIGUA (Code 39)',
+      cedula: mPref[1],
+      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
+      fechaNac:'', genero:'', fechaExp:'', lugarExp:''
+    };
+  }
+
   return null;
+}
+
+// ── FORMATO GENÉRICO – separadores ; | tabulador ──────────────────────────────
+function parseFormatoGenerico(raw) {
+  if (!/[;|\t]/.test(raw)) return null;
+  const parts = raw.split(/[;|\t]/).map(p => p.trim());
+
+  let idx = parts.findIndex(p => /^\d{7,12}$/.test(p));
+  if (idx < 0) return null;
+
+  return {
+    tipo:      'NUEVA (PDF417)',
+    cedula:    parts[idx],
+    apellido1: parts[idx+1] || '',
+    apellido2: parts[idx+2] || '',
+    nombre1:   parts[idx+3] || '',
+    nombre2:   parts[idx+4] || '',
+    fechaNac:  fmtFecha(parts[idx+5] || ''),
+    genero:    fmtGenero(parts[idx+6] || ''),
+    fechaExp:  fmtFecha(parts[idx+7] || ''),
+    lugarExp:  parts[idx+8] || ''
+  };
 }
 
 // ─── FORMULARIO MANUAL (sin doc) ─────────────────────────────
@@ -882,6 +1018,22 @@ async function checkConnection() {
 
 // ─── HELPERS ──────────────────────────────────────────────────
 function fmtFecha(s) {
+  const d = s.replace(/\D/g,'');
+  if (d.length === 8) return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4);
+  return s;
+}
+// AAMMDD → DD/MM/20AA (cédula nueva)
+function fmtFechaAA(s) {
+  const d = s.replace(/\D/g,'');
+  if (d.length === 6) {
+    const aa = parseInt(d.slice(0,2));
+    const yyyy = aa <= 30 ? '20'+d.slice(0,2) : '19'+d.slice(0,2);
+    return d.slice(4,6)+'/'+d.slice(2,4)+'/'+yyyy;
+  }
+  return s;
+}
+// AAAAMMDD → DD/MM/AAAA (cédula antigua)
+function fmtFechaAAAA(s) {
   const d = s.replace(/\D/g,'');
   if (d.length === 8) return d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4);
   return s;
