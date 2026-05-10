@@ -614,7 +614,6 @@ async function startCamera() {
   document.getElementById('btnStart').style.display = 'none';
   document.getElementById('btnStop').style.display  = '';
 
-  // Parar instancia anterior si existe
   if (zxingReader) {
     try { zxingReader.reset(); } catch(e) {}
     zxingReader = null;
@@ -622,51 +621,40 @@ async function startCamera() {
 
   try {
     zxingReader = new ZXing.BrowserMultiFormatReader();
-
     const video = document.getElementById('qr-video');
     video.style.display = 'block';
 
-    // Buscar cámara trasera
-    ZXing.BrowserCodeReader.listVideoInputDevices()
-      .then(devices => {
-        let deviceId = undefined;
-        if (devices && devices.length > 1) {
-          const back = devices.find(d =>
-            /back|rear|environment|trasera|posterior/i.test(d.label)
-          );
-          deviceId = back ? back.deviceId : devices[devices.length - 1].deviceId;
-        }
-
-        return zxingReader.decodeFromVideoDevice(deviceId, video, (result, err) => {
-          if (result) {
-            const text = result.getText();
-            console.log('ZXing detectó:', JSON.stringify(text.slice(0, 120)));
-            onScanOk(text);
-          }
-          // err en frames sin código es normal — no hacer nada
-        });
-      })
-      .then(() => {
-        camRunning = true;
-        showToast('📷 Cámara activa — apunta al código de barras', '');
-      })
-      .catch(err => {
-        console.error('Error cámara:', err);
-        resetCamUI();
-        const msg = (err && err.toString()) || '';
-        if (msg.includes('NotAllowed') || msg.includes('Permission') || msg.includes('denied')) {
-          showToast('🚫 Permiso denegado — activa la cámara en el navegador y recarga.', 'error');
-        } else if (msg.includes('NotFound') || msg.includes('Devices') || msg.includes('device')) {
-          showToast('⚠️ No se encontró cámara. Usa la pestaña Lector/Texto.', 'warn');
-        } else {
-          showToast('⚠️ Error iniciando cámara: ' + msg.slice(0,60), 'error');
-        }
-      });
+    // decodeFromVideoDevice(deviceId=undefined → elige la mejor cámara disponible)
+    zxingReader.decodeFromVideoDevice(undefined, video, (result, err) => {
+      if (result) {
+        const text = result.getText();
+        console.log('Código leído:', JSON.stringify(text.slice(0, 150)));
+        onScanOk(text);
+      }
+      // err en frames sin código es normal — ignorar
+    })
+    .then(() => {
+      camRunning = true;
+      showToast('📷 Cámara activa — apunta al código de barras', '');
+    })
+    .catch(err => {
+      console.error('Error cámara:', err);
+      resetCamUI();
+      const msg = (err && err.toString()) || '';
+      if (msg.includes('NotAllowed') || msg.includes('Permission') || msg.includes('denied')) {
+        showToast('🚫 Permiso denegado — activa la cámara en el navegador.', 'error');
+      } else if (msg.includes('NotFound') || msg.includes('device')) {
+        showToast('⚠️ No se encontró cámara. Usa Lector/Texto.', 'warn');
+      } else {
+        showToast('⚠️ Error de cámara. Usa Lector/Texto.', 'warn');
+        console.error(msg);
+      }
+    });
 
   } catch(e) {
     console.error('startCamera error:', e);
     resetCamUI();
-    showToast('Error: ' + e.message, 'error');
+    showToast('Error iniciando cámara: ' + e.message, 'error');
   }
 }
 
