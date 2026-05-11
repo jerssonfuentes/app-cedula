@@ -267,11 +267,39 @@ footer{text-align:center;padding:18px;font-size:.72rem;color:var(--g500);display
     </div>
     <p class="cam-hint">Reverso de la cédula · Letras pequeñas con &lt;&lt;&lt; dentro del recuadro verde · Presiona <b>Capturar y Leer</b></p>
 
-    <!-- Resultado OCR crudo editable -->
-    <div id="ocrPanel" style="display:none;padding:0 20px 16px">
-      <p style="font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Texto leído — puedes editarlo:</p>
-      <textarea id="ocrTxt" rows="4" style="width:100%;font-family:var(--m);font-size:.8rem;border:1.5px solid var(--g300);border-radius:var(--r);padding:9px 11px;background:var(--g50);outline:none;resize:vertical;line-height:1.6" placeholder="El texto aparecerá aquí…"></textarea>
-      <button onclick="procesarOCR()" style="margin-top:8px;height:38px;padding:0 16px;background:var(--navy);color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.8rem;font-weight:700;cursor:pointer">Organizar datos →</button>
+    <!-- Panel: imagen capturada + campo de texto MRZ -->
+    <div id="ocrPanel" style="display:none;padding:0 20px 18px">
+
+      <!-- Vista previa de la imagen recortada -->
+      <p style="font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
+        Imagen capturada de la zona MRZ:
+      </p>
+      <img id="mrzPreview" src="" alt="Zona MRZ" style="display:none;width:100%;border-radius:8px;border:1.5px solid var(--g300);margin-bottom:12px;image-rendering:pixelated"/>
+
+      <!-- Instrucción clara -->
+      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 13px;margin-bottom:10px;font-size:.78rem;color:#1e40af;line-height:1.5">
+        <b>¿Cómo escribir el texto?</b> Escribe exactamente las 3 líneas que ves en la imagen.<br>
+        Usa <code>&lt;</code> donde hay flechas o espacios. Ejemplo:<br>
+        <code style="font-size:.72rem;display:block;margin-top:4px;word-break:break-all">
+          8808213F3101300COL1095298343&lt;9<br>
+          MARTINEZ&lt;GARCIA&lt;&lt;MARIA&lt;DANIELA
+        </code>
+      </div>
+
+      <p style="font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">
+        Escribe las líneas 2 y 3 de la MRZ:
+      </p>
+      <textarea id="ocrTxt" rows="4" style="width:100%;font-family:var(--m);font-size:.82rem;border:1.5px solid var(--g300);border-radius:var(--r);padding:9px 11px;background:var(--g50);outline:none;resize:vertical;line-height:1.8;letter-spacing:.03em"
+        placeholder="Línea 2: 8808213F3101300COL1234567890&#10;Línea 3: MARTINEZ&lt;GARCIA&lt;&lt;MARIA&lt;DANIELA"></textarea>
+
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button onclick="procesarOCR()" style="height:40px;padding:0 20px;background:linear-gradient(135deg,#1a3a6b,#2563b0);color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.82rem;font-weight:700;cursor:pointer">
+          ✓ Organizar datos
+        </button>
+        <button onclick="volverCamara()" style="height:40px;padding:0 16px;background:transparent;color:var(--g500);border:1.5px solid var(--g300);border-radius:var(--r);font-family:var(--f);font-size:.8rem;font-weight:600;cursor:pointer">
+          ↩ Volver a capturar
+        </button>
+      </div>
     </div>
   </section>
 
@@ -450,6 +478,7 @@ function camStop() {
 // Capturar fotograma y recortar la zona MRZ inferior
 function capturar() {
   if (!camActiva) { toast('Activa la cámara primero.', 'warn'); return; }
+
   const video  = document.getElementById('camVideo');
   const canvas = document.getElementById('camCanvas');
   const st     = document.getElementById('ocrSt');
@@ -457,53 +486,55 @@ function capturar() {
   st.style.display = '';
   st.textContent   = '📷 Capturando…';
 
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
+  // Dimensiones reales del video
+  const vw = video.videoWidth  || video.offsetWidth;
+  const vh = video.videoHeight || video.offsetHeight;
 
-  // Recortar zona MRZ: franja inferior (60%–88% del alto, 4%–96% del ancho)
-  const x = Math.floor(vw * 0.03);
-  const y = Math.floor(vh * 0.58);
-  const w = Math.floor(vw * 0.94);
-  const h = Math.floor(vh * 0.28);
-
-  // Escalar ×2 para mejor resolución
-  canvas.width  = w * 2;
-  canvas.height = h * 2;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, x, y, w, h, 0, 0, w * 2, h * 2);
-
-  // Preprocesar: escala de grises + alto contraste
-  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const d   = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const g = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
-    const v2 = g > 140 ? 255 : 0;
-    d[i] = d[i+1] = d[i+2] = v2;
-  }
-  ctx.putImageData(img, 0, 0);
-
-  // Mostrar imagen recortada en el textarea como referencia visual (opcional)
-  // Usar Tesseract si está disponible, sino mostrar panel editable
-  if (typeof Tesseract !== 'undefined') {
-    st.textContent = '🔍 Leyendo texto…';
-    Tesseract.recognize(canvas, 'eng', {
-      tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<',
-      tessedit_pageseg_mode: '6'
-    }).then(r => {
-      st.style.display = 'none';
-      const txt = r.data.text.trim().toUpperCase().replace(/[^A-Z0-9<\n]/g, '');
-      mostrarOCR(txt);
-    }).catch(() => {
-      st.style.display = 'none';
-      mostrarOCR('');
-      toast('⚠️ OCR no disponible — pega el texto manualmente.', 'warn');
-    });
-  } else {
-    // Sin Tesseract: mostrar panel editable vacío para que el usuario pegue el texto
+  if (!vw || !vh) {
     st.style.display = 'none';
-    mostrarOCR('');
-    toast('📋 Pega el texto de la MRZ en el campo y presiona "Organizar datos"', 'warn');
+    toast('⚠️ El video aún no está listo. Espera un momento e intenta de nuevo.', 'warn');
+    return;
   }
+
+  // ── 1. Capturar frame completo en canvas temporal ──────────────
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width  = vw;
+  tmpCanvas.height = vh;
+  const tmpCtx = tmpCanvas.getContext('2d');
+  tmpCtx.drawImage(video, 0, 0, vw, vh);
+
+  // ── 2. Recortar SOLO la zona MRZ (franja inferior ~30% del alto) ──
+  // La zona verde en pantalla está bottom:14% height:26%
+  // → en el frame real: desde 60% hasta 88% del alto
+  const cropX = Math.floor(vw * 0.02);
+  const cropY = Math.floor(vh * 0.58);
+  const cropW = Math.floor(vw * 0.96);
+  const cropH = Math.floor(vh * 0.30);
+
+  // Escalar x2 para más resolución
+  const scale = 2;
+  canvas.width  = cropW * scale;
+  canvas.height = cropH * scale;
+  const ctx = canvas.getContext('2d');
+
+  // Aumentar contraste antes de dibujar
+  ctx.filter = 'contrast(1.8) brightness(1.1)';
+  ctx.drawImage(tmpCanvas, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+  ctx.filter = 'none';
+
+  // ── 3. Mostrar la imagen recortada para que el usuario la vea ──
+  const imgURL = canvas.toDataURL('image/png');
+  const preview = document.getElementById('mrzPreview');
+  if (preview) {
+    preview.src   = imgURL;
+    preview.style.display = '';
+  }
+
+  // ── 4. Detener cámara y mostrar panel editable ─────────────────
+  camStop();
+  st.style.display = 'none';
+  mostrarOCR('');
+  toast('✓ Imagen capturada — escribe las 3 líneas de letras que ves arriba', 'ok');
 }
 
 function mostrarOCR(txt) {
@@ -511,18 +542,45 @@ function mostrarOCR(txt) {
   const ta    = document.getElementById('ocrTxt');
   ta.value    = txt;
   panel.style.display = '';
-  if (txt) toast('✓ Texto capturado — revisa y presiona Organizar datos', 'ok');
+  // Ocultar zona de cámara
+  document.getElementById('camWrap').style.display  = 'none';
+  document.getElementById('btnOn').style.display    = 'none';
+  document.getElementById('btnOff').style.display   = 'none';
+  document.getElementById('btnRead').style.display  = 'none';
+  // Focus al textarea para que el usuario pueda escribir
+  setTimeout(() => ta.focus(), 200);
+}
+
+function volverCamara() {
+  document.getElementById('ocrPanel').style.display  = 'none';
+  document.getElementById('ocrTxt').value            = '';
+  document.getElementById('camWrap').style.display   = '';
+  document.getElementById('btnOn').style.display     = '';
+  const prev = document.getElementById('mrzPreview');
+  if (prev) { prev.src = ''; prev.style.display = 'none'; }
 }
 
 function procesarOCR() {
-  const raw = document.getElementById('ocrTxt').value.trim().toUpperCase();
-  if (!raw) { toast('Escribe o pega el texto MRZ primero.', 'warn'); return; }
+  let raw = document.getElementById('ocrTxt').value.trim().toUpperCase();
+  if (!raw) { toast('Escribe las líneas de la MRZ primero.', 'warn'); return; }
+
+  // Normalizar: reemplazar espacios múltiples por < solo dentro de líneas de letras
+  // El usuario puede haber escrito espacios en vez de <
+  raw = raw
+    .replace(/
+/g, '')           // quitar CR
+    .replace(/[ 	]+/g, '<')      // espacios → <
+    .replace(/<{3,}/g, '<<')      // más de << → << (máximo 2 seguidos en zona nombres)
+    .trim();
+
+  console.log('Texto normalizado:', JSON.stringify(raw));
+
   const data = parseMRZ(raw) || parseTextoLibre(raw);
   if (data) {
-    camStop();
+    volverCamara();
     mostrarPaso3(data);
   } else {
-    toast('⚠️ No se reconoció. Revisa que el texto tenga el formato MRZ (con <<< y números).', 'warn');
+    toast('⚠️ No se reconoció el formato. Verifica que incluyas la línea con números (ej: 8808213F...COL...) y la de nombres (MARTINEZ<<GARCIA<<MARIA).', 'warn');
   }
 }
 
@@ -541,7 +599,7 @@ function parseMRZ(raw) {
 
   // Identificar línea 2: contiene patrón AAMMDD + M/F + dígitos + COL
   for (let i = 0; i < lineas.length; i++) {
-    if (/\d{6}[MF]\d{6,7}[A-Z]{3}[0-9<]{5,}/.test(lineas[i])) {
+    if (/\d{6}[MF]\d{5,7}[A-Z]{2,3}[0-9<]{4,}/.test(lineas[i])) {
       L2 = lineas[i];
       // Línea 3 es la siguiente que contiene letras y <<
       for (let j = i+1; j < lineas.length; j++) {
