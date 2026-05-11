@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SIVE – Registro Estudiantil</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<!-- html5-qrcode solo para PDF417 (cédula antigua via cámara) -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
 :root{
@@ -233,32 +234,33 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
 
 <!-- PASO 2A: NUEVA -->
 <section class="card" id="secNueva">
-  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Escanear Cédula Nueva</h2></div>
+  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Fotografiar Cédula Nueva (OCR automático)</h2></div>
 
-  <!-- Placeholder (visible cuando escáner está apagado) -->
+  <!-- Preview de la foto tomada -->
+  <div id="mrzPreview" style="display:none;margin:14px 18px 0;border-radius:var(--r2);overflow:hidden;background:#000;text-align:center">
+    <img id="mrzImg" style="max-width:100%;max-height:260px;object-fit:contain;display:block;margin:0 auto"/>
+  </div>
+
+  <!-- Placeholder -->
   <div class="cam-ph" id="camPh">
     <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    <span>Presiona "Activar Escáner"</span>
+    <span>Toma una foto del <b>reverso</b> de la cédula</span>
   </div>
 
-  <!-- Contenedor del escáner (html5-qrcode lo llena con video + recuadro) -->
-  <div class="scan-box" id="scanBox" style="display:none">
-    <div id="qr-reader"></div>
-  </div>
-
-  <!-- Estado debajo del video -->
-  <div class="scan-st buscando" id="scanSt" style="display:none">🔍 Apunta al reverso de la cédula…</div>
+  <!-- Estado OCR -->
+  <div class="scan-st buscando" id="scanSt" style="display:none">🔍 Procesando con OCR…</div>
 
   <div class="cam-acts">
-    <button class="btn btn-navy" id="btnOn" onclick="escanerOn()">
+    <!-- Input file oculto — acepta cámara en móvil -->
+    <input type="file" id="mrzFile" accept="image/*" capture="environment" style="display:none" onchange="procesarFotoMRZ(this)"/>
+    <button class="btn btn-navy" onclick="document.getElementById('mrzFile').click()">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      Activar Escáner
+      📷 Tomar Foto / Elegir Imagen
     </button>
-    <button class="btn btn-red" id="btnOff" onclick="escanerOff()" style="display:none">⬛ Detener</button>
   </div>
   <p class="cam-hint">
-    📌 Reverso de la cédula · Zona de letras (MRZ) dentro del recuadro · Se lee <b>automáticamente</b><br>
-    <span style="color:#0e7490;font-weight:600">Cédula nueva → letras pequeñas &nbsp;|&nbsp; Cédula antigua → también funciona aquí</span>
+    📌 Fotografía el <b>reverso</b> de la cédula · La zona MRZ (letras pequeñas) debe quedar clara<br>
+    <span style="color:#0e7490;font-weight:600">El OCR extrae automáticamente nombre, cédula, fecha y género</span>
   </p>
 </section>
 
@@ -361,20 +363,30 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
 <script>
 const GAS = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
 
-var modo='nueva', scanner=null, escViva=false, datosActu=null;
-var cHoy=0, cTotal=0, toastTmr=null, ultimaLec=0;
+var modo='nueva', datosActu=null;
+var cHoy=0, cTotal=0, toastTmr=null;
 
 window.addEventListener('DOMContentLoaded', function() {
   checkConn();
   cargarRecientes();
-  document.getElementById('lectorIn').addEventListener('keydown', function(e) {
-    if (e.key==='Enter') procesarAntigua();
+  var lectorEl = document.getElementById('lectorIn');
+  // keydown Enter — para lectores USB/BT que envían \n
+  lectorEl.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') { e.preventDefault(); procesarAntigua(); }
+  });
+  // También detectar cuando el lector envía rápido sin Enter (algunos BT)
+  var lectorTimer = null;
+  lectorEl.addEventListener('input', function() {
+    clearTimeout(lectorTimer);
+    lectorTimer = setTimeout(function() {
+      var v = lectorEl.value.trim();
+      // Si tiene largo suficiente y el lector ya terminó de escribir
+      if (v.length > 15 && modo === 'antigua') procesarAntigua();
+    }, 400);
   });
 });
 
-// ── MODO ─────────────────────────────────────────────────────────
 function setModo(m) {
-  if (escViva) escanerOff();
   modo = m;
   document.getElementById('mNueva').classList.toggle('on',   m==='nueva');
   document.getElementById('mAntigua').classList.toggle('on', m==='antigua');
@@ -384,103 +396,90 @@ function setModo(m) {
   document.getElementById('secSinDoc').style.display  = m==='sindoc'  ? '' : 'none';
   document.getElementById('secData').style.display    = 'none';
   datosActu = null;
-}
-
-// ── ESCÁNER ───────────────────────────────────────────────────────
-function escanerOn() {
-  if (escViva) return;
-
-  // Mostrar contenedor y ocultar placeholder
-  document.getElementById('camPh').style.display  = 'none';
-  document.getElementById('scanBox').style.display = '';
-  document.getElementById('scanSt').style.display  = '';
-  document.getElementById('scanSt').textContent    = '🔍 Apunta al reverso de la cédula…';
-  document.getElementById('scanSt').className      = 'scan-st buscando';
-  document.getElementById('btnOn').style.display   = 'none';
-  document.getElementById('btnOff').style.display  = '';
-
-  // Limpiar instancia anterior
-  document.getElementById('qr-reader').innerHTML = '';
-  scanner = new Html5Qrcode('qr-reader', { verbose: false });
-
-  // ── CONFIGURACIÓN CLAVE ──────────────────────────────────────
-  // qrbox: zona de detección = franja horizontal para MRZ
-  // Sin formatsToSupport → intenta TODOS los formatos disponibles
-  // useBarCodeDetectorIfSupported → usa API nativa del SO cuando existe
-  var ancho = document.getElementById('scanBox').offsetWidth || 320;
-  var config = {
-    fps: 15,
-    qrbox: {
-      width:  Math.floor(ancho * 0.88),   // ancho casi completo
-      height: Math.floor(ancho * 0.28)    // alto proporcional a zona MRZ
-    },
-    aspectRatio: 1.5,
-    disableFlip: false,
-    experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-  };
-
-  scanner.start(
-    { facingMode: 'environment' },
-    config,
-    // ── ÉXITO: código leído ──────────────────────────────────
-    function(raw, result) {
-      var now = Date.now();
-      if (now - ultimaLec < 2000) return;
-      ultimaLec = now;
-
-      console.log('✅ Código leído:', JSON.stringify(raw.slice(0,200)));
-      console.log('Formato:', result && result.result && result.result.format ? result.result.format.formatName : 'desconocido');
-
-      setScanSt('✓ ¡Código detectado!', 'ok');
-
-      var data = parsearCodigo(raw);
-      if (data) {
-        escanerOff();
-        mostrarPaso3(data);
-      } else {
-        setScanSt('⚠️ Código leído pero formato no reconocido — mantén quieta la cédula', 'err');
-        setTimeout(function() {
-          if (escViva) setScanSt('🔍 Apunta al reverso de la cédula…', 'buscando');
-        }, 2500);
-      }
-    },
-    // ── ERROR: frame sin código (normal) ────────────────────
-    function() {}
-  )
-  .then(function() {
-    escViva = true;
-    toast('📷 Escáner activo — coloca la cédula con la zona MRZ en el recuadro', '');
-  })
-  .catch(function(err) {
-    escanerReset();
-    var msg = (err||'').toString();
-    if (msg.indexOf('NotAllowed')>=0 || msg.indexOf('denied')>=0 || msg.indexOf('Permission')>=0)
-      toast('🚫 Permiso de cámara denegado. Actívalo en ajustes del navegador y recarga.', 'err');
-    else if (msg.indexOf('NotFound')>=0)
-      toast('⚠️ No se encontró cámara.', 'warn');
-    else {
-      toast('⚠️ Error iniciando escáner: ' + msg.slice(0,80), 'warn');
-      console.error('escanerOn:', err);
-    }
-  });
-}
-
-function escanerOff() {
-  if (scanner) {
-    scanner.stop().catch(function(){});
-    scanner = null;
+  // Auto-focus lector físico en cédula antigua (crítico para celulares)
+  if (m === 'antigua') {
+    setTimeout(function() {
+      var inp = document.getElementById('lectorIn');
+      inp.value = '';
+      inp.focus();
+    }, 150);
   }
-  escViva = false;
-  escanerReset();
 }
 
-function escanerReset() {
-  document.getElementById('camPh').style.display   = '';
-  document.getElementById('scanBox').style.display  = 'none';
-  document.getElementById('scanSt').style.display   = 'none';
-  document.getElementById('btnOn').style.display    = '';
-  document.getElementById('btnOff').style.display   = 'none';
-  document.getElementById('qr-reader').innerHTML    = '';
+// ── OCR FOTO MRZ (Cédula Nueva) ───────────────────────────────────
+async function procesarFotoMRZ(input) {
+  var file = input.files[0];
+  if (!file) return;
+
+  // Mostrar preview
+  var url = URL.createObjectURL(file);
+  document.getElementById('mrzImg').src = url;
+  document.getElementById('mrzPreview').style.display = '';
+  document.getElementById('camPh').style.display = 'none';
+
+  // Mostrar estado procesando
+  var st = document.getElementById('scanSt');
+  st.style.display = '';
+  st.textContent = '🔍 Analizando imagen con OCR…';
+  st.className = 'scan-st buscando';
+
+  // Convertir a base64
+  var b64 = await new Promise(function(res, rej) {
+    var reader = new FileReader();
+    reader.onload = function(e) { res(e.target.result.split(',')[1]); };
+    reader.onerror = rej;
+    reader.readAsDataURL(file);
+  });
+
+  var mediaType = file.type || 'image/jpeg';
+
+  try {
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              source: { type: 'base64', media_type: mediaType, data: b64 }
+            },
+            {
+              type: 'text',
+              text: 'Esta es la imagen del reverso de una cédula de ciudadanía colombiana. Extrae los datos del MRZ (zona de lectura mecánica) o del código PDF417 si es cédula antigua. Responde SOLO en JSON sin ningún texto adicional ni backticks, con estos campos exactos: {"cedula":"","apellido1":"","apellido2":"","nombre1":"","nombre2":"","fechaNac":"DD/MM/AAAA","genero":"Masculino o Femenino","fechaExp":"DD/MM/AAAA","lugarExp":"","tipo":"NUEVA (MRZ) o ANTIGUA (PDF417)"}. Si no puedes leer algún campo déjalo vacío. No agregues explicaciones.'
+            }
+          ]
+        }]
+      })
+    });
+
+    var json = await resp.json();
+    var txt = (json.content || []).map(function(b){ return b.text || ''; }).join('');
+    // Limpiar posibles backticks
+    txt = txt.replace(/```json|```/g, '').trim();
+
+    var data = JSON.parse(txt);
+    if (data && (data.cedula || data.nombre1 || data.apellido1)) {
+      st.textContent = '✓ Datos extraídos correctamente';
+      st.className = 'scan-st ok';
+      // Limpiar input para permitir nueva foto
+      input.value = '';
+      mostrarPaso3(data);
+    } else {
+      throw new Error('No se encontraron datos en la imagen');
+    }
+  } catch(e) {
+    st.textContent = '⚠️ No se pudo leer — intenta con mejor iluminación o ángulo';
+    st.className = 'scan-st err';
+    document.getElementById('camPh').style.display = '';
+    document.getElementById('mrzPreview').style.display = 'none';
+    toast('❌ OCR fallido: ' + (e.message||e), 'err');
+    input.value = '';
+    console.error('OCR error:', e, txt);
+  }
 }
 
 function setScanSt(txt, cls) {
@@ -638,7 +637,11 @@ async function guardar() {
     fechaRegistro:new Date().toLocaleString('es-CO',{timeZone:'America/Bogota'})};
   try {
     var res=await fetch(GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p),mode:'cors'});
-    var j=await res.json();
+    var texto = await res.text();
+    var j;
+    try { j = JSON.parse(texto); } catch(pe) {
+      throw new Error('Respuesta inesperada del servidor. Verifica el GAS. Detalle: ' + texto.slice(0,120));
+    }
     if (j.status==='ok'){toast('✅ Guardado en Google Sheets','ok');cHoy++;cTotal++;
       document.getElementById('cHoy').textContent=cHoy;
       document.getElementById('cTotal').textContent=cTotal;
@@ -660,6 +663,11 @@ function cancelar() {
   ['sProg','sSem','sObs'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('sJor').value='';
   document.getElementById('lectorIn').value='';
+  // Reset foto MRZ
+  document.getElementById('mrzPreview').style.display='none';
+  document.getElementById('camPh').style.display='';
+  document.getElementById('scanSt').style.display='none';
+  document.getElementById('mrzFile').value='';
 }
 
 // ── RECIENTES ─────────────────────────────────────────────────────
