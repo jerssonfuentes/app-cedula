@@ -13,14 +13,12 @@
   --g500:#7a8699;--g700:#3a4558;--text:#0f1d36;
   --sh:0 4px 16px rgba(26,58,107,.12);--shl:0 12px 40px rgba(26,58,107,.16);
   --r:8px;--r2:14px;--r3:20px;
-  --f:'Outfit',sans-serif;--m:'JetBrains Mono',monospace;
-  --tr:.2s ease;
+  --f:'Outfit',sans-serif;--m:'JetBrains Mono',monospace;--tr:.2s ease;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 
-/* HEADER */
 .hdr{background:var(--navy);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(26,58,107,.4)}
 .hdr-in{max-width:860px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .logo{display:flex;align-items:center;gap:10px}
@@ -32,29 +30,25 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100v
 .dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pu 2s ease-in-out infinite;flex-shrink:0}
 @keyframes pu{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* MAIN */
 .main{max-width:860px;margin:0 auto;padding:18px 12px 60px;display:flex;flex-direction:column;gap:16px}
 
-/* HERO */
 .hero{background:linear-gradient(135deg,#1a3a6b 0%,#1e4d8c 55%,#1e5f8c 100%);border-radius:var(--r3);padding:24px 24px 20px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shl)}
 .hero::before{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:rgba(42,122,90,.22);pointer-events:none}
 .hero h1{font-size:clamp(1.3rem,4vw,1.9rem);font-weight:800;line-height:1.15;margin-bottom:5px;position:relative;z-index:1}
 .hero h1 span{color:#6ee7b7}
-.hero p{font-size:.82rem;color:rgba(255,255,255,.7);max-width:480px;line-height:1.5;position:relative;z-index:1}
+.hero p{font-size:.82rem;color:rgba(255,255,255,.72);max-width:480px;line-height:1.5;position:relative;z-index:1}
 .pills{display:flex;gap:7px;margin-top:16px;flex-wrap:wrap;position:relative;z-index:1}
 .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:3px 12px;font-size:.73rem;color:rgba(255,255,255,.85)}
 .pill b{color:#6ee7b7;margin-right:2px}
 #stPill.online{color:#4ade80;border-color:rgba(74,222,128,.4)}
 #stPill.offline{color:#f87171;border-color:rgba(248,113,113,.4)}
 
-/* CARD */
 .card{background:#fff;border-radius:var(--r3);box-shadow:var(--sh);border:1px solid var(--g100);overflow:hidden}
 .card-hdr{display:flex;align-items:center;gap:9px;padding:14px 18px 12px;border-bottom:1px solid var(--g100);background:var(--g50)}
 .ci{width:28px;height:28px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;font-weight:700;flex-shrink:0}
 .ct{font-size:.9rem;font-weight:700;color:var(--navy);flex:1}
 .btipo{font-size:.63rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:var(--tpale);color:var(--teal);border:1px solid rgba(42,122,90,.2)}
 
-/* MODO */
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 18px 18px}
 .mbtn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px 14px;border:2px solid var(--g200);border-radius:var(--r2);background:var(--g50);cursor:pointer;font-family:var(--f);transition:all var(--tr)}
 .mbtn.on{border-color:var(--navy);background:#fff;box-shadow:0 3px 12px rgba(26,58,107,.15)}
@@ -68,39 +62,69 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100v
 .mbtn.sd.on{border-color:var(--ora)}
 .mbtn.sd.on .mico{background:linear-gradient(135deg,#e65100,#ff6d00)}
 
-/* CÁMARA */
-.cambox{margin:14px 18px 0;background:#000;border-radius:var(--r2);overflow:hidden;min-height:190px;display:flex;align-items:center;justify-content:center;position:relative}
-.camph{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,.4);font-size:.8rem;padding:30px;text-align:center}
-.camph svg{width:42px;height:42px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-#camVid{width:100%;display:block;max-height:300px;object-fit:cover}
+/* ── CÁMARA ── */
+.cam-outer{margin:14px 18px 0;position:relative;border-radius:var(--r2);overflow:hidden;background:#000;line-height:0}
+#camVid{width:100%;display:block;max-height:320px;object-fit:cover;border-radius:var(--r2)}
+.cam-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:rgba(255,255,255,.45);font-size:.8rem;background:#111;border-radius:var(--r2)}
+.cam-ph svg{width:44px;height:44px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
-/* Zona MRZ */
-.mzone{position:absolute;left:4%;right:4%;bottom:13%;height:26%;border:2.5px solid #6ee7b7;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);pointer-events:none;display:none}
-.mc{position:absolute;width:15px;height:15px}
-.mc.tl{top:-2px;left:-2px;border-top:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:3px 0 0 0}
-.mc.tr{top:-2px;right:-2px;border-top:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 3px 0 0}
-.mc.bl{bottom:-2px;left:-2px;border-bottom:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:0 0 0 3px}
-.mc.br{bottom:-2px;right:-2px;border-bottom:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 0 3px 0}
-.mzlbl{position:absolute;bottom:-24px;left:0;right:0;text-align:center;font-size:.62rem;color:#6ee7b7;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.camacts{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;padding:10px 18px 4px}
-.camhint{font-size:.71rem;color:var(--g500);text-align:center;line-height:1.4;padding:6px 18px 14px}
+/* Zona MRZ — recuadro verde donde van las 3 líneas */
+.mzone{
+  position:absolute;
+  left:4%; right:4%;
+  /* ocupa la franja inferior: empieza en 58% del alto, termina en 90% */
+  top:58%; bottom:8%;
+  border:3px solid #22d3ee;
+  border-radius:6px;
+  pointer-events:none;
+  display:none;
+  box-shadow:0 0 0 9999px rgba(0,0,0,.55);
+}
+/* Esquinas */
+.mzone::before,.mzone::after{content:'';position:absolute;width:20px;height:20px}
+.mzone::before{top:-3px;left:-3px;border-top:4px solid #22d3ee;border-left:4px solid #22d3ee;border-radius:4px 0 0 0}
+.mzone::after{top:-3px;right:-3px;border-top:4px solid #22d3ee;border-right:4px solid #22d3ee;border-radius:0 4px 0 0}
+.mzone-bl,.mzone-br{position:absolute;width:20px;height:20px;bottom:-3px}
+.mzone-bl{left:-3px;border-bottom:4px solid #22d3ee;border-left:4px solid #22d3ee;border-radius:0 0 0 4px}
+.mzone-br{right:-3px;border-bottom:4px solid #22d3ee;border-right:4px solid #22d3ee;border-radius:0 0 4px 0}
+.mzone-lbl{position:absolute;bottom:-30px;left:0;right:0;text-align:center;font-size:.65rem;color:#22d3ee;font-weight:700;letter-spacing:.05em;text-transform:uppercase;pointer-events:none}
+
+/* Línea de escaneo animada */
+.scan-line{
+  position:absolute;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,#22d3ee,transparent);
+  animation:scanMove 2s ease-in-out infinite;
+  display:none;
+}
+@keyframes scanMove{0%{top:0}100%{top:100%}}
+
+/* Estado del escáner */
+.scan-st{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  background:rgba(0,0,0,.7);color:#fff;
+  padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;
+  white-space:nowrap;display:none;letter-spacing:.03em;
+}
+.scan-st.ok{background:rgba(42,122,90,.9)}
+.scan-st.err{background:rgba(192,57,43,.9)}
+
+.cam-acts{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;padding:10px 18px 4px}
+.cam-hint{font-size:.71rem;color:var(--g500);text-align:center;line-height:1.45;padding:5px 18px 14px}
 
 /* BOTONES */
 .btn{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 18px;border:none;border-radius:var(--r);font-family:var(--f);font-size:.81rem;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap}
 .btn svg{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .btn-navy{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 3px 10px rgba(26,58,107,.25)}
 .btn-navy:hover{opacity:.88;transform:translateY(-1px)}
-.btn-red{background:#c0392b;color:#fff}
-.btn-red:hover{opacity:.88}
+.btn-red{background:#c0392b;color:#fff}.btn-red:hover{opacity:.88}
 .btn-teal{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;box-shadow:0 3px 10px rgba(42,122,90,.25)}
 .btn-teal:hover{opacity:.88;transform:translateY(-1px)}
 .btn-teal:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.btn-sec{background:transparent;color:var(--g500);border:1.5px solid var(--g300);height:42px;padding:0 14px}
+.btn-sec{background:transparent;color:var(--g500);border:1.5px solid var(--g300)}
 .btn-sec:hover{color:var(--text);border-color:var(--g500)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btn-teal.loading::after{content:'';width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:3px}
 
-/* INPUT */
 .inp{width:100%;border:1.5px solid var(--g300);border-radius:var(--r);padding:8px 11px;font-family:var(--f);font-size:.85rem;color:var(--text);background:var(--g50);outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
 .inp:focus{border-color:var(--navy2);background:#fff;box-shadow:0 0 0 3px rgba(37,99,176,.1)}
 .inp::placeholder{color:var(--g500)}
@@ -108,7 +132,6 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100v
 select.inp{cursor:pointer}
 textarea.inp{resize:vertical;line-height:1.6}
 
-/* GRID DATOS */
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--g100)}
 .fi{background:#fff;padding:11px 16px;display:flex;flex-direction:column;gap:3px}
 .fi.fw{grid-column:1/-1}
@@ -117,25 +140,13 @@ textarea.inp{resize:vertical;line-height:1.6}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--tpale),transparent)}
 .acts{display:flex;gap:8px;padding:12px 18px 16px;justify-content:flex-end}
 
-/* OCR PANEL */
-.ocr-panel{padding:0 18px 16px}
-.ocr-img{width:100%;border-radius:8px;border:1.5px solid var(--g300);display:block;margin-bottom:10px;max-height:120px;object-fit:contain;background:#000}
-.ocr-info{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:.75rem;color:#1e40af;line-height:1.55}
-.ocr-info code{font-size:.7rem;display:block;margin-top:3px;word-break:break-all;font-family:var(--m)}
-.ocr-acts{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
-
-/* INPUT LECTOR */
 .lector-wrap{padding:14px 18px 18px}
 .irow{display:flex;gap:7px}
 
-/* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--navy);color:#fff;padding:10px 20px;border-radius:30px;font-size:.81rem;font-weight:600;box-shadow:var(--shl);transition:transform .32s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;z-index:999;opacity:0;pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
-.toast.ok{background:var(--teal)}
-.toast.err{background:#c0392b}
-.toast.warn{background:#d97706}
+.toast.ok{background:var(--teal)}.toast.err{background:#c0392b}.toast.warn{background:#d97706}
 
-/* TABLA */
 .tbl-hdr{justify-content:space-between}
 .twrap{overflow-x:auto}
 .tbl{width:100%;border-collapse:collapse;font-size:.78rem}
@@ -147,10 +158,8 @@ textarea.inp{resize:vertical;line-height:1.6}
 .empty{text-align:center;color:var(--g500);font-family:var(--f)!important;font-style:italic;padding:24px!important}
 @keyframes rfi{from{background:rgba(42,122,90,.18)}to{background:transparent}}
 .rnew{animation:rfi 2s ease forwards}
-
 footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
 
-/* RESPONSIVE */
 @media(max-width:560px){
   .logo-t small{display:none}
   .main{padding:12px 9px 40px;gap:12px}
@@ -158,8 +167,7 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
   .mgrid{grid-template-columns:1fr;gap:6px;padding:12px}
   .mbtn{flex-direction:row;padding:12px 13px;gap:10px}
   .mico{flex-shrink:0}
-  .fgrid{grid-template-columns:1fr}
-  .fi.fw{grid-column:1}
+  .fgrid{grid-template-columns:1fr}.fi.fw{grid-column:1}
   .acts{flex-direction:column-reverse;padding:10px 13px 14px}
   .btn-teal,.btn-sec{width:100%;justify-content:center}
   .irow{flex-direction:column}
@@ -169,7 +177,6 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="hdr">
   <div class="hdr-in">
     <div class="logo">
@@ -180,10 +187,7 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
           <polygon points="30,16 44,22 30,28 16,22" fill="#2a7a5a"/>
         </svg>
       </div>
-      <div class="logo-t">
-        <b>SIVE</b>
-        <small>Salud Integral Vocacional Estudiantil</small>
-      </div>
+      <div class="logo-t"><b>SIVE</b><small>Salud Integral Vocacional Estudiantil</small></div>
     </div>
     <div class="hbadge"><span class="dot"></span><span id="stTxt">Conectando…</span></div>
   </div>
@@ -191,10 +195,9 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
 
 <main class="main">
 
-<!-- HERO -->
 <section class="hero">
   <h1>Registro de <span>Estudiantes</span></h1>
-  <p>Cédula nueva: captura la zona MRZ y escribe las líneas. Cédula antigua: lector físico. Sin documento: manual.</p>
+  <p>Cédula nueva: apunta la cámara a la zona MRZ (letras pequeñas). Cédula antigua: lector físico. Sin documento: manual.</p>
   <div class="pills">
     <div class="pill"><b id="cHoy">0</b> hoy</div>
     <div class="pill"><b id="cTotal">0</b> total</div>
@@ -202,13 +205,13 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
   </div>
 </section>
 
-<!-- PASO 1: MODO -->
+<!-- PASO 1 -->
 <section class="card">
   <div class="card-hdr"><div class="ci">1</div><h2 class="ct">¿Cómo registrar?</h2></div>
   <div class="mgrid">
     <button class="mbtn on" id="mNueva" onclick="setModo('nueva')">
       <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
-      <div><div class="mlbl">Cédula Nueva</div><div class="mdsc">Zona MRZ</div></div>
+      <div><div class="mlbl">Cédula Nueva</div><div class="mdsc">Zona MRZ automática</div></div>
     </button>
     <button class="mbtn" id="mAntigua" onclick="setModo('antigua')">
       <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg></div>
@@ -221,54 +224,54 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
   </div>
 </section>
 
-<!-- PASO 2A: CÉDULA NUEVA -->
+<!-- PASO 2A: NUEVA -->
 <section class="card" id="secNueva">
-  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Fotografiar zona MRZ</h2></div>
+  <div class="card-hdr"><div class="ci">2</div><h2 class="ct" id="camTitulo">Escanear zona MRZ</h2></div>
 
-  <!-- Cámara -->
-  <div class="cambox" id="camBox">
-    <div class="camph" id="camPh">
+  <div class="cam-outer" id="camOuter">
+    <!-- Placeholder -->
+    <div class="cam-ph" id="camPh">
       <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       <span>Presiona "Activar Cámara"</span>
     </div>
-    <video id="camVid" playsinline autoplay muted style="display:none"></video>
+
+    <!-- Video -->
+    <video id="camVid" playsinline autoplay muted style="display:none;width:100%;max-height:320px;object-fit:cover"></video>
+
+    <!-- Zona MRZ (recuadro verde) -->
     <div class="mzone" id="mzone">
-      <div class="mc tl"></div><div class="mc tr"></div>
-      <div class="mc bl"></div><div class="mc br"></div>
-      <div class="mzlbl">Alinea aquí las 3 líneas de letras — parte inferior del reverso</div>
+      <div class="mzone-bl"></div>
+      <div class="mzone-br"></div>
+      <div class="scan-line" id="scanLine"></div>
+      <div class="mzone-lbl" id="mzoneLbl">Pon aquí las 3 líneas de letras del reverso</div>
     </div>
+
+    <!-- Estado -->
+    <div class="scan-st" id="scanSt">Buscando…</div>
   </div>
   <canvas id="camCanvas" style="display:none"></canvas>
 
-  <div class="camacts">
+  <div class="cam-acts">
+    <!-- Android/Desktop: cámara en vivo con BarcodeDetector -->
     <button class="btn btn-navy" id="btnOn" onclick="camOn()">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
       Activar Cámara
     </button>
     <button class="btn btn-red" id="btnOff" onclick="camOff()" style="display:none">⬛ Detener</button>
-    <button class="btn btn-teal" id="btnCap" onclick="capturar()" style="display:none">📷 Capturar</button>
+    <!-- iOS: tomar foto directamente -->
+    <label class="btn btn-navy" id="btnIOS" style="display:none;cursor:pointer">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Fotografiar MRZ
+      <input type="file" id="fotoInput" accept="image/*" capture="environment"
+        style="display:none" onchange="procesarFotoIOS(this)"/>
+    </label>
   </div>
-  <p class="camhint">Reverso de la cédula · Letras pequeñas con &lt;&lt;&lt; dentro del recuadro verde · Presiona <b>Capturar</b></p>
-
-  <!-- Panel OCR: imagen + campo editable -->
-  <div class="ocr-panel" id="ocrPanel" style="display:none">
-    <img id="ocrImg" class="ocr-img" alt="Zona MRZ capturada" style="display:none"/>
-    <div class="ocr-info">
-      <b>Escribe las 2 últimas líneas que ves en la imagen:</b><br>
-      · Línea con números: <code>8808213F3101300COL1095298343&lt;9</code>
-      · Línea con nombres: <code>MARTINEZ&lt;GARCIA&lt;&lt;MARIA&lt;DANIELA</code><br>
-      Puedes usar <b>espacios</b> en lugar de &lt;
-    </div>
-    <textarea id="ocrTxt" class="inp" rows="4"
-      placeholder="8808213F3101300COL1234567890&#10;MARTINEZ GARCIA  MARIA DANIELA"></textarea>
-    <div class="ocr-acts">
-      <button class="btn btn-navy" onclick="organizarMRZ()">✓ Organizar datos</button>
-      <button class="btn btn-sec" onclick="reintentarCam()">↩ Volver a capturar</button>
-    </div>
-  </div>
+  <p class="cam-hint" id="camHint">
+    Reverso de la cédula · Letras dentro del <b style="color:#0e7490">recuadro azul</b> · Se lee automáticamente
+  </p>
 </section>
 
-<!-- PASO 2B: CÉDULA ANTIGUA -->
+<!-- PASO 2B: ANTIGUA -->
 <section class="card" id="secAntigua" style="display:none">
   <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Leer Cédula Antigua (PDF417)</h2></div>
   <div class="lector-wrap">
@@ -281,12 +284,12 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
       </button>
     </div>
     <p style="font-size:.7rem;color:var(--g500);margin-top:7px;line-height:1.4">
-      Formato esperado: <code style="font-family:var(--m);font-size:.68rem">P-XXXXX-XXXXX-M-1095298343-20220507</code>
+      Formato: <code style="font-family:var(--m);font-size:.68rem">P-XXXXX-XXXXX-M-1095298343-20220507</code>
     </p>
   </div>
 </section>
 
-<!-- PASO 2C: SIN DOCUMENTO -->
+<!-- PASO 2C: SIN DOC -->
 <section class="card" id="secSinDoc" style="display:none">
   <div class="card-hdr">
     <div class="ci" style="background:linear-gradient(135deg,#e65100,#ff6d00)">2</div>
@@ -304,20 +307,18 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
       <select class="inp" id="sdGen"><option value="">— Seleccionar —</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
     </div>
   </div>
-  <div class="acts">
-    <button class="btn btn-teal" onclick="confirmarSinDoc()">
-      <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="9 11 12 14 22 4"/></svg>
-      Continuar →
-    </button>
-  </div>
+  <div class="acts"><button class="btn btn-teal" onclick="confirmarSinDoc()">
+    <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="9 11 12 14 22 4"/></svg>
+    Continuar →
+  </button></div>
 </section>
 
-<!-- PASO 3: CONFIRMAR + GUARDAR -->
+<!-- PASO 3 -->
 <section class="card" id="secData" style="display:none">
   <div class="card-hdr"><div class="ci">3</div><h2 class="ct">Confirmar y Guardar</h2><span class="btipo" id="badgeTipo">—</span></div>
 
   <div id="avisoEdit" style="display:none;margin:0 18px 4px;padding:9px 12px;background:#fef3c7;border:1px solid rgba(146,64,14,.2);border-radius:8px;font-size:.75rem;color:#92400e;line-height:1.4">
-    ✏️ Faltan datos — completa los campos antes de guardar.
+    ✏️ Algunos campos están vacíos — completa o corrige antes de guardar.
   </div>
 
   <div class="fgrid">
@@ -335,7 +336,6 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
   </div>
 
   <div class="divider"><span>Información SIVE</span></div>
-
   <div class="fgrid">
     <div class="fi fw"><label class="fk" for="sProg">Programa / Carrera *</label><input class="inp" id="sProg" type="text" placeholder="Ej: Medicina, Enfermería, Bacteriología…"/></div>
     <div class="fi"><label class="fk" for="sSem">Semestre</label><input class="inp" id="sSem" type="number" min="1" max="12" placeholder="1–12"/></div>
@@ -356,7 +356,6 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
 
 <div class="toast" id="toast"></div>
 
-<!-- TABLA -->
 <section class="card">
   <div class="card-hdr tbl-hdr">
     <div class="ci">☰</div><h2 class="ct">Registros Recientes</h2>
@@ -374,496 +373,592 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
 <footer><span>© 2025 SIVE – Salud Integral Vocacional Estudiantil</span><span>·</span><span>Cúcuta, Norte de Santander</span></footer>
 
 <script>
-// ══════════════════════════════════════════════
-// CONFIGURACIÓN
-// ══════════════════════════════════════════════
 const GAS = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
 
-// ══════════════════════════════════════════════
-// ESTADO
-// ══════════════════════════════════════════════
-var modo      = 'nueva';
-var stream    = null;
-var camViva   = false;
-var datosActu = null;
-var cHoy      = 0;
-var cTotal    = 0;
-var toastTmr  = null;
+var modo=      'nueva';
+var camStream= null;
+var camViva=   false;
+var scanLoop=  null;
+var detector=  null;
+var datosActu= null;
+var cHoy=0, cTotal=0, toastTmr=null;
+var ultimaLectura= 0; // evitar lecturas duplicadas
 
-// ══════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════
+// ── INIT ─────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', function() {
   checkConn();
   cargarRecientes();
-  // Enter en lector físico
-  document.getElementById('lectorIn').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') procesarAntigua();
+  document.getElementById('lectorIn').addEventListener('keydown', function(e){
+    if(e.key==='Enter') procesarAntigua();
   });
+
+  // Detectar iOS (Chrome o Safari — en iOS todos usan WebKit)
+  var esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  if ('BarcodeDetector' in window) {
+    detector = new BarcodeDetector({
+      formats: ['pdf417','qr_code','code_128','code_39','data_matrix','aztec']
+    });
+    console.log('BarcodeDetector disponible');
+  } else if (esIOS) {
+    // iOS: mostrar botón de foto, ocultar botón de cámara en vivo
+    console.log('iOS detectado — modo foto');
+    document.getElementById('btnOn').style.display  = 'none';
+    document.getElementById('btnIOS').style.display = '';
+    document.getElementById('mzone').style.display  = '';
+    document.getElementById('camHint').innerHTML =
+      'iOS detectado · Presiona <b>Fotografiar MRZ</b> · Apunta al reverso de la cédula · Zona de letras dentro del <b style="color:#0e7490">recuadro azul</b>';
+    // Mostrar la zona de referencia visual estática
+    document.getElementById('camPh').style.display = 'none';
+    document.getElementById('camOuter').style.minHeight = '160px';
+    mostrarMarcadorEstatico();
+  } else {
+    console.warn('BarcodeDetector no disponible');
+  }
 });
 
-// ══════════════════════════════════════════════
-// MODO
-// ══════════════════════════════════════════════
+function mostrarMarcadorEstatico() {
+  // Mostrar fondo oscuro + recuadro azul estático para referencia en iOS
+  var outer = document.getElementById('camOuter');
+  outer.style.background = '#1a1a2e';
+  var mzone = document.getElementById('mzone');
+  mzone.style.display = '';
+  // Ajustar posición para vista estática
+  mzone.style.top    = '20%';
+  mzone.style.bottom = '10%';
+  // Texto guía
+  var lbl = document.getElementById('mzoneLbl');
+  lbl.textContent = 'Zona MRZ — letras del reverso van aquí';
+}
+
+// ── MODO ─────────────────────────────────────────────────────────
 function setModo(m) {
-  if (camViva) camOff();
+  if(camViva) camOff();
   modo = m;
-
-  // Botones
-  document.getElementById('mNueva').classList.toggle('on',   m === 'nueva');
-  document.getElementById('mAntigua').classList.toggle('on', m === 'antigua');
-  document.getElementById('mSinDoc').classList.toggle('on',  m === 'sindoc');
-
-  // Secciones
-  document.getElementById('secNueva').style.display   = m === 'nueva'   ? '' : 'none';
-  document.getElementById('secAntigua').style.display = m === 'antigua' ? '' : 'none';
-  document.getElementById('secSinDoc').style.display  = m === 'sindoc'  ? '' : 'none';
+  document.getElementById('mNueva').classList.toggle('on',   m==='nueva');
+  document.getElementById('mAntigua').classList.toggle('on', m==='antigua');
+  document.getElementById('mSinDoc').classList.toggle('on',  m==='sindoc');
+  document.getElementById('secNueva').style.display   = m==='nueva'   ? '' : 'none';
+  document.getElementById('secAntigua').style.display = m==='antigua' ? '' : 'none';
+  document.getElementById('secSinDoc').style.display  = m==='sindoc'  ? '' : 'none';
   document.getElementById('secData').style.display    = 'none';
   datosActu = null;
 }
 
-// ══════════════════════════════════════════════
-// CÁMARA
-// ══════════════════════════════════════════════
+// ── CÁMARA ───────────────────────────────────────────────────────
 function camOn() {
-  if (!navigator.mediaDevices) {
-    toast('⚠️ Tu navegador no soporta cámara. Usa Chrome o Safari.', 'warn');
-    return;
+  if(!navigator.mediaDevices){
+    toast('Tu navegador no soporta cámara. Usa Chrome en Android.','warn'); return;
   }
-
   navigator.mediaDevices.getUserMedia({
-    video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
-    audio: false
+    video:{ facingMode:{ideal:'environment'}, width:{ideal:1920}, height:{ideal:1080} },
+    audio:false
   })
-  .then(function(s) {
-    stream  = s;
-    camViva = true;
-
+  .then(function(s){
+    camStream = s; camViva = true;
     var vid = document.getElementById('camVid');
     vid.srcObject = s;
     vid.style.display = 'block';
+    document.getElementById('camPh').style.display   = 'none';
+    document.getElementById('mzone').style.display   = '';
+    document.getElementById('scanLine').style.display= '';
+    document.getElementById('scanSt').style.display  = '';
+    document.getElementById('scanSt').className      = 'scan-st';
+    document.getElementById('scanSt').textContent    = '🔍 Buscando MRZ…';
+    document.getElementById('btnOn').style.display   = 'none';
+    document.getElementById('btnOff').style.display  = '';
 
-    document.getElementById('camPh').style.display  = 'none';
-    document.getElementById('mzone').style.display  = '';
-    document.getElementById('btnOn').style.display  = 'none';
-    document.getElementById('btnOff').style.display = '';
-    document.getElementById('btnCap').style.display = '';
-    document.getElementById('ocrPanel').style.display = 'none';
+    // Esperar a que el video tenga dimensiones
+    vid.addEventListener('loadedmetadata', iniciarScan);
+    // Fallback por si loadedmetadata ya pasó
+    setTimeout(iniciarScan, 800);
 
-    toast('📷 Cámara lista — alinea las letras MRZ en el recuadro verde', '');
+    toast('📷 Cámara activa — coloca la cédula con las letras en el recuadro azul','');
   })
-  .catch(function(err) {
+  .catch(function(err){
     var msg = err.toString();
-    if (msg.indexOf('NotAllowed') >= 0 || msg.indexOf('denied') >= 0 || msg.indexOf('Permission') >= 0) {
-      toast('🚫 Permiso denegado. Activa la cámara en ajustes del navegador y recarga.', 'err');
-    } else if (msg.indexOf('NotFound') >= 0) {
-      toast('⚠️ No se encontró cámara en este dispositivo.', 'warn');
-    } else {
-      toast('⚠️ Error de cámara: ' + msg.slice(0, 60), 'warn');
-    }
-    console.error('camOn error:', err);
+    if(msg.indexOf('NotAllowed')>=0||msg.indexOf('denied')>=0||msg.indexOf('Permission')>=0)
+      toast('🚫 Permiso denegado. Activa la cámara en ajustes del navegador.','err');
+    else if(msg.indexOf('NotFound')>=0)
+      toast('⚠️ No se encontró cámara.','warn');
+    else
+      toast('⚠️ Error cámara: '+msg.slice(0,50),'warn');
+    console.error(err);
   });
 }
 
 function camOff() {
-  if (stream) {
-    stream.getTracks().forEach(function(t) { t.stop(); });
-    stream = null;
-  }
+  if(scanLoop){ clearInterval(scanLoop); scanLoop=null; }
+  if(camStream){ camStream.getTracks().forEach(function(t){t.stop();}); camStream=null; }
   camViva = false;
   var vid = document.getElementById('camVid');
-  vid.srcObject = null;
-  vid.style.display = 'none';
-  document.getElementById('camPh').style.display  = '';
-  document.getElementById('mzone').style.display  = 'none';
-  document.getElementById('btnOn').style.display  = '';
-  document.getElementById('btnOff').style.display = 'none';
-  document.getElementById('btnCap').style.display = 'none';
+  vid.srcObject=null; vid.style.display='none';
+  document.getElementById('camPh').style.display    = '';
+  document.getElementById('mzone').style.display    = 'none';
+  document.getElementById('scanLine').style.display = 'none';
+  document.getElementById('scanSt').style.display   = 'none';
+  document.getElementById('btnOn').style.display    = '';
+  document.getElementById('btnOff').style.display   = 'none';
 }
 
-function capturar() {
-  if (!camViva) { toast('Activa la cámara primero.', 'warn'); return; }
+// ── SCAN LOOP ────────────────────────────────────────────────────
+var scanYaIniciado = false;
+function iniciarScan() {
+  if(scanYaIniciado || !camViva) return;
+  scanYaIniciado = true;
 
-  var vid    = document.getElementById('camVid');
-  var canvas = document.getElementById('camCanvas');
+  var vid = document.getElementById('camVid');
+  if(!vid.videoWidth){ setTimeout(iniciarScan, 400); scanYaIniciado=false; return; }
 
-  var vw = vid.videoWidth;
-  var vh = vid.videoHeight;
-
-  if (!vw || !vh) {
-    toast('⚠️ El video aún no está listo. Espera un segundo.', 'warn');
-    return;
+  // Usar BarcodeDetector si está disponible
+  if(detector) {
+    scanLoop = setInterval(function(){ scanConDetector(vid); }, 400);
+  } else {
+    // Fallback: escaneo manual con canvas cada 800ms
+    scanLoop = setInterval(function(){ scanManual(vid); }, 800);
+    toast('⚠️ Lector automático no disponible en este navegador. Usa Chrome en Android.','warn');
   }
-
-  // Recortar zona MRZ: franja inferior del video (58%–88% de la altura)
-  var cx = Math.floor(vw * 0.02);
-  var cy = Math.floor(vh * 0.58);
-  var cw = Math.floor(vw * 0.96);
-  var ch = Math.floor(vh * 0.30);
-
-  // Dibujar en canvas x2 para más resolución
-  canvas.width  = cw * 2;
-  canvas.height = ch * 2;
-  var ctx = canvas.getContext('2d');
-  ctx.filter = 'contrast(1.6) brightness(1.1) grayscale(1)';
-  ctx.drawImage(vid, cx, cy, cw, ch, 0, 0, cw * 2, ch * 2);
-  ctx.filter = 'none';
-
-  // Convertir a imagen y mostrar
-  var imgURL = canvas.toDataURL('image/jpeg', 0.92);
-  var img    = document.getElementById('ocrImg');
-  img.src    = imgURL;
-  img.style.display = 'block';
-
-  // Parar cámara y mostrar panel
-  camOff();
-  document.getElementById('ocrPanel').style.display = '';
-  document.getElementById('ocrTxt').value = '';
-  document.getElementById('ocrTxt').focus();
-  toast('✓ Imagen capturada — escribe las líneas que ves arriba', 'ok');
 }
 
-function organizarMRZ() {
-  var raw = document.getElementById('ocrTxt').value.trim();
-  if (!raw) { toast('Escribe primero las líneas de la MRZ.', 'warn'); return; }
+// ── SCAN CON BarcodeDetector (Chrome/Android) ────────────────────
+function scanConDetector(vid) {
+  if(!camViva || !detector) return;
 
-  // Normalizar: mayúsculas, espacios → <
-  raw = raw.toUpperCase()
-           .replace(/\r/g, '')
-           .replace(/[ \t]+/g, '<')
-           .trim();
+  // Recortar solo la zona MRZ del frame
+  var canvas = document.getElementById('camCanvas');
+  var vw = vid.videoWidth, vh = vid.videoHeight;
+  var cx = Math.floor(vw*0.04), cy = Math.floor(vh*0.56);
+  var cw = Math.floor(vw*0.92), ch = Math.floor(vh*0.32);
 
-  console.log('MRZ normalizado:', JSON.stringify(raw));
+  canvas.width=cw; canvas.height=ch;
+  var ctx = canvas.getContext('2d');
+  ctx.drawImage(vid, cx,cy,cw,ch, 0,0,cw,ch);
 
-  var data = parseMRZ(raw);
-  if (data) {
-    document.getElementById('ocrPanel').style.display = 'none';
+  // 1. Intentar con BarcodeDetector sobre el canvas recortado
+  detector.detect(canvas).then(function(codes){
+    if(codes && codes.length > 0) {
+      var txt = codes[0].rawValue;
+      if(txt && txt.length > 5) {
+        onCodigoLeido(txt);
+        return;
+      }
+    }
+    // 2. Si no detecta nada, intentar sobre el frame completo
+    return detector.detect(vid).then(function(codes2){
+      if(codes2 && codes2.length > 0) {
+        var txt2 = codes2[0].rawValue;
+        if(txt2 && txt2.length > 5) onCodigoLeido(txt2);
+      }
+    });
+  }).catch(function(){});
+}
+
+// ── SCAN MANUAL con canvas (fallback) ────────────────────────────
+function scanManual(vid) {
+  // Solo extrae el frame — sin lectura automática
+  // El usuario debe usar el modo lector físico
+}
+
+// ── CÓDIGO DETECTADO ─────────────────────────────────────────────
+function onCodigoLeido(raw) {
+  // Evitar lecturas duplicadas en 3 segundos
+  var ahora = Date.now();
+  if(ahora - ultimaLectura < 3000) return;
+  ultimaLectura = ahora;
+
+  console.log('Código leído:', JSON.stringify(raw.slice(0,200)));
+
+  // Feedback visual
+  var st = document.getElementById('scanSt');
+  st.textContent = '✓ Código detectado…';
+  st.className   = 'scan-st ok';
+
+  var data = parsearCodigo(raw);
+  if(data) {
+    camOff();
+    scanYaIniciado = false;
     mostrarPaso3(data);
   } else {
-    toast('⚠️ No se reconoció el formato. Verifica que incluyas la línea con números y COL, y la línea de nombres.', 'warn');
+    st.textContent = '⚠️ Formato no reconocido — mantén la cédula quieta';
+    st.className   = 'scan-st err';
+    setTimeout(function(){
+      if(camViva){
+        st.textContent = '🔍 Buscando MRZ…';
+        st.className   = 'scan-st';
+      }
+    }, 2000);
   }
 }
 
-function reintentarCam() {
-  document.getElementById('ocrPanel').style.display = 'none';
-  document.getElementById('ocrTxt').value = '';
-  var img = document.getElementById('ocrImg');
-  img.src = ''; img.style.display = 'none';
-  document.getElementById('camPh').style.display = '';
-  document.getElementById('btnOn').style.display = '';
+// ── FOTO iOS: procesar imagen tomada con la cámara ──────────────
+// En iOS tomamos la foto completa y recortamos la zona inferior
+// donde está la MRZ, luego usamos BarcodeDetector sobre el recorte.
+// Si BarcodeDetector no está (siempre en iOS), intentamos parseo
+// directo del texto extraído por el sistema de visión de iOS a través
+// del input[capture] — iOS 16+ devuelve texto en el EXIF o podemos
+// usar un enfoque alternativo: mostramos la imagen y dejamos que
+// el reconocimiento de texto nativo de iOS (Live Text) ayude.
+//
+// Estrategia real para iOS:
+// 1. Tomamos la foto
+// 2. La recortamos a la zona MRZ (franja inferior)
+// 3. Intentamos BarcodeDetector sobre el recorte (falla en iOS)
+// 4. Fallback: createImageBitmap + OffscreenCanvas si disponible
+// 5. Último recurso: mostrar la imagen recortada grande para
+//    que el usuario la vea y confirme los datos manualmente.
+function procesarFotoIOS(input) {
+  if(!input.files || !input.files[0]) return;
+  var archivo = input.files[0];
+  input.value = ''; // reset para poder volver a tomar foto
+
+  var st = document.getElementById('scanSt');
+  st.style.display = '';
+  st.className     = 'scan-st';
+  st.textContent   = '📷 Procesando imagen…';
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      // Recortar zona MRZ: franja inferior 55%–90% del alto
+      var canvas = document.getElementById('camCanvas');
+      var iw = img.naturalWidth, ih = img.naturalHeight;
+      var cx = Math.floor(iw * 0.02);
+      var cy = Math.floor(ih * 0.55);
+      var cw = Math.floor(iw * 0.96);
+      var ch = Math.floor(ih * 0.35);
+
+      // Escalar x3 para mejor resolución
+      var sc = 3;
+      canvas.width  = cw * sc;
+      canvas.height = ch * sc;
+      var ctx = canvas.getContext('2d');
+      ctx.filter = 'contrast(1.8) grayscale(1) brightness(1.15)';
+      ctx.drawImage(img, cx, cy, cw, ch, 0, 0, cw*sc, ch*sc);
+      ctx.filter = 'none';
+
+      // Intentar BarcodeDetector sobre el recorte
+      if(detector) {
+        detector.detect(canvas).then(function(codes) {
+          st.style.display = 'none';
+          if(codes && codes.length > 0) {
+            onCodigoLeido(codes[0].rawValue);
+          } else {
+            // Intentar sobre imagen completa
+            return detector.detect(img).then(function(codes2) {
+              if(codes2 && codes2.length > 0) {
+                onCodigoLeido(codes2[0].rawValue);
+              } else {
+                mostrarImagenParaConfirmar(canvas);
+              }
+            });
+          }
+        }).catch(function() {
+          st.style.display = 'none';
+          mostrarImagenParaConfirmar(canvas);
+        });
+      } else {
+        // Sin BarcodeDetector (iOS): mostrar recorte ampliado
+        st.style.display = 'none';
+        mostrarImagenParaConfirmar(canvas);
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(archivo);
 }
 
-// ══════════════════════════════════════════════
-// PARSEO MRZ — Cédula nueva Colombia
-// Línea 2: AAMMDD + digVer? + M/F + AAMMDD + digVer? + COL + NúmCédula
-// Línea 3: APELLIDO1<APELLIDO2<<NOMBRE1<NOMBRE2
-// ══════════════════════════════════════════════
+// Mostrar la imagen recortada ampliada para que el sistema
+// de texto en vivo de iOS ayude al usuario a ver los datos
+function mostrarImagenParaConfirmar(canvas) {
+  var dataURL = canvas.toDataURL('image/jpeg', 0.95);
+
+  // Mostrar panel con la imagen
+  var panel = document.getElementById('iosPanel');
+  if(!panel) {
+    panel = document.createElement('div');
+    panel.id = 'iosPanel';
+    panel.style.cssText = 'padding:0 18px 16px';
+    document.getElementById('secNueva').appendChild(panel);
+  }
+
+  panel.innerHTML =
+    '<p style="font-size:.72rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Zona MRZ capturada — mantén presionado para copiar el texto:</p>' +
+    '<img src="'+dataURL+'" style="width:100%;border-radius:8px;border:2px solid #22d3ee;display:block;margin-bottom:10px" alt="MRZ"/>' +
+    '<div style="background:#fef3c7;border:1px solid rgba(146,64,14,.2);border-radius:8px;padding:10px 12px;font-size:.75rem;color:#92400e;line-height:1.5;margin-bottom:10px">' +
+    '📱 <b>En iPhone:</b> mantén presionada la imagen → "Texto en vivo" → copia las líneas de letras y pégalas abajo.' +
+    '</div>' +
+    '<label style="font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Pega o escribe la línea con números y la de nombres:</label>' +
+    '<textarea id="iosTxt" style="width:100%;font-family:var(--m);font-size:.8rem;border:1.5px solid var(--g300);border-radius:var(--r);padding:9px 11px;background:var(--g50);outline:none;resize:vertical;line-height:1.8;min-height:80px" ' +
+    'placeholder="8808213F3101300COL1234567890&#10;MARTINEZ GARCIA  MARIA DANIELA"></textarea>' +
+    '<div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap">' +
+    '<button onclick="procesarTextoIOS()" class="btn btn-navy">✓ Organizar datos</button>' +
+    '<button onclick="retomarIOS()" class="btn btn-sec">↩ Volver a fotografiar</button>' +
+    '</div>';
+
+  panel.style.display = '';
+  toast('📱 Usa "Texto en vivo" de iOS para copiar las letras de la imagen','warn');
+}
+
+function procesarTextoIOS() {
+  var txt = document.getElementById('iosTxt').value.trim();
+  if(!txt){ toast('Pega o escribe el texto MRZ primero.','warn'); return; }
+
+  // Normalizar
+  txt = txt.toUpperCase().replace(/
+/g,'').replace(/[ 	]+/g,'<').trim();
+  console.log('Texto iOS:', JSON.stringify(txt));
+
+  var data = parsearCodigo(txt);
+  if(data) {
+    document.getElementById('iosPanel').style.display = 'none';
+    mostrarPaso3(data);
+  } else {
+    toast('⚠️ No se reconoció. Verifica que incluyas la línea con números y COL, y la de nombres.','warn');
+  }
+}
+
+function retomarIOS() {
+  var panel = document.getElementById('iosPanel');
+  if(panel) panel.style.display = 'none';
+}
+
+// ── PARSEAR CÓDIGO ────────────────────────────────────────────────
+function parsearCodigo(raw) {
+  return parseMRZ(raw) || parsePDF417antiguo(raw) || parseSoloNumero(raw);
+}
+
+// ── MRZ — Cédula nueva Colombia ──────────────────────────────────
+// Línea 2: AAMMDD + dV + M/F + AAMMDD + dV + COL + NúmCédula
+// Línea 3: AP1<AP2<<NOM1<NOM2
 function parseMRZ(raw) {
-  // Separar en líneas
-  var lineas = raw.split('\n').map(function(l) {
-    return l.trim().replace(/[^A-Z0-9<]/g, '');
-  }).filter(function(l) { return l.length > 5; });
+  var lineas = raw.replace(/\r/g,'').split('\n')
+    .map(function(l){ return l.trim().replace(/[^A-Z0-9<]/g,''); })
+    .filter(function(l){ return l.length > 5; });
 
-  var L2 = '', L3 = '';
-
-  // Encontrar línea con patrón de fechas + género + COL
-  for (var i = 0; i < lineas.length; i++) {
-    if (/\d{6}[MF]\d{5,7}[A-Z]{2,3}[0-9<]{4,}/.test(lineas[i])) {
-      L2 = lineas[i];
-      // Línea 3: siguiente línea con letras y <
-      for (var j = i + 1; j < lineas.length; j++) {
-        if (lineas[j].indexOf('<') >= 0 && /[A-Z]{3,}/.test(lineas[j])) {
-          L3 = lineas[j];
-          break;
+  var L2='', L3='';
+  for(var i=0;i<lineas.length;i++){
+    if(/\d{6}[MF]\d{5,7}[A-Z]{2,3}[0-9<]{4,}/.test(lineas[i])){
+      L2=lineas[i];
+      for(var j=i+1;j<lineas.length;j++){
+        if(lineas[j].indexOf('<')>=0 && /[A-Z]{3,}/.test(lineas[j])){
+          L3=lineas[j]; break;
         }
       }
       break;
     }
   }
 
-  // Intentar en texto continuo si no se encontró con saltos
-  if (!L2) {
-    var cont = raw.replace(/\n/g, '');
-    var mC = cont.match(/(\d{6}[MF]\d{5,7}[A-Z]{2,3}[0-9<]{6,})/);
-    if (mC) {
+  // Buscar en continuo si no hay saltos
+  if(!L2){
+    var cont = raw.replace(/[^A-Z0-9<\n]/g,'');
+    var mC   = cont.match(/(\d{6}[MF]\d{5,7}[A-Z]{2,3}[0-9<]{6,})/);
+    if(mC){
       L2 = mC[1];
-      var pos = cont.indexOf(L2) + L2.length;
-      var resto = cont.slice(pos).replace(/[^A-Z<]/g, '');
-      if (resto.indexOf('<') >= 0 && /[A-Z]{3,}/.test(resto)) L3 = resto;
+      var pos   = cont.indexOf(L2)+L2.length;
+      var resto = cont.slice(pos).replace(/[^A-Z<]/g,'');
+      if(resto.indexOf('<')>=0 && /[A-Z]{3,}/.test(resto)) L3=resto;
     }
   }
 
-  if (!L2) return null;
+  if(!L2) return null;
 
-  // Parsear L2: AAMMDD + digVer? + [MF] + AAMMDD + digVer? + COL/país + número
   var m = L2.match(/(\d{2})(\d{2})(\d{2})\d?([MF])(\d{2})(\d{2})(\d{2})\d?[A-Z]{2,3}([0-9]{6,12})/);
-  if (!m) return null;
+  if(!m) return null;
 
-  var aNac = parseInt(m[1], 10);
-  var aExp = parseInt(m[5], 10);
-  var fnac = m[3] + '/' + m[2] + '/' + (aNac <= 30 ? '20' : '19') + m[1];
-  var fexp = m[7] + '/' + m[6] + '/' + (aExp <= 30 ? '20' : '19') + m[5];
-  var gen  = m[4] === 'M' ? 'Masculino' : 'Femenino';
-  var ced  = m[8].replace(/</g, '');
+  var aN=parseInt(m[1],10), aE=parseInt(m[5],10);
+  var fnac = m[3]+'/'+m[2]+'/'+(aN<=30?'20':'19')+m[1];
+  var fexp = m[7]+'/'+m[6]+'/'+(aE<=30?'20':'19')+m[5];
+  var gen  = m[4]==='M'?'Masculino':'Femenino';
+  var ced  = m[8].replace(/</g,'');
 
-  // Parsear L3: AP1<AP2<<NOM1<NOM2
-  var ap1='', ap2='', nom1='', nom2='';
-  if (L3) {
-    var lim = L3.replace(/^<+|<+$/g, '');
-    var pp  = lim.split('<<');
-    if (pp.length >= 2) {
-      var aps  = pp[0].split('<').filter(Boolean);
-      var noms = pp[1].split('<').filter(Boolean);
-      ap1  = aps[0]  || '';  ap2  = aps[1]  || '';
-      nom1 = noms[0] || '';  nom2 = noms[1] || '';
+  var ap1='',ap2='',nom1='',nom2='';
+  if(L3){
+    var lim=L3.replace(/^<+|<+$/g,'');
+    var pp=lim.split('<<');
+    if(pp.length>=2){
+      var aps=pp[0].split('<').filter(Boolean);
+      var nms=pp[1].split('<').filter(Boolean);
+      ap1=aps[0]||''; ap2=aps[1]||'';
+      nom1=nms[0]||''; nom2=nms[1]||'';
     } else {
-      var pts = lim.split('<').filter(Boolean);
-      ap1=pts[0]||''; ap2=pts[1]||''; nom1=pts[2]||''; nom2=pts[3]||'';
+      var pts=lim.split('<').filter(Boolean);
+      ap1=pts[0]||'';ap2=pts[1]||'';nom1=pts[2]||'';nom2=pts[3]||'';
     }
   }
 
-  function cap(s) { return s ? s[0] + s.slice(1).toLowerCase() : ''; }
-
+  function cap(s){ return s?s[0]+s.slice(1).toLowerCase():''; }
   return {
-    tipo:     'NUEVA (MRZ)',
-    cedula:   ced,
-    apellido1: cap(ap1), apellido2: cap(ap2),
-    nombre1:  cap(nom1),  nombre2:  cap(nom2),
-    fechaNac: fnac, genero: gen, fechaExp: fexp, lugarExp: 'Colombia'
+    tipo:'NUEVA (MRZ)', cedula:ced,
+    apellido1:cap(ap1), apellido2:cap(ap2),
+    nombre1:cap(nom1),  nombre2:cap(nom2),
+    fechaNac:fnac, genero:gen, fechaExp:fexp, lugarExp:'Colombia'
   };
 }
 
-// ══════════════════════════════════════════════
-// CÉDULA ANTIGUA
-// ══════════════════════════════════════════════
-function procesarAntigua() {
-  var raw = document.getElementById('lectorIn').value.trim();
-  if (!raw) { toast('Escanea o escribe el código primero.', 'warn'); return; }
-
-  console.log('Código antiguo:', JSON.stringify(raw));
-
-  // Formato: P-XXXX-XXXX-M/F-NumCédula-AAAAMMDD
+// ── PDF417 cédula antigua ─────────────────────────────────────────
+function parsePDF417antiguo(raw) {
   var m = raw.match(/P[-][\w\d]+[-][\w\d]+[-]([MF])[-](\d{6,12})[-](\d{8})/i);
-  if (m) {
-    var d = m[3]; // AAAAMMDD
-    mostrarPaso3({
-      tipo:     'ANTIGUA (PDF417)',
-      cedula:   m[2],
-      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
-      fechaNac: '',
-      genero:   m[1].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
-      fechaExp: d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4),
-      lugarExp: ''
-    });
-    return;
-  }
-
-  // Solo número
-  var clean = raw.replace(/[\s.\-]/g, '');
-  if (/^\d{6,12}$/.test(clean)) {
-    mostrarPaso3({
-      tipo:'ANTIGUA (PDF417)', cedula:clean,
-      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
-      fechaNac:'', genero:'', fechaExp:'', lugarExp:''
-    });
-    return;
-  }
-
-  toast('⚠️ Formato no reconocido. Revisa el código del lector.', 'warn');
+  if(!m) return null;
+  var d=m[3];
+  return {
+    tipo:'ANTIGUA (PDF417)', cedula:m[2],
+    apellido1:'',apellido2:'',nombre1:'',nombre2:'',fechaNac:'',
+    genero:m[1].toUpperCase()==='M'?'Masculino':'Femenino',
+    fechaExp:d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4),
+    lugarExp:''
+  };
 }
 
-// ══════════════════════════════════════════════
-// SIN DOCUMENTO
-// ══════════════════════════════════════════════
-function confirmarSinDoc() {
-  var ap1  = document.getElementById('sdAp1').value.trim();
-  var nom1 = document.getElementById('sdN1').value.trim();
-  if (!ap1 || !nom1) { toast('⚠️ Primer apellido y primer nombre son obligatorios.', 'warn'); return; }
+// ── Solo número (fallback) ────────────────────────────────────────
+function parseSoloNumero(raw) {
+  var clean=raw.replace(/[\s.\-]/g,'');
+  if(/^\d{6,12}$/.test(clean))
+    return {tipo:'ANTIGUA (PDF417)',cedula:clean,apellido1:'',apellido2:'',nombre1:'',nombre2:'',fechaNac:'',genero:'',fechaExp:'',lugarExp:''};
+  return null;
+}
 
-  var fec = document.getElementById('sdFec').value;
+// ── CÉDULA ANTIGUA (lector físico) ───────────────────────────────
+function procesarAntigua() {
+  var raw=document.getElementById('lectorIn').value.trim();
+  if(!raw){ toast('Escanea el código primero.','warn'); return; }
+  console.log('Código antiguo:', JSON.stringify(raw));
+  var data=parsearCodigo(raw);
+  if(data) mostrarPaso3(data);
+  else toast('⚠️ Formato no reconocido. Revisa el código.','warn');
+}
+
+// ── SIN DOCUMENTO ────────────────────────────────────────────────
+function confirmarSinDoc() {
+  var ap1=document.getElementById('sdAp1').value.trim();
+  var n1=document.getElementById('sdN1').value.trim();
+  if(!ap1||!n1){ toast('⚠️ Primer apellido y nombre son obligatorios.','warn'); return; }
+  var fec=document.getElementById('sdFec').value;
   mostrarPaso3({
-    tipo:     'SIN DOCUMENTO',
-    cedula:   document.getElementById('sdDoc').value.trim() || ('SD-' + Date.now()),
-    apellido1: ap1,
-    apellido2: document.getElementById('sdAp2').value.trim(),
-    nombre1:   nom1,
-    nombre2:   document.getElementById('sdN2').value.trim(),
-    fechaNac:  fec ? fec.split('-').reverse().join('/') : '',
-    genero:    document.getElementById('sdGen').value,
-    fechaExp:  '', lugarExp: ''
+    tipo:'SIN DOCUMENTO',
+    cedula:document.getElementById('sdDoc').value.trim()||('SD-'+Date.now()),
+    apellido1:ap1, apellido2:document.getElementById('sdAp2').value.trim(),
+    nombre1:n1,    nombre2:document.getElementById('sdN2').value.trim(),
+    fechaNac:fec?fec.split('-').reverse().join('/'):'',
+    genero:document.getElementById('sdGen').value, fechaExp:'', lugarExp:''
   });
 }
 
-// ══════════════════════════════════════════════
-// PASO 3: MOSTRAR DATOS
-// ══════════════════════════════════════════════
+// ── PASO 3 ────────────────────────────────────────────────────────
 function mostrarPaso3(d) {
-  datosActu = d;
+  datosActu=d;
+  document.getElementById('dCed').value  = d.cedula    ||'';
+  document.getElementById('dAp1').value  = d.apellido1 ||'';
+  document.getElementById('dAp2').value  = d.apellido2 ||'';
+  document.getElementById('dN1').value   = d.nombre1   ||'';
+  document.getElementById('dN2').value   = d.nombre2   ||'';
+  document.getElementById('dFnac').value = d.fechaNac  ||'';
+  document.getElementById('dGen').value  = d.genero    ||'';
+  document.getElementById('dFexp').value = d.fechaExp  ||'';
+  document.getElementById('dLug').value  = d.lugarExp  ||'';
 
-  document.getElementById('dCed').value  = d.cedula    || '';
-  document.getElementById('dAp1').value  = d.apellido1 || '';
-  document.getElementById('dAp2').value  = d.apellido2 || '';
-  document.getElementById('dN1').value   = d.nombre1   || '';
-  document.getElementById('dN2').value   = d.nombre2   || '';
-  document.getElementById('dFnac').value = d.fechaNac  || '';
-  document.getElementById('dGen').value  = d.genero    || '';
-  document.getElementById('dFexp').value = d.fechaExp  || '';
-  document.getElementById('dLug').value  = d.lugarExp  || '';
+  var badge=document.getElementById('badgeTipo');
+  badge.textContent=d.tipo; badge.style.cssText='';
+  if(d.tipo==='SIN DOCUMENTO')
+    badge.style.cssText='background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)';
+  else if(d.tipo.indexOf('ANTIGUA')>=0)
+    badge.style.cssText='background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.3)';
 
-  var badge = document.getElementById('badgeTipo');
-  badge.textContent   = d.tipo;
-  badge.style.cssText = '';
-  if (d.tipo === 'SIN DOCUMENTO')
-    badge.style.cssText = 'background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)';
-  else if (d.tipo.indexOf('ANTIGUA') >= 0)
-    badge.style.cssText = 'background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.3)';
-
-  var falta = !d.apellido1 || !d.nombre1;
-  document.getElementById('avisoEdit').style.display = falta ? '' : 'none';
-
-  document.getElementById('secData').style.display = '';
-  document.getElementById('secData').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  toast('✓ Datos listos — completa info SIVE y guarda', 'ok');
+  var falta=!d.apellido1||!d.nombre1;
+  document.getElementById('avisoEdit').style.display=falta?'':'none';
+  document.getElementById('secData').style.display='';
+  document.getElementById('secData').scrollIntoView({behavior:'smooth',block:'start'});
+  toast('✓ Datos listos — completa info SIVE y guarda','ok');
 }
 
-// ══════════════════════════════════════════════
-// GUARDAR
-// ══════════════════════════════════════════════
+// ── GUARDAR ───────────────────────────────────────────────────────
 async function guardar() {
-  if (!datosActu) return;
+  if(!datosActu) return;
+  var prog=document.getElementById('sProg').value.trim();
+  if(!prog){ toast('⚠️ Programa / Carrera es obligatorio.','warn'); document.getElementById('sProg').focus(); return; }
 
-  var prog = document.getElementById('sProg').value.trim();
-  if (!prog) {
-    toast('⚠️ Programa / Carrera es obligatorio.', 'warn');
-    document.getElementById('sProg').focus();
-    return;
-  }
+  var btn=document.getElementById('btnSave');
+  btn.disabled=true; btn.classList.add('loading'); btn.textContent='Guardando…';
 
-  var btn = document.getElementById('btnSave');
-  btn.disabled = true;
-  btn.classList.add('loading');
-  btn.textContent = 'Guardando…';
-
-  var payload = {
-    action:    'save',
-    cedula:    document.getElementById('dCed').value  || datosActu.cedula,
-    apellido1: document.getElementById('dAp1').value  || datosActu.apellido1,
-    apellido2: document.getElementById('dAp2').value  || datosActu.apellido2,
-    nombre1:   document.getElementById('dN1').value   || datosActu.nombre1,
-    nombre2:   document.getElementById('dN2').value   || datosActu.nombre2,
-    fechaNac:  document.getElementById('dFnac').value || datosActu.fechaNac,
-    genero:    document.getElementById('dGen').value  || datosActu.genero,
-    fechaExp:  document.getElementById('dFexp').value || datosActu.fechaExp,
-    lugarExp:  document.getElementById('dLug').value  || datosActu.lugarExp,
-    tipo:      datosActu.tipo,
-    programa:  prog,
-    semestre:  document.getElementById('sSem').value.trim(),
-    jornada:   document.getElementById('sJor').value,
-    observaciones: document.getElementById('sObs').value.trim(),
-    fechaRegistro: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })
+  var p={
+    action:'save',
+    cedula:   document.getElementById('dCed').value  ||datosActu.cedula,
+    apellido1:document.getElementById('dAp1').value  ||datosActu.apellido1,
+    apellido2:document.getElementById('dAp2').value  ||datosActu.apellido2,
+    nombre1:  document.getElementById('dN1').value   ||datosActu.nombre1,
+    nombre2:  document.getElementById('dN2').value   ||datosActu.nombre2,
+    fechaNac: document.getElementById('dFnac').value ||datosActu.fechaNac,
+    genero:   document.getElementById('dGen').value  ||datosActu.genero,
+    fechaExp: document.getElementById('dFexp').value ||datosActu.fechaExp,
+    lugarExp: document.getElementById('dLug').value  ||datosActu.lugarExp,
+    tipo:     datosActu.tipo, programa:prog,
+    semestre: document.getElementById('sSem').value.trim(),
+    jornada:  document.getElementById('sJor').value,
+    observaciones:document.getElementById('sObs').value.trim(),
+    fechaRegistro:new Date().toLocaleString('es-CO',{timeZone:'America/Bogota'})
   };
 
   try {
-    var res  = await fetch(GAS, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'cors' });
-    var json = await res.json();
-    if (json.status === 'ok') {
-      toast('✅ Registro guardado en Google Sheets', 'ok');
+    var res=await fetch(GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p),mode:'cors'});
+    var j=await res.json();
+    if(j.status==='ok'){
+      toast('✅ Guardado en Google Sheets','ok');
       cHoy++; cTotal++;
-      document.getElementById('cHoy').textContent   = cHoy;
-      document.getElementById('cTotal').textContent = cTotal;
-      cancelar();
-      cargarRecientes();
-    } else {
-      throw new Error(json.message || 'Error del servidor');
-    }
-  } catch(e) {
-    toast('❌ Error al guardar: ' + e.message, 'err');
-  } finally {
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar en Google Sheets';
+      document.getElementById('cHoy').textContent=cHoy;
+      document.getElementById('cTotal').textContent=cTotal;
+      cancelar(); cargarRecientes();
+    } else throw new Error(j.message||'Error');
+  } catch(e){ toast('❌ Error: '+e.message,'err'); }
+  finally {
+    btn.disabled=false; btn.classList.remove('loading');
+    btn.innerHTML='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar en Google Sheets';
   }
 }
 
-// ══════════════════════════════════════════════
-// CANCELAR
-// ══════════════════════════════════════════════
+// ── CANCELAR ─────────────────────────────────────────────────────
 function cancelar() {
-  datosActu = null;
-  document.getElementById('secData').style.display = 'none';
-
-  ['dCed','dAp1','dAp2','dN1','dN2','dFnac','dFexp','dLug'].forEach(function(id) {
-    document.getElementById(id).value = '';
-  });
-  document.getElementById('dGen').value = '';
-  ['sProg','sSem','sObs'].forEach(function(id) { document.getElementById(id).value = ''; });
-  document.getElementById('sJor').value = '';
-  document.getElementById('ocrTxt').value = '';
-  document.getElementById('ocrPanel').style.display = 'none';
-  document.getElementById('lectorIn').value = '';
-
-  var img = document.getElementById('ocrImg');
-  img.src = ''; img.style.display = 'none';
+  datosActu=null; scanYaIniciado=false;
+  document.getElementById('secData').style.display='none';
+  ['dCed','dAp1','dAp2','dN1','dN2','dFnac','dFexp','dLug'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('dGen').value='';
+  ['sProg','sSem','sObs'].forEach(function(id){document.getElementById(id).value='';});
+  document.getElementById('sJor').value='';
+  document.getElementById('lectorIn').value='';
 }
 
-// ══════════════════════════════════════════════
-// REGISTROS RECIENTES
-// ══════════════════════════════════════════════
+// ── RECIENTES ────────────────────────────────────────────────────
 async function cargarRecientes() {
-  var tb = document.getElementById('tblBody');
-  tb.innerHTML = '<tr><td colspan="5" class="empty">Cargando…</td></tr>';
+  var tb=document.getElementById('tblBody');
+  tb.innerHTML='<tr><td colspan="5" class="empty">Cargando…</td></tr>';
   try {
-    var res  = await fetch(GAS + '?action=getRecent&limit=10', { mode:'cors' });
-    var json = await res.json();
-    if (!json.rows || json.rows.length === 0) {
-      tb.innerHTML = '<tr><td colspan="5" class="empty">Sin registros aún.</td></tr>';
-      return;
-    }
-    cTotal = json.total || json.rows.length;
-    document.getElementById('cTotal').textContent = cTotal;
-    tb.innerHTML = json.rows.map(function(r, i) {
-      var nombre = [r.apellido1, r.apellido2, r.nombre1, r.nombre2].filter(Boolean).join(' ') || '—';
-      var tipo   = (r.tipo || '—').split(' ')[0];
-      return '<tr class="' + (i===0?'rnew':'') + '">' +
-        '<td>' + (r.cedula||'—') + '</td>' +
-        '<td>' + nombre + '</td>' +
-        '<td>' + (r.programa||'—') + '</td>' +
-        '<td>' + tipo + '</td>' +
-        '<td>' + (r.fechaRegistro||'—') + '</td>' +
-        '</tr>';
+    var res=await fetch(GAS+'?action=getRecent&limit=10',{mode:'cors'});
+    var j=await res.json();
+    if(!j.rows||j.rows.length===0){tb.innerHTML='<tr><td colspan="5" class="empty">Sin registros aún.</td></tr>';return;}
+    cTotal=j.total||j.rows.length;
+    document.getElementById('cTotal').textContent=cTotal;
+    tb.innerHTML=j.rows.map(function(r,i){
+      var n=[r.apellido1,r.apellido2,r.nombre1,r.nombre2].filter(Boolean).join(' ')||'—';
+      return '<tr class="'+(i===0?'rnew':'')+'"><td>'+(r.cedula||'—')+'</td><td>'+n+'</td><td>'+(r.programa||'—')+'</td><td>'+((r.tipo||'—').split(' ')[0])+'</td><td>'+(r.fechaRegistro||'—')+'</td></tr>';
     }).join('');
-  } catch(e) {
-    tb.innerHTML = '<tr><td colspan="5" class="empty">Error de conexión.</td></tr>';
-  }
+  } catch(e){tb.innerHTML='<tr><td colspan="5" class="empty">Error de conexión.</td></tr>';}
 }
 
-// ══════════════════════════════════════════════
-// CONEXIÓN
-// ══════════════════════════════════════════════
+// ── CONEXIÓN ─────────────────────────────────────────────────────
 async function checkConn() {
-  var pill = document.getElementById('stPill');
-  var txt  = document.getElementById('stTxt');
+  var pill=document.getElementById('stPill'),txt=document.getElementById('stTxt');
   try {
-    var res = await fetch(GAS + '?action=ping', { mode:'cors' });
-    if (res.ok) {
-      pill.textContent = '⬤ Conectado'; pill.classList.add('online');
-      txt.textContent  = 'Conectado';
-    } else throw 0;
-  } catch(e) {
-    pill.textContent = '⬤ Sin conexión'; pill.classList.add('offline');
-    txt.textContent  = 'Sin conexión';
-  }
+    var res=await fetch(GAS+'?action=ping',{mode:'cors'});
+    if(res.ok){pill.textContent='⬤ Conectado';pill.classList.add('online');txt.textContent='Conectado';}
+    else throw 0;
+  } catch(e){pill.textContent='⬤ Sin conexión';pill.classList.add('offline');txt.textContent='Sin conexión';}
 }
 
-// ══════════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════════
-function toast(msg, tipo) {
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'toast show ' + (tipo || '');
+// ── TOAST ────────────────────────────────────────────────────────
+function toast(msg,tipo){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+(tipo||'');
   clearTimeout(toastTmr);
-  toastTmr = setTimeout(function() { t.className = 'toast'; }, 4200);
+  toastTmr=setTimeout(function(){t.className='toast';},4500);
 }
 </script>
 </body>
