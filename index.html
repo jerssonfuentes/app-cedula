@@ -8,12 +8,13 @@
 <style>
 :root{
   --navy:#1a3a6b;--navy2:#2563b0;--teal:#2a7a5a;--teal2:#38a376;
-  --teal-pale:#e6f5ef;--orange:#e65100;--white:#fff;--bg:#f5f7fb;
+  --tpale:#e6f5ef;--ora:#e65100;--bg:#f5f7fb;
   --g50:#f8fafc;--g100:#eef1f7;--g200:#e2e8f0;--g300:#c8d0df;
   --g500:#7a8699;--g700:#3a4558;--text:#0f1d36;
   --sh:0 4px 16px rgba(26,58,107,.12);--shl:0 12px 40px rgba(26,58,107,.16);
-  --r:8px;--r2:14px;--r3:20px;--f:'Outfit',sans-serif;--m:'JetBrains Mono',monospace;
-  --tr:.22s cubic-bezier(.4,0,.2,1);
+  --r:8px;--r2:14px;--r3:20px;
+  --f:'Outfit',sans-serif;--m:'JetBrains Mono',monospace;
+  --tr:.2s ease;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -21,128 +22,114 @@ body{font-family:var(--f);background:var(--bg);color:var(--text);min-height:100v
 
 /* HEADER */
 .hdr{background:var(--navy);position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(26,58,107,.4)}
-.hdr-in{max-width:900px;margin:0 auto;padding:11px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hdr-in{max-width:860px;margin:0 auto;padding:11px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .logo{display:flex;align-items:center;gap:10px}
-.logo-ico{width:42px;height:42px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:var(--r);display:flex;align-items:center;justify-content:center}
-.logo-ico svg{width:28px;height:28px}
-.logo-t{display:flex;flex-direction:column;line-height:1.1}
-.logo-t b{font-size:1.4rem;font-weight:800;color:#fff;letter-spacing:.04em}
-.logo-t small{font-size:.6rem;color:rgba(255,255,255,.6);letter-spacing:.06em;text-transform:uppercase}
-.badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:30px;padding:4px 12px;font-size:.72rem;color:rgba(255,255,255,.9);white-space:nowrap}
-.dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pu 2s ease-in-out infinite}
-@keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+.logo-ico{width:40px;height:40px;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:var(--r);display:flex;align-items:center;justify-content:center}
+.logo-ico svg{width:26px;height:26px}
+.logo-t b{font-size:1.35rem;font-weight:800;color:#fff;letter-spacing:.04em;display:block;line-height:1}
+.logo-t small{font-size:.58rem;color:rgba(255,255,255,.6);letter-spacing:.05em;text-transform:uppercase}
+.hbadge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:30px;padding:4px 11px;font-size:.7rem;color:rgba(255,255,255,.88);white-space:nowrap}
+.dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pu 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* MAIN */
-.main{max-width:900px;margin:0 auto;padding:20px 14px 60px;display:flex;flex-direction:column;gap:18px}
+.main{max-width:860px;margin:0 auto;padding:18px 12px 60px;display:flex;flex-direction:column;gap:16px}
 
 /* HERO */
-.hero{background:linear-gradient(135deg,var(--navy) 0%,#1e4d8c 60%,#1e5f8c 100%);border-radius:var(--r3);padding:26px 26px 22px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shl)}
-.hero::before{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(42,122,90,.25);pointer-events:none}
-.hero h1{font-size:clamp(1.4rem,5vw,2rem);font-weight:800;line-height:1.15;margin-bottom:6px}
+.hero{background:linear-gradient(135deg,#1a3a6b 0%,#1e4d8c 55%,#1e5f8c 100%);border-radius:var(--r3);padding:24px 24px 20px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shl)}
+.hero::before{content:'';position:absolute;right:-30px;top:-30px;width:160px;height:160px;border-radius:50%;background:rgba(42,122,90,.22);pointer-events:none}
+.hero h1{font-size:clamp(1.3rem,4vw,1.9rem);font-weight:800;line-height:1.15;margin-bottom:5px;position:relative;z-index:1}
 .hero h1 span{color:#6ee7b7}
-.hero p{font-size:.85rem;color:rgba(255,255,255,.72);max-width:500px;line-height:1.5;position:relative;z-index:1}
-.pills{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;position:relative;z-index:1}
-.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:4px 13px;font-size:.76rem;color:rgba(255,255,255,.88)}
-.pill b{color:#6ee7b7;margin-right:3px}
-.pill.online{border-color:rgba(74,222,128,.4);color:#4ade80}
-.pill.offline{border-color:rgba(248,113,113,.4);color:#f87171}
+.hero p{font-size:.82rem;color:rgba(255,255,255,.7);max-width:480px;line-height:1.5;position:relative;z-index:1}
+.pills{display:flex;gap:7px;margin-top:16px;flex-wrap:wrap;position:relative;z-index:1}
+.pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:3px 12px;font-size:.73rem;color:rgba(255,255,255,.85)}
+.pill b{color:#6ee7b7;margin-right:2px}
+#stPill.online{color:#4ade80;border-color:rgba(74,222,128,.4)}
+#stPill.offline{color:#f87171;border-color:rgba(248,113,113,.4)}
 
 /* CARD */
 .card{background:#fff;border-radius:var(--r3);box-shadow:var(--sh);border:1px solid var(--g100);overflow:hidden}
-.card-hdr{display:flex;align-items:center;gap:10px;padding:16px 20px 12px;border-bottom:1px solid var(--g100);background:var(--g50)}
-.ci{width:30px;height:30px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff;font-weight:700;flex-shrink:0}
-.ct{font-size:.92rem;font-weight:700;color:var(--navy);flex:1}
-.badge-tipo{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px;background:var(--teal-pale);color:var(--teal);border:1px solid rgba(42,122,90,.2)}
+.card-hdr{display:flex;align-items:center;gap:9px;padding:14px 18px 12px;border-bottom:1px solid var(--g100);background:var(--g50)}
+.ci{width:28px;height:28px;background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:#fff;font-weight:700;flex-shrink:0}
+.ct{font-size:.9rem;font-weight:700;color:var(--navy);flex:1}
+.btipo{font-size:.63rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:20px;background:var(--tpale);color:var(--teal);border:1px solid rgba(42,122,90,.2)}
 
 /* MODO */
-.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:18px 20px 20px}
-.mbtn{display:flex;flex-direction:column;align-items:center;gap:7px;padding:18px 10px 16px;border:2px solid var(--g200);border-radius:var(--r2);background:var(--g50);cursor:pointer;font-family:var(--f);transition:all var(--tr)}
-.mbtn.on{border-color:var(--navy);background:#fff;box-shadow:0 4px 14px rgba(26,58,107,.16)}
-.mbtn:hover:not(.on){border-color:var(--g500);background:#fff;transform:translateY(-2px)}
-.mico{width:44px;height:44px;border-radius:var(--r);background:var(--g100);display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px 18px 18px}
+.mbtn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:16px 8px 14px;border:2px solid var(--g200);border-radius:var(--r2);background:var(--g50);cursor:pointer;font-family:var(--f);transition:all var(--tr)}
+.mbtn.on{border-color:var(--navy);background:#fff;box-shadow:0 3px 12px rgba(26,58,107,.15)}
+.mbtn:hover:not(.on){border-color:var(--g500);background:#fff}
+.mico{width:40px;height:40px;border-radius:var(--r);background:var(--g100);display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
 .mbtn.on .mico{background:linear-gradient(135deg,var(--navy),var(--navy2))}
-.mbtn.on .mico svg,.mbtn.on .mico{stroke:#fff}
-.mico svg{width:22px;height:22px;stroke:var(--g500);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke var(--tr)}
+.mico svg{width:20px;height:20px;stroke:var(--g500);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:stroke var(--tr)}
 .mbtn.on .mico svg{stroke:#fff}
-.mlabel{font-size:.82rem;font-weight:700;color:var(--navy);text-align:center;line-height:1.2}
-.mdesc{font-size:.66rem;color:var(--g500);text-align:center}
-.mbtn.sd.on{border-color:var(--orange)}
+.mlbl{font-size:.78rem;font-weight:700;color:var(--navy);text-align:center;line-height:1.2}
+.mdsc{font-size:.63rem;color:var(--g500);text-align:center}
+.mbtn.sd.on{border-color:var(--ora)}
 .mbtn.sd.on .mico{background:linear-gradient(135deg,#e65100,#ff6d00)}
 
-/* TABS */
-.tabs{display:flex;gap:6px;padding:16px 20px 0}
-.tab{flex:1;height:40px;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--g300);border-radius:var(--r);background:var(--g50);font-family:var(--f);font-size:.8rem;font-weight:600;color:var(--g500);cursor:pointer;transition:all var(--tr)}
-.tab.on{background:var(--navy);border-color:var(--navy);color:#fff}
-.tab:hover:not(.on){border-color:var(--navy2);color:var(--navy)}
-
-/* CAM PANEL */
-.cam-wrap{margin:14px 20px 0;position:relative;background:#000;border-radius:var(--r2);overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center}
-.cam-ph{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,.4);font-size:.82rem;padding:40px}
-.cam-ph svg{width:44px;height:44px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-#camVideo{width:100%;display:block;max-height:320px;object-fit:cover;border-radius:var(--r2)}
+/* CÁMARA */
+.cambox{margin:14px 18px 0;background:#000;border-radius:var(--r2);overflow:hidden;min-height:190px;display:flex;align-items:center;justify-content:center;position:relative}
+.camph{display:flex;flex-direction:column;align-items:center;gap:10px;color:rgba(255,255,255,.4);font-size:.8rem;padding:30px;text-align:center}
+.camph svg{width:42px;height:42px;stroke:rgba(255,255,255,.3);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+#camVid{width:100%;display:block;max-height:300px;object-fit:cover}
 
 /* Zona MRZ */
-.mrz-zone{position:absolute;left:5%;right:5%;bottom:14%;height:26%;border:2.5px solid #6ee7b7;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.52);pointer-events:none}
-.mrz-c{position:absolute;width:16px;height:16px}
-.mrz-c.tl{top:-2px;left:-2px;border-top:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:3px 0 0 0}
-.mrz-c.tr{top:-2px;right:-2px;border-top:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 3px 0 0}
-.mrz-c.bl{bottom:-2px;left:-2px;border-bottom:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:0 0 0 3px}
-.mrz-c.br{bottom:-2px;right:-2px;border-bottom:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 0 3px 0}
-.mrz-lbl{position:absolute;bottom:-26px;left:0;right:0;text-align:center;font-size:.66rem;color:#6ee7b7;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.ocr-st{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.7);color:#fff;padding:4px 14px;border-radius:20px;font-size:.7rem;font-weight:600;white-space:nowrap;display:none}
-#camCanvas{display:none}
+.mzone{position:absolute;left:4%;right:4%;bottom:13%;height:26%;border:2.5px solid #6ee7b7;border-radius:6px;box-shadow:0 0 0 9999px rgba(0,0,0,.5);pointer-events:none;display:none}
+.mc{position:absolute;width:15px;height:15px}
+.mc.tl{top:-2px;left:-2px;border-top:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:3px 0 0 0}
+.mc.tr{top:-2px;right:-2px;border-top:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 3px 0 0}
+.mc.bl{bottom:-2px;left:-2px;border-bottom:3px solid #6ee7b7;border-left:3px solid #6ee7b7;border-radius:0 0 0 3px}
+.mc.br{bottom:-2px;right:-2px;border-bottom:3px solid #6ee7b7;border-right:3px solid #6ee7b7;border-radius:0 0 3px 0}
+.mzlbl{position:absolute;bottom:-24px;left:0;right:0;text-align:center;font-size:.62rem;color:#6ee7b7;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.camacts{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;padding:10px 18px 4px}
+.camhint{font-size:.71rem;color:var(--g500);text-align:center;line-height:1.4;padding:6px 18px 14px}
 
-/* BOTONES CÁMARA */
-.cam-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:12px 20px 4px}
-.bcam{height:44px;padding:0 20px;border:none;border-radius:var(--r);font-family:var(--f);font-size:.83rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all var(--tr)}
-.bcam-start{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 3px 10px rgba(26,58,107,.28)}
-.bcam-start:hover{opacity:.88;transform:translateY(-1px)}
-.bcam-stop{background:#c0392b;color:#fff}
-.bcam-read{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;box-shadow:0 3px 10px rgba(42,122,90,.28)}
-.bcam-read:hover{opacity:.88;transform:translateY(-1px)}
-.bcam svg{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.cam-hint{font-size:.73rem;color:var(--g500);text-align:center;line-height:1.45;padding:8px 20px 16px}
-
-/* INPUT TEXTO */
-.txt-panel{padding:14px 20px 20px;display:flex;flex-direction:column;gap:8px}
-.flabel{font-size:.72rem;font-weight:700;color:var(--navy);letter-spacing:.05em;text-transform:uppercase}
-.irow{display:flex;gap:8px}
-.binput{flex:1;height:48px;border:1.5px solid var(--g300);border-radius:var(--r);padding:0 13px;font-family:var(--m);font-size:.88rem;color:var(--text);background:var(--g50);outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
-.binput:focus{border-color:var(--navy2);background:#fff;box-shadow:0 0 0 3px rgba(37,99,176,.1)}
-.binput::placeholder{color:var(--g500)}
-.bproc{height:48px;padding:0 18px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.83rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all var(--tr);white-space:nowrap;box-shadow:0 3px 10px rgba(26,58,107,.28)}
-.bproc:hover{opacity:.88;transform:translateY(-1px)}
-.bproc svg{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.fhint{font-size:.72rem;color:var(--g500);line-height:1.4}
-
-/* FORMULARIO MANUAL */
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--g100)}
-.fi{background:#fff;padding:12px 18px;display:flex;flex-direction:column;gap:3px}
-.fi.fw{grid-column:1/-1}
-.fk{font-size:.66rem;font-weight:700;color:var(--g500);letter-spacing:.06em;text-transform:uppercase;display:block}
-.fv{font-family:var(--m);font-size:.9rem;color:var(--navy);font-weight:600;word-break:break-all}
-.finput{width:100%;border:1.5px solid var(--g300);border-radius:var(--r);padding:8px 11px;font-family:var(--f);font-size:.86rem;color:var(--text);background:var(--g50);margin-top:2px;outline:none;transition:border-color var(--tr),box-shadow var(--tr);resize:vertical}
-.finput:focus{border-color:var(--navy2);box-shadow:0 0 0 3px rgba(37,99,176,.1);background:#fff}
-select.finput{cursor:pointer}
-.fedit{font-family:var(--m);font-size:.86rem;font-weight:600;color:var(--navy);background:var(--g50);border-color:var(--g200)}
-.fedit:focus{background:#fff}
-.divider{display:flex;align-items:center;gap:10px;padding:13px 18px 9px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
-.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--teal-pale),transparent)}
-.acts{display:flex;gap:10px;padding:14px 20px 18px;justify-content:flex-end}
-.bsec{height:42px;padding:0 16px;background:transparent;color:var(--g500);border:1.5px solid var(--g300);border-radius:var(--r);font-family:var(--f);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--tr)}
-.bsec:hover{color:var(--text);border-color:var(--g500);background:var(--g50)}
-.bpri{height:42px;padding:0 20px;background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.83rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all var(--tr);box-shadow:0 3px 12px rgba(42,122,90,.28)}
-.bpri:hover{opacity:.88;transform:translateY(-1px)}
-.bpri:disabled{opacity:.5;cursor:not-allowed;transform:none}
-.bpri svg,.bproc svg,.bcam svg{flex-shrink:0}
+/* BOTONES */
+.btn{display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 18px;border:none;border-radius:var(--r);font-family:var(--f);font-size:.81rem;font-weight:700;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.btn svg{flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.btn-navy{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;box-shadow:0 3px 10px rgba(26,58,107,.25)}
+.btn-navy:hover{opacity:.88;transform:translateY(-1px)}
+.btn-red{background:#c0392b;color:#fff}
+.btn-red:hover{opacity:.88}
+.btn-teal{background:linear-gradient(135deg,var(--teal),var(--teal2));color:#fff;box-shadow:0 3px 10px rgba(42,122,90,.25)}
+.btn-teal:hover{opacity:.88;transform:translateY(-1px)}
+.btn-teal:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-sec{background:transparent;color:var(--g500);border:1.5px solid var(--g300);height:42px;padding:0 14px}
+.btn-sec:hover{color:var(--text);border-color:var(--g500)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.bpri.loading::after{content:'';width:13px;height:13px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:4px}
+.btn-teal.loading::after{content:'';width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:3px}
 
-/* AVISO */
-.aviso{margin:0 20px 2px;padding:11px 14px;background:#fef3c7;border:1px solid rgba(146,64,14,.2);border-radius:10px;font-size:.78rem;color:#92400e;line-height:1.5;display:none}
+/* INPUT */
+.inp{width:100%;border:1.5px solid var(--g300);border-radius:var(--r);padding:8px 11px;font-family:var(--f);font-size:.85rem;color:var(--text);background:var(--g50);outline:none;transition:border-color var(--tr),box-shadow var(--tr)}
+.inp:focus{border-color:var(--navy2);background:#fff;box-shadow:0 0 0 3px rgba(37,99,176,.1)}
+.inp::placeholder{color:var(--g500)}
+.inp-mono{font-family:var(--m);font-size:.82rem;font-weight:600;color:var(--navy)}
+select.inp{cursor:pointer}
+textarea.inp{resize:vertical;line-height:1.6}
+
+/* GRID DATOS */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--g100)}
+.fi{background:#fff;padding:11px 16px;display:flex;flex-direction:column;gap:3px}
+.fi.fw{grid-column:1/-1}
+.fk{font-size:.63rem;font-weight:700;color:var(--g500);letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:2px}
+.divider{display:flex;align-items:center;gap:9px;padding:12px 16px 8px;font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--tpale),transparent)}
+.acts{display:flex;gap:8px;padding:12px 18px 16px;justify-content:flex-end}
+
+/* OCR PANEL */
+.ocr-panel{padding:0 18px 16px}
+.ocr-img{width:100%;border-radius:8px;border:1.5px solid var(--g300);display:block;margin-bottom:10px;max-height:120px;object-fit:contain;background:#000}
+.ocr-info{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:.75rem;color:#1e40af;line-height:1.55}
+.ocr-info code{font-size:.7rem;display:block;margin-top:3px;word-break:break-all;font-family:var(--m)}
+.ocr-acts{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+
+/* INPUT LECTOR */
+.lector-wrap{padding:14px 18px 18px}
+.irow{display:flex;gap:7px}
 
 /* TOAST */
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:#fff;padding:11px 20px;border-radius:30px;font-size:.83rem;font-weight:600;box-shadow:var(--shl);transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;z-index:999;opacity:0;pointer-events:none;max-width:92vw;text-align:center}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--navy);color:#fff;padding:10px 20px;border-radius:30px;font-size:.81rem;font-weight:600;box-shadow:var(--shl);transition:transform .32s cubic-bezier(.34,1.56,.64,1),opacity .3s ease;z-index:999;opacity:0;pointer-events:none;max-width:90vw;text-align:center}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.ok{background:var(--teal)}
 .toast.err{background:#c0392b}
@@ -150,554 +137,529 @@ select.finput{cursor:pointer}
 
 /* TABLA */
 .tbl-hdr{justify-content:space-between}
-.bref{height:30px;padding:0 11px;background:transparent;border:1.5px solid var(--g300);border-radius:var(--r);font-family:var(--f);font-size:.73rem;font-weight:600;color:var(--g500);cursor:pointer;transition:all var(--tr)}
-.bref:hover{color:var(--navy);border-color:var(--navy2)}
 .twrap{overflow-x:auto}
-.tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.tbl{width:100%;border-collapse:collapse;font-size:.78rem}
 .tbl thead tr{background:var(--navy);color:#fff}
-.tbl th{padding:10px 14px;text-align:left;font-weight:600;letter-spacing:.04em;font-size:.7rem;text-transform:uppercase;white-space:nowrap}
-.tbl td{padding:9px 14px;border-bottom:1px solid var(--g100);color:var(--g700);font-family:var(--m);font-size:.78rem}
+.tbl th{padding:9px 13px;text-align:left;font-weight:600;font-size:.68rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.tbl td{padding:8px 13px;border-bottom:1px solid var(--g100);color:var(--g700);font-family:var(--m);font-size:.76rem}
 .tbl tbody tr:hover{background:var(--g50)}
 .tbl tbody tr:last-child td{border-bottom:none}
-.empty{text-align:center;color:var(--g500);font-family:var(--f)!important;font-style:italic;padding:26px!important}
-@keyframes rfi{from{background:rgba(42,122,90,.2)}to{background:transparent}}
+.empty{text-align:center;color:var(--g500);font-family:var(--f)!important;font-style:italic;padding:24px!important}
+@keyframes rfi{from{background:rgba(42,122,90,.18)}to{background:transparent}}
 .rnew{animation:rfi 2s ease forwards}
 
-/* FOOTER */
-footer{text-align:center;padding:18px;font-size:.72rem;color:var(--g500);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
 
 /* RESPONSIVE */
-@media(max-width:580px){
+@media(max-width:560px){
   .logo-t small{display:none}
-  .main{padding:14px 10px 40px;gap:14px}
-  .hero{padding:18px 16px 16px;border-radius:var(--r2)}
-  .hero h1{font-size:1.3rem}
-  .mode-grid{grid-template-columns:1fr;gap:7px;padding:12px}
-  .mbtn{flex-direction:row;padding:13px 14px;gap:12px;text-align:left}
-  .mico{width:38px;height:38px;flex-shrink:0}
-  .tabs{padding:12px 14px 0}
-  .cam-acts{padding:10px 14px 4px}
-  .txt-panel{padding:12px 14px 16px}
-  .irow{flex-direction:column}
-  .bproc{justify-content:center}
+  .main{padding:12px 9px 40px;gap:12px}
+  .hero{padding:16px 14px 14px;border-radius:var(--r2)}
+  .mgrid{grid-template-columns:1fr;gap:6px;padding:12px}
+  .mbtn{flex-direction:row;padding:12px 13px;gap:10px}
+  .mico{flex-shrink:0}
   .fgrid{grid-template-columns:1fr}
   .fi.fw{grid-column:1}
-  .acts{flex-direction:column-reverse;padding:12px 14px 16px}
-  .bpri,.bsec{width:100%;justify-content:center}
-  .card-hdr{padding:13px 14px 11px}
+  .acts{flex-direction:column-reverse;padding:10px 13px 14px}
+  .btn-teal,.btn-sec{width:100%;justify-content:center}
+  .irow{flex-direction:column}
+  .card-hdr{padding:12px 13px 10px}
 }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="hdr">
   <div class="hdr-in">
     <div class="logo">
       <div class="logo-ico">
-        <svg viewBox="0 0 60 60" fill="none"><rect x="24" y="6" width="12" height="48" rx="3" fill="#1a3a6b"/><rect x="6" y="24" width="48" height="12" rx="3" fill="#1a3a6b"/><polygon points="30,16 44,22 30,28 16,22" fill="#2a7a5a"/><rect x="40" y="22" width="2" height="8" fill="#2a7a5a"/><circle cx="41" cy="31" r="2" fill="#2a7a5a"/></svg>
+        <svg viewBox="0 0 60 60" fill="none">
+          <rect x="24" y="6" width="12" height="48" rx="3" fill="#1a3a6b"/>
+          <rect x="6" y="24" width="48" height="12" rx="3" fill="#1a3a6b"/>
+          <polygon points="30,16 44,22 30,28 16,22" fill="#2a7a5a"/>
+        </svg>
       </div>
-      <div class="logo-t"><b>SIVE</b><small>Salud Integral Vocacional Estudiantil</small></div>
+      <div class="logo-t">
+        <b>SIVE</b>
+        <small>Salud Integral Vocacional Estudiantil</small>
+      </div>
     </div>
-    <div class="badge"><span class="dot"></span><span id="statusTxt">Conectando…</span></div>
+    <div class="hbadge"><span class="dot"></span><span id="stTxt">Conectando…</span></div>
   </div>
 </header>
 
 <main class="main">
 
-  <!-- HERO -->
-  <section class="hero">
-    <div style="position:relative;z-index:1">
-      <h1>Registro de <span>Estudiantes</span></h1>
-      <p>Cédula nueva: fotografía la zona de letras (MRZ). Cédula antigua: usa el lector físico. Sin documento: registro manual.</p>
-    </div>
-    <div class="pills">
-      <div class="pill"><b id="cntHoy">0</b> hoy</div>
-      <div class="pill"><b id="cntTotal">0</b> total</div>
-      <div class="pill" id="stPill">⬤ Conectando…</div>
-    </div>
-  </section>
+<!-- HERO -->
+<section class="hero">
+  <h1>Registro de <span>Estudiantes</span></h1>
+  <p>Cédula nueva: captura la zona MRZ y escribe las líneas. Cédula antigua: lector físico. Sin documento: manual.</p>
+  <div class="pills">
+    <div class="pill"><b id="cHoy">0</b> hoy</div>
+    <div class="pill"><b id="cTotal">0</b> total</div>
+    <div class="pill" id="stPill">⬤ Conectando…</div>
+  </div>
+</section>
 
-  <!-- PASO 1 -->
-  <section class="card">
-    <div class="card-hdr"><div class="ci">1</div><h2 class="ct">¿Cómo registrar?</h2></div>
-    <div class="mode-grid">
-      <button class="mbtn on" id="mNueva" onclick="setMode('nueva')">
-        <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="14" x2="10" y2="14"/><line x1="12" y1="14" x2="16" y2="14"/></svg></div>
-        <div><div class="mlabel">Cédula Nueva</div><div class="mdesc">Foto zona MRZ</div></div>
+<!-- PASO 1: MODO -->
+<section class="card">
+  <div class="card-hdr"><div class="ci">1</div><h2 class="ct">¿Cómo registrar?</h2></div>
+  <div class="mgrid">
+    <button class="mbtn on" id="mNueva" onclick="setModo('nueva')">
+      <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+      <div><div class="mlbl">Cédula Nueva</div><div class="mdsc">Zona MRZ</div></div>
+    </button>
+    <button class="mbtn" id="mAntigua" onclick="setModo('antigua')">
+      <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg></div>
+      <div><div class="mlbl">Cédula Antigua</div><div class="mdsc">Lector físico</div></div>
+    </button>
+    <button class="mbtn sd" id="mSinDoc" onclick="setModo('sindoc')">
+      <div class="mico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><line x1="18" y1="10" x2="22" y2="10"/></svg></div>
+      <div><div class="mlbl">Sin Documento</div><div class="mdsc">Manual</div></div>
+    </button>
+  </div>
+</section>
+
+<!-- PASO 2A: CÉDULA NUEVA -->
+<section class="card" id="secNueva">
+  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Fotografiar zona MRZ</h2></div>
+
+  <!-- Cámara -->
+  <div class="cambox" id="camBox">
+    <div class="camph" id="camPh">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <span>Presiona "Activar Cámara"</span>
+    </div>
+    <video id="camVid" playsinline autoplay muted style="display:none"></video>
+    <div class="mzone" id="mzone">
+      <div class="mc tl"></div><div class="mc tr"></div>
+      <div class="mc bl"></div><div class="mc br"></div>
+      <div class="mzlbl">Alinea aquí las 3 líneas de letras — parte inferior del reverso</div>
+    </div>
+  </div>
+  <canvas id="camCanvas" style="display:none"></canvas>
+
+  <div class="camacts">
+    <button class="btn btn-navy" id="btnOn" onclick="camOn()">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Activar Cámara
+    </button>
+    <button class="btn btn-red" id="btnOff" onclick="camOff()" style="display:none">⬛ Detener</button>
+    <button class="btn btn-teal" id="btnCap" onclick="capturar()" style="display:none">📷 Capturar</button>
+  </div>
+  <p class="camhint">Reverso de la cédula · Letras pequeñas con &lt;&lt;&lt; dentro del recuadro verde · Presiona <b>Capturar</b></p>
+
+  <!-- Panel OCR: imagen + campo editable -->
+  <div class="ocr-panel" id="ocrPanel" style="display:none">
+    <img id="ocrImg" class="ocr-img" alt="Zona MRZ capturada" style="display:none"/>
+    <div class="ocr-info">
+      <b>Escribe las 2 últimas líneas que ves en la imagen:</b><br>
+      · Línea con números: <code>8808213F3101300COL1095298343&lt;9</code>
+      · Línea con nombres: <code>MARTINEZ&lt;GARCIA&lt;&lt;MARIA&lt;DANIELA</code><br>
+      Puedes usar <b>espacios</b> en lugar de &lt;
+    </div>
+    <textarea id="ocrTxt" class="inp" rows="4"
+      placeholder="8808213F3101300COL1234567890&#10;MARTINEZ GARCIA  MARIA DANIELA"></textarea>
+    <div class="ocr-acts">
+      <button class="btn btn-navy" onclick="organizarMRZ()">✓ Organizar datos</button>
+      <button class="btn btn-sec" onclick="reintentarCam()">↩ Volver a capturar</button>
+    </div>
+  </div>
+</section>
+
+<!-- PASO 2B: CÉDULA ANTIGUA -->
+<section class="card" id="secAntigua" style="display:none">
+  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Leer Cédula Antigua (PDF417)</h2></div>
+  <div class="lector-wrap">
+    <label class="fk" for="lectorIn" style="margin-bottom:6px;display:block">Código del lector físico</label>
+    <div class="irow">
+      <input type="text" id="lectorIn" class="inp" placeholder="Escanea con el lector USB o Bluetooth…" autocomplete="off"/>
+      <button class="btn btn-navy" onclick="procesarAntigua()">
+        <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Procesar
       </button>
-      <button class="mbtn" id="mAntigua" onclick="setMode('antigua')">
-        <div class="mico"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg></div>
-        <div><div class="mlabel">Cédula Antigua</div><div class="mdesc">Lector de código</div></div>
-      </button>
-      <button class="mbtn sd" id="mSinDoc" onclick="setMode('sindoc')">
-        <div class="mico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><line x1="18" y1="10" x2="22" y2="10"/></svg></div>
-        <div><div class="mlabel">Sin Documento</div><div class="mdesc">Manual</div></div>
-      </button>
     </div>
-  </section>
+    <p style="font-size:.7rem;color:var(--g500);margin-top:7px;line-height:1.4">
+      Formato esperado: <code style="font-family:var(--m);font-size:.68rem">P-XXXXX-XXXXX-M-1095298343-20220507</code>
+    </p>
+  </div>
+</section>
 
-  <!-- PASO 2A: CÉDULA NUEVA (cámara + OCR nativo) -->
-  <section class="card" id="secNueva">
-    <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Fotografiar zona MRZ</h2></div>
-
-    <!-- Vista cámara -->
-    <div class="cam-wrap" id="camWrap">
-      <div class="cam-ph" id="camPh">
-        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        <span>Presiona "Activar Cámara"</span>
-      </div>
-      <video id="camVideo" playsinline autoplay muted style="display:none;width:100%;max-height:320px;object-fit:cover"></video>
-      <!-- Zona MRZ superpuesta -->
-      <div class="mrz-zone" id="mrzZone" style="display:none">
-        <div class="mrz-c tl"></div><div class="mrz-c tr"></div>
-        <div class="mrz-c bl"></div><div class="mrz-c br"></div>
-        <div class="mrz-lbl">Alinea aquí las 3 líneas de letras (parte inferior del reverso)</div>
-      </div>
-      <div class="ocr-st" id="ocrSt">📷 Procesando…</div>
+<!-- PASO 2C: SIN DOCUMENTO -->
+<section class="card" id="secSinDoc" style="display:none">
+  <div class="card-hdr">
+    <div class="ci" style="background:linear-gradient(135deg,#e65100,#ff6d00)">2</div>
+    <h2 class="ct">Datos del Estudiante</h2>
+    <span class="btipo" style="background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)">Sin Documento</span>
+  </div>
+  <div class="fgrid">
+    <div class="fi fw"><label class="fk" for="sdDoc">Documento alternativo (opcional)</label><input class="inp" id="sdDoc" type="text" placeholder="Tarjeta identidad, pasaporte, NUIP…"/></div>
+    <div class="fi"><label class="fk" for="sdAp1">Primer Apellido *</label><input class="inp" id="sdAp1" type="text" placeholder="Apellido 1"/></div>
+    <div class="fi"><label class="fk" for="sdAp2">Segundo Apellido</label><input class="inp" id="sdAp2" type="text" placeholder="Apellido 2"/></div>
+    <div class="fi"><label class="fk" for="sdN1">Primer Nombre *</label><input class="inp" id="sdN1" type="text" placeholder="Nombre 1"/></div>
+    <div class="fi"><label class="fk" for="sdN2">Segundo Nombre</label><input class="inp" id="sdN2" type="text" placeholder="Nombre 2"/></div>
+    <div class="fi"><label class="fk" for="sdFec">Fecha Nacimiento</label><input class="inp" id="sdFec" type="date"/></div>
+    <div class="fi"><label class="fk" for="sdGen">Género</label>
+      <select class="inp" id="sdGen"><option value="">— Seleccionar —</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
     </div>
-    <canvas id="camCanvas" style="display:none"></canvas>
-
-    <div class="cam-acts">
-      <button class="bcam bcam-start" id="btnOn" onclick="camStart()">
-        <svg viewBox="0 0 24 24" width="17" height="17"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        Activar Cámara
-      </button>
-      <button class="bcam bcam-stop" id="btnOff" onclick="camStop()" style="display:none">⬛ Detener</button>
-      <button class="bcam bcam-read" id="btnRead" onclick="capturar()" style="display:none">📷 Capturar y Leer</button>
-    </div>
-    <p class="cam-hint">Reverso de la cédula · Letras pequeñas con &lt;&lt;&lt; dentro del recuadro verde · Presiona <b>Capturar y Leer</b></p>
-
-    <!-- Panel: imagen capturada + campo de texto MRZ -->
-    <div id="ocrPanel" style="display:none;padding:0 20px 18px">
-
-      <!-- Vista previa de la imagen recortada -->
-      <p style="font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">
-        Imagen capturada de la zona MRZ:
-      </p>
-      <img id="mrzPreview" src="" alt="Zona MRZ" style="display:none;width:100%;border-radius:8px;border:1.5px solid var(--g300);margin-bottom:12px;image-rendering:pixelated"/>
-
-      <!-- Instrucción clara -->
-      <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 13px;margin-bottom:10px;font-size:.78rem;color:#1e40af;line-height:1.5">
-        <b>¿Cómo escribir el texto?</b> Escribe exactamente las 3 líneas que ves en la imagen.<br>
-        Usa <code>&lt;</code> donde hay flechas o espacios. Ejemplo:<br>
-        <code style="font-size:.72rem;display:block;margin-top:4px;word-break:break-all">
-          8808213F3101300COL1095298343&lt;9<br>
-          MARTINEZ&lt;GARCIA&lt;&lt;MARIA&lt;DANIELA
-        </code>
-      </div>
-
-      <p style="font-size:.7rem;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">
-        Escribe las líneas 2 y 3 de la MRZ:
-      </p>
-      <textarea id="ocrTxt" rows="4" style="width:100%;font-family:var(--m);font-size:.82rem;border:1.5px solid var(--g300);border-radius:var(--r);padding:9px 11px;background:var(--g50);outline:none;resize:vertical;line-height:1.8;letter-spacing:.03em"
-        placeholder="Línea 2: 8808213F3101300COL1234567890&#10;Línea 3: MARTINEZ&lt;GARCIA&lt;&lt;MARIA&lt;DANIELA"></textarea>
-
-      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-        <button onclick="procesarOCR()" style="height:40px;padding:0 20px;background:linear-gradient(135deg,#1a3a6b,#2563b0);color:#fff;border:none;border-radius:var(--r);font-family:var(--f);font-size:.82rem;font-weight:700;cursor:pointer">
-          ✓ Organizar datos
-        </button>
-        <button onclick="volverCamara()" style="height:40px;padding:0 16px;background:transparent;color:var(--g500);border:1.5px solid var(--g300);border-radius:var(--r);font-family:var(--f);font-size:.8rem;font-weight:600;cursor:pointer">
-          ↩ Volver a capturar
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- PASO 2B: CÉDULA ANTIGUA (lector físico) -->
-  <section class="card" id="secAntigua" style="display:none">
-    <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Leer Cédula Antigua</h2></div>
-    <div class="txt-panel">
-      <label class="flabel" for="barcodeIn">Código de barras (PDF417)</label>
-      <div class="irow">
-        <input type="text" id="barcodeIn" class="binput" placeholder="Escanea con lector USB/Bluetooth o pega el código…" autocomplete="off"/>
-        <button class="bproc" onclick="parsearAntigua()">
-          <svg viewBox="0 0 24 24" width="16" height="16"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Procesar
-        </button>
-      </div>
-      <p class="fhint">El lector físico escribe el código automáticamente al escanear · Formato: <code>P-XXXXXXXX-XXXXXXXX-M-NUMEROCEDULA-FECHAAAAAMMDD</code></p>
-    </div>
-  </section>
-
-  <!-- PASO 2C: SIN DOCUMENTO -->
-  <section class="card" id="secSinDoc" style="display:none">
-    <div class="card-hdr">
-      <div class="ci" style="background:linear-gradient(135deg,#e65100,#ff6d00)">2</div>
-      <h2 class="ct">Datos del Estudiante</h2>
-      <span class="badge-tipo" style="background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)">Sin Documento</span>
-    </div>
-    <div class="fgrid">
-      <div class="fi fw"><label class="fk" for="sdDoc">Documento alternativo (opcional)</label><input class="finput" id="sdDoc" type="text" placeholder="Tarjeta identidad, pasaporte, NUIP…"/></div>
-      <div class="fi"><label class="fk" for="sdAp1">Primer Apellido *</label><input class="finput" id="sdAp1" type="text" placeholder="Apellido 1"/></div>
-      <div class="fi"><label class="fk" for="sdAp2">Segundo Apellido</label><input class="finput" id="sdAp2" type="text" placeholder="Apellido 2"/></div>
-      <div class="fi"><label class="fk" for="sdNom1">Primer Nombre *</label><input class="finput" id="sdNom1" type="text" placeholder="Nombre 1"/></div>
-      <div class="fi"><label class="fk" for="sdNom2">Segundo Nombre</label><input class="finput" id="sdNom2" type="text" placeholder="Nombre 2"/></div>
-      <div class="fi"><label class="fk" for="sdFecha">Fecha de Nacimiento</label><input class="finput" id="sdFecha" type="date"/></div>
-      <div class="fi"><label class="fk" for="sdGenero">Género</label>
-        <select class="finput" id="sdGenero"><option value="">— Seleccionar —</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
-      </div>
-    </div>
-    <div class="acts"><button class="bpri" onclick="confirmarSinDoc()">
-      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+  </div>
+  <div class="acts">
+    <button class="btn btn-teal" onclick="confirmarSinDoc()">
+      <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="9 11 12 14 22 4"/></svg>
       Continuar →
-    </button></div>
-  </section>
+    </button>
+  </div>
+</section>
 
-  <!-- PASO 3: CONFIRMAR + GUARDAR -->
-  <section class="card" id="secData" style="display:none">
-    <div class="card-hdr"><div class="ci">3</div><h2 class="ct">Confirmar y Guardar</h2><span class="badge-tipo" id="badgeTipo">—</span></div>
-    <div class="aviso" id="avisoEdit">✏️ Revisa y corrige los datos si es necesario antes de guardar.</div>
-    <div class="fgrid">
-      <div class="fi"><label class="fk" for="dCed">Número Cédula / Doc</label><input class="finput fedit" id="dCed" type="text" placeholder="Número"/></div>
-      <div class="fi"><label class="fk" for="dGen">Género</label>
-        <select class="finput fedit" id="dGen"><option value="">—</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
-      </div>
-      <div class="fi"><label class="fk" for="dAp1">Primer Apellido</label><input class="finput fedit" id="dAp1" type="text"/></div>
-      <div class="fi"><label class="fk" for="dAp2">Segundo Apellido</label><input class="finput fedit" id="dAp2" type="text"/></div>
-      <div class="fi"><label class="fk" for="dNom1">Primer Nombre</label><input class="finput fedit" id="dNom1" type="text"/></div>
-      <div class="fi"><label class="fk" for="dNom2">Segundo Nombre</label><input class="finput fedit" id="dNom2" type="text"/></div>
-      <div class="fi"><label class="fk" for="dFnac">Fecha Nacimiento</label><input class="finput fedit" id="dFnac" type="text" placeholder="DD/MM/AAAA"/></div>
-      <div class="fi"><label class="fk" for="dFexp">Fecha Expedición</label><input class="finput fedit" id="dFexp" type="text" placeholder="DD/MM/AAAA"/></div>
-      <div class="fi fw"><label class="fk" for="dLug">Lugar Expedición</label><input class="finput fedit" id="dLug" type="text" placeholder="Ciudad"/></div>
-    </div>
-    <div class="divider"><span>Información SIVE</span></div>
-    <div class="fgrid">
-      <div class="fi fw"><label class="fk" for="sProg">Programa / Carrera *</label><input class="finput" id="sProg" type="text" placeholder="Ej: Medicina, Enfermería…"/></div>
-      <div class="fi"><label class="fk" for="sSem">Semestre</label><input class="finput" id="sSem" type="number" min="1" max="12" placeholder="1–12"/></div>
-      <div class="fi"><label class="fk" for="sJor">Jornada</label>
-        <select class="finput" id="sJor"><option value="">—</option><option>Diurna</option><option>Nocturna</option><option>Sabatina</option><option>Virtual</option></select>
-      </div>
-      <div class="fi fw"><label class="fk" for="sObs">Observaciones</label><textarea class="finput" id="sObs" rows="2" placeholder="Notas…"></textarea></div>
-    </div>
-    <div class="acts">
-      <button class="bsec" onclick="cancelar()">✕ Cancelar</button>
-      <button class="bpri" id="btnSave" onclick="guardar()">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-        Guardar en Google Sheets
-      </button>
-    </div>
-  </section>
+<!-- PASO 3: CONFIRMAR + GUARDAR -->
+<section class="card" id="secData" style="display:none">
+  <div class="card-hdr"><div class="ci">3</div><h2 class="ct">Confirmar y Guardar</h2><span class="btipo" id="badgeTipo">—</span></div>
 
-  <div class="toast" id="toast"></div>
+  <div id="avisoEdit" style="display:none;margin:0 18px 4px;padding:9px 12px;background:#fef3c7;border:1px solid rgba(146,64,14,.2);border-radius:8px;font-size:.75rem;color:#92400e;line-height:1.4">
+    ✏️ Faltan datos — completa los campos antes de guardar.
+  </div>
 
-  <!-- TABLA -->
-  <section class="card">
-    <div class="card-hdr tbl-hdr"><div class="ci">☰</div><h2 class="ct">Registros Recientes</h2><button class="bref" onclick="cargarRecientes()">↺ Actualizar</button></div>
-    <div class="twrap">
-      <table class="tbl">
-        <thead><tr><th>Cédula</th><th>Nombre Completo</th><th>Programa</th><th>Tipo</th><th>Fecha</th></tr></thead>
-        <tbody id="tblBody"><tr><td colspan="5" class="empty">Sin registros aún.</td></tr></tbody>
-      </table>
+  <div class="fgrid">
+    <div class="fi"><label class="fk" for="dCed">Número Cédula / Doc</label><input class="inp inp-mono" id="dCed" type="text" placeholder="Número"/></div>
+    <div class="fi"><label class="fk" for="dGen">Género</label>
+      <select class="inp" id="dGen"><option value="">—</option><option>Masculino</option><option>Femenino</option><option>Otro</option></select>
     </div>
-  </section>
+    <div class="fi"><label class="fk" for="dAp1">Primer Apellido</label><input class="inp" id="dAp1" type="text"/></div>
+    <div class="fi"><label class="fk" for="dAp2">Segundo Apellido</label><input class="inp" id="dAp2" type="text"/></div>
+    <div class="fi"><label class="fk" for="dN1">Primer Nombre</label><input class="inp" id="dN1" type="text"/></div>
+    <div class="fi"><label class="fk" for="dN2">Segundo Nombre</label><input class="inp" id="dN2" type="text"/></div>
+    <div class="fi"><label class="fk" for="dFnac">Fecha Nacimiento</label><input class="inp" id="dFnac" type="text" placeholder="DD/MM/AAAA"/></div>
+    <div class="fi"><label class="fk" for="dFexp">Fecha Expedición</label><input class="inp" id="dFexp" type="text" placeholder="DD/MM/AAAA"/></div>
+    <div class="fi fw"><label class="fk" for="dLug">Lugar Expedición</label><input class="inp" id="dLug" type="text" placeholder="Ciudad"/></div>
+  </div>
+
+  <div class="divider"><span>Información SIVE</span></div>
+
+  <div class="fgrid">
+    <div class="fi fw"><label class="fk" for="sProg">Programa / Carrera *</label><input class="inp" id="sProg" type="text" placeholder="Ej: Medicina, Enfermería, Bacteriología…"/></div>
+    <div class="fi"><label class="fk" for="sSem">Semestre</label><input class="inp" id="sSem" type="number" min="1" max="12" placeholder="1–12"/></div>
+    <div class="fi"><label class="fk" for="sJor">Jornada</label>
+      <select class="inp" id="sJor"><option value="">—</option><option>Diurna</option><option>Nocturna</option><option>Sabatina</option><option>Virtual</option></select>
+    </div>
+    <div class="fi fw"><label class="fk" for="sObs">Observaciones</label><textarea class="inp" id="sObs" rows="2" placeholder="Notas adicionales…"></textarea></div>
+  </div>
+
+  <div class="acts">
+    <button class="btn btn-sec" onclick="cancelar()">✕ Cancelar</button>
+    <button class="btn btn-teal" id="btnSave" onclick="guardar()">
+      <svg viewBox="0 0 24 24" width="15" height="15"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Guardar en Google Sheets
+    </button>
+  </div>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<!-- TABLA -->
+<section class="card">
+  <div class="card-hdr tbl-hdr">
+    <div class="ci">☰</div><h2 class="ct">Registros Recientes</h2>
+    <button class="btn btn-sec" style="height:30px;font-size:.72rem;padding:0 10px" onclick="cargarRecientes()">↺ Actualizar</button>
+  </div>
+  <div class="twrap">
+    <table class="tbl">
+      <thead><tr><th>Cédula</th><th>Nombre Completo</th><th>Programa</th><th>Tipo</th><th>Fecha</th></tr></thead>
+      <tbody id="tblBody"><tr><td colspan="5" class="empty">Sin registros aún.</td></tr></tbody>
+    </table>
+  </div>
+</section>
 
 </main>
 <footer><span>© 2025 SIVE – Salud Integral Vocacional Estudiantil</span><span>·</span><span>Cúcuta, Norte de Santander</span></footer>
 
 <script>
-const URL_GAS = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
+// ══════════════════════════════════════════════
+// CONFIGURACIÓN
+// ══════════════════════════════════════════════
+const GAS = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
 
-let modo       = 'nueva';
-let camStream  = null;
-let camActiva  = false;
-let datosAct   = null;
-let cntHoy     = 0;
-let cntTotal   = 0;
-let toastT     = null;
+// ══════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════
+var modo      = 'nueva';
+var stream    = null;
+var camViva   = false;
+var datosActu = null;
+var cHoy      = 0;
+var cTotal    = 0;
+var toastTmr  = null;
 
-// ── INIT ─────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', function() {
   checkConn();
   cargarRecientes();
-  document.getElementById('barcodeIn').addEventListener('keydown', e => {
-    if (e.key === 'Enter') parsearAntigua();
+  // Enter en lector físico
+  document.getElementById('lectorIn').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') procesarAntigua();
   });
 });
 
-// ── MODO ──────────────────────────────────────────────────────────
-function setMode(m) {
-  if (camActiva) camStop();
+// ══════════════════════════════════════════════
+// MODO
+// ══════════════════════════════════════════════
+function setModo(m) {
+  if (camViva) camOff();
   modo = m;
-  ['nueva','antigua','sindoc'].forEach(x => {
-    document.getElementById('m' + x.charAt(0).toUpperCase() + x.slice(1)).classList.toggle('on', x === m);
-  });
+
+  // Botones
+  document.getElementById('mNueva').classList.toggle('on',   m === 'nueva');
+  document.getElementById('mAntigua').classList.toggle('on', m === 'antigua');
+  document.getElementById('mSinDoc').classList.toggle('on',  m === 'sindoc');
+
+  // Secciones
   document.getElementById('secNueva').style.display   = m === 'nueva'   ? '' : 'none';
   document.getElementById('secAntigua').style.display = m === 'antigua' ? '' : 'none';
   document.getElementById('secSinDoc').style.display  = m === 'sindoc'  ? '' : 'none';
   document.getElementById('secData').style.display    = 'none';
-  datosAct = null;
-
-  // Botón sindoc activo → color naranja
-  document.getElementById('mSinDoc').classList.toggle('on', m === 'sindoc');
+  datosActu = null;
 }
 
-// ── CÁMARA ────────────────────────────────────────────────────────
-function camStart() {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    toast('⚠️ Tu navegador no soporta cámara.', 'warn'); return;
+// ══════════════════════════════════════════════
+// CÁMARA
+// ══════════════════════════════════════════════
+function camOn() {
+  if (!navigator.mediaDevices) {
+    toast('⚠️ Tu navegador no soporta cámara. Usa Chrome o Safari.', 'warn');
+    return;
   }
+
   navigator.mediaDevices.getUserMedia({
     video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } },
     audio: false
   })
-  .then(stream => {
-    camStream = stream;
-    camActiva = true;
-    const v = document.getElementById('camVideo');
-    v.srcObject = stream;
-    v.style.display = 'block';
-    document.getElementById('camPh').style.display     = 'none';
-    document.getElementById('mrzZone').style.display   = '';
-    document.getElementById('btnOn').style.display     = 'none';
-    document.getElementById('btnOff').style.display    = '';
-    document.getElementById('btnRead').style.display   = '';
-    document.getElementById('ocrPanel').style.display  = 'none';
-    toast('📷 Cámara activa — alinea las letras MRZ en el recuadro verde', '');
+  .then(function(s) {
+    stream  = s;
+    camViva = true;
+
+    var vid = document.getElementById('camVid');
+    vid.srcObject = s;
+    vid.style.display = 'block';
+
+    document.getElementById('camPh').style.display  = 'none';
+    document.getElementById('mzone').style.display  = '';
+    document.getElementById('btnOn').style.display  = 'none';
+    document.getElementById('btnOff').style.display = '';
+    document.getElementById('btnCap').style.display = '';
+    document.getElementById('ocrPanel').style.display = 'none';
+
+    toast('📷 Cámara lista — alinea las letras MRZ en el recuadro verde', '');
   })
-  .catch(err => {
-    const msg = err.toString();
-    if (msg.includes('NotAllowed') || msg.includes('denied'))
-      toast('🚫 Permiso denegado — activa la cámara en ajustes del navegador.', 'err');
-    else
-      toast('⚠️ No se pudo acceder a la cámara: ' + msg.slice(0,50), 'warn');
+  .catch(function(err) {
+    var msg = err.toString();
+    if (msg.indexOf('NotAllowed') >= 0 || msg.indexOf('denied') >= 0 || msg.indexOf('Permission') >= 0) {
+      toast('🚫 Permiso denegado. Activa la cámara en ajustes del navegador y recarga.', 'err');
+    } else if (msg.indexOf('NotFound') >= 0) {
+      toast('⚠️ No se encontró cámara en este dispositivo.', 'warn');
+    } else {
+      toast('⚠️ Error de cámara: ' + msg.slice(0, 60), 'warn');
+    }
+    console.error('camOn error:', err);
   });
 }
 
-function camStop() {
-  if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-  camActiva = false;
-  const v = document.getElementById('camVideo');
-  v.srcObject = null; v.style.display = 'none';
-  document.getElementById('camPh').style.display   = '';
-  document.getElementById('mrzZone').style.display = 'none';
-  document.getElementById('btnOn').style.display   = '';
-  document.getElementById('btnOff').style.display  = 'none';
-  document.getElementById('btnRead').style.display = 'none';
+function camOff() {
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+  }
+  camViva = false;
+  var vid = document.getElementById('camVid');
+  vid.srcObject = null;
+  vid.style.display = 'none';
+  document.getElementById('camPh').style.display  = '';
+  document.getElementById('mzone').style.display  = 'none';
+  document.getElementById('btnOn').style.display  = '';
+  document.getElementById('btnOff').style.display = 'none';
+  document.getElementById('btnCap').style.display = 'none';
 }
 
-// Capturar fotograma y recortar la zona MRZ inferior
 function capturar() {
-  if (!camActiva) { toast('Activa la cámara primero.', 'warn'); return; }
+  if (!camViva) { toast('Activa la cámara primero.', 'warn'); return; }
 
-  const video  = document.getElementById('camVideo');
-  const canvas = document.getElementById('camCanvas');
-  const st     = document.getElementById('ocrSt');
+  var vid    = document.getElementById('camVid');
+  var canvas = document.getElementById('camCanvas');
 
-  st.style.display = '';
-  st.textContent   = '📷 Capturando…';
-
-  // Dimensiones reales del video
-  const vw = video.videoWidth  || video.offsetWidth;
-  const vh = video.videoHeight || video.offsetHeight;
+  var vw = vid.videoWidth;
+  var vh = vid.videoHeight;
 
   if (!vw || !vh) {
-    st.style.display = 'none';
-    toast('⚠️ El video aún no está listo. Espera un momento e intenta de nuevo.', 'warn');
+    toast('⚠️ El video aún no está listo. Espera un segundo.', 'warn');
     return;
   }
 
-  // ── 1. Capturar frame completo en canvas temporal ──────────────
-  const tmpCanvas = document.createElement('canvas');
-  tmpCanvas.width  = vw;
-  tmpCanvas.height = vh;
-  const tmpCtx = tmpCanvas.getContext('2d');
-  tmpCtx.drawImage(video, 0, 0, vw, vh);
+  // Recortar zona MRZ: franja inferior del video (58%–88% de la altura)
+  var cx = Math.floor(vw * 0.02);
+  var cy = Math.floor(vh * 0.58);
+  var cw = Math.floor(vw * 0.96);
+  var ch = Math.floor(vh * 0.30);
 
-  // ── 2. Recortar SOLO la zona MRZ (franja inferior ~30% del alto) ──
-  // La zona verde en pantalla está bottom:14% height:26%
-  // → en el frame real: desde 60% hasta 88% del alto
-  const cropX = Math.floor(vw * 0.02);
-  const cropY = Math.floor(vh * 0.58);
-  const cropW = Math.floor(vw * 0.96);
-  const cropH = Math.floor(vh * 0.30);
-
-  // Escalar x2 para más resolución
-  const scale = 2;
-  canvas.width  = cropW * scale;
-  canvas.height = cropH * scale;
-  const ctx = canvas.getContext('2d');
-
-  // Aumentar contraste antes de dibujar
-  ctx.filter = 'contrast(1.8) brightness(1.1)';
-  ctx.drawImage(tmpCanvas, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height);
+  // Dibujar en canvas x2 para más resolución
+  canvas.width  = cw * 2;
+  canvas.height = ch * 2;
+  var ctx = canvas.getContext('2d');
+  ctx.filter = 'contrast(1.6) brightness(1.1) grayscale(1)';
+  ctx.drawImage(vid, cx, cy, cw, ch, 0, 0, cw * 2, ch * 2);
   ctx.filter = 'none';
 
-  // ── 3. Mostrar la imagen recortada para que el usuario la vea ──
-  const imgURL = canvas.toDataURL('image/png');
-  const preview = document.getElementById('mrzPreview');
-  if (preview) {
-    preview.src   = imgURL;
-    preview.style.display = '';
-  }
+  // Convertir a imagen y mostrar
+  var imgURL = canvas.toDataURL('image/jpeg', 0.92);
+  var img    = document.getElementById('ocrImg');
+  img.src    = imgURL;
+  img.style.display = 'block';
 
-  // ── 4. Detener cámara y mostrar panel editable ─────────────────
-  camStop();
-  st.style.display = 'none';
-  mostrarOCR('');
-  toast('✓ Imagen capturada — escribe las 3 líneas de letras que ves arriba', 'ok');
+  // Parar cámara y mostrar panel
+  camOff();
+  document.getElementById('ocrPanel').style.display = '';
+  document.getElementById('ocrTxt').value = '';
+  document.getElementById('ocrTxt').focus();
+  toast('✓ Imagen capturada — escribe las líneas que ves arriba', 'ok');
 }
 
-function mostrarOCR(txt) {
-  const panel = document.getElementById('ocrPanel');
-  const ta    = document.getElementById('ocrTxt');
-  ta.value    = txt;
-  panel.style.display = '';
-  // Ocultar zona de cámara
-  document.getElementById('camWrap').style.display  = 'none';
-  document.getElementById('btnOn').style.display    = 'none';
-  document.getElementById('btnOff').style.display   = 'none';
-  document.getElementById('btnRead').style.display  = 'none';
-  // Focus al textarea para que el usuario pueda escribir
-  setTimeout(() => ta.focus(), 200);
-}
+function organizarMRZ() {
+  var raw = document.getElementById('ocrTxt').value.trim();
+  if (!raw) { toast('Escribe primero las líneas de la MRZ.', 'warn'); return; }
 
-function volverCamara() {
-  document.getElementById('ocrPanel').style.display  = 'none';
-  document.getElementById('ocrTxt').value            = '';
-  document.getElementById('camWrap').style.display   = '';
-  document.getElementById('btnOn').style.display     = '';
-  const prev = document.getElementById('mrzPreview');
-  if (prev) { prev.src = ''; prev.style.display = 'none'; }
-}
+  // Normalizar: mayúsculas, espacios → <
+  raw = raw.toUpperCase()
+           .replace(/\r/g, '')
+           .replace(/[ \t]+/g, '<')
+           .trim();
 
-function procesarOCR() {
-  let raw = document.getElementById('ocrTxt').value.trim().toUpperCase();
-  if (!raw) { toast('Escribe las líneas de la MRZ primero.', 'warn'); return; }
+  console.log('MRZ normalizado:', JSON.stringify(raw));
 
-  // Normalizar: reemplazar espacios múltiples por < solo dentro de líneas de letras
-  // El usuario puede haber escrito espacios en vez de <
-  raw = raw
-    .replace(/
-/g, '')           // quitar CR
-    .replace(/[ 	]+/g, '<')      // espacios → <
-    .replace(/<{3,}/g, '<<')      // más de << → << (máximo 2 seguidos en zona nombres)
-    .trim();
-
-  console.log('Texto normalizado:', JSON.stringify(raw));
-
-  const data = parseMRZ(raw) || parseTextoLibre(raw);
+  var data = parseMRZ(raw);
   if (data) {
-    volverCamara();
+    document.getElementById('ocrPanel').style.display = 'none';
     mostrarPaso3(data);
   } else {
-    toast('⚠️ No se reconoció el formato. Verifica que incluyas la línea con números (ej: 8808213F...COL...) y la de nombres (MARTINEZ<<GARCIA<<MARIA).', 'warn');
+    toast('⚠️ No se reconoció el formato. Verifica que incluyas la línea con números y COL, y la línea de nombres.', 'warn');
   }
 }
 
-// ── PARSEO MRZ ────────────────────────────────────────────────────
-// Formato cédula nueva Colombia:
-// Línea 1: ICCOL000000012<<<<<<<<<<<<<<<
-// Línea 2: 8808213F3101300COL1234567890<9
-//           AA MM DD  [M/F]  AA MM DD  COL  NUMERO_CEDULA
-// Línea 3: MARTINEZ<GARCIA<<MARIA<DANIELA
-//           Ap1      Ap2    Nom1  Nom2
+function reintentarCam() {
+  document.getElementById('ocrPanel').style.display = 'none';
+  document.getElementById('ocrTxt').value = '';
+  var img = document.getElementById('ocrImg');
+  img.src = ''; img.style.display = 'none';
+  document.getElementById('camPh').style.display = '';
+  document.getElementById('btnOn').style.display = '';
+}
+
+// ══════════════════════════════════════════════
+// PARSEO MRZ — Cédula nueva Colombia
+// Línea 2: AAMMDD + digVer? + M/F + AAMMDD + digVer? + COL + NúmCédula
+// Línea 3: APELLIDO1<APELLIDO2<<NOMBRE1<NOMBRE2
+// ══════════════════════════════════════════════
 function parseMRZ(raw) {
-  // Dividir en líneas; normalizar espacios y caracteres raros
-  const lineas = raw.split(/[\n\r]+/).map(l => l.trim().replace(/[^A-Z0-9<]/g,'')).filter(l => l.length > 5);
+  // Separar en líneas
+  var lineas = raw.split('\n').map(function(l) {
+    return l.trim().replace(/[^A-Z0-9<]/g, '');
+  }).filter(function(l) { return l.length > 5; });
 
-  let L2 = '', L3 = '';
+  var L2 = '', L3 = '';
 
-  // Identificar línea 2: contiene patrón AAMMDD + M/F + dígitos + COL
-  for (let i = 0; i < lineas.length; i++) {
+  // Encontrar línea con patrón de fechas + género + COL
+  for (var i = 0; i < lineas.length; i++) {
     if (/\d{6}[MF]\d{5,7}[A-Z]{2,3}[0-9<]{4,}/.test(lineas[i])) {
       L2 = lineas[i];
-      // Línea 3 es la siguiente que contiene letras y <<
-      for (let j = i+1; j < lineas.length; j++) {
-        if (lineas[j].includes('<') && /[A-Z]{3,}/.test(lineas[j])) {
-          L3 = lineas[j]; break;
+      // Línea 3: siguiente línea con letras y <
+      for (var j = i + 1; j < lineas.length; j++) {
+        if (lineas[j].indexOf('<') >= 0 && /[A-Z]{3,}/.test(lineas[j])) {
+          L3 = lineas[j];
+          break;
         }
       }
       break;
     }
   }
 
-  // Si no se encontró con saltos, buscar en texto continuo
+  // Intentar en texto continuo si no se encontró con saltos
   if (!L2) {
-    const mL2 = raw.replace(/\s/g,'').match(/(\d{6}[MF]\d{6,7}[A-Z]{3}[0-9<]{6,})/);
-    if (mL2) {
-      L2 = mL2[1];
-      // Buscar línea 3 después
-      const pos = raw.indexOf(L2) + L2.length;
-      const resto = raw.slice(pos).replace(/[^A-Z<]/g,'');
-      if (resto.includes('<') && /[A-Z]{3,}/.test(resto)) L3 = resto;
+    var cont = raw.replace(/\n/g, '');
+    var mC = cont.match(/(\d{6}[MF]\d{5,7}[A-Z]{2,3}[0-9<]{6,})/);
+    if (mC) {
+      L2 = mC[1];
+      var pos = cont.indexOf(L2) + L2.length;
+      var resto = cont.slice(pos).replace(/[^A-Z<]/g, '');
+      if (resto.indexOf('<') >= 0 && /[A-Z]{3,}/.test(resto)) L3 = resto;
     }
   }
 
   if (!L2) return null;
 
-  // ─── Parsear Línea 2 ───────────────────────────────────────────
-  // AAMMDD + díg_ver? + M/F + AAMMDD + díg_ver? + COL + NumCédula + <* + díg_ver
-  const m = L2.match(/(\d{2})(\d{2})(\d{2})\d?([MF])(\d{2})(\d{2})(\d{2})\d?[A-Z]{3}([0-9]{6,12})/);
+  // Parsear L2: AAMMDD + digVer? + [MF] + AAMMDD + digVer? + COL/país + número
+  var m = L2.match(/(\d{2})(\d{2})(\d{2})\d?([MF])(\d{2})(\d{2})(\d{2})\d?[A-Z]{2,3}([0-9]{6,12})/);
   if (!m) return null;
 
-  const aaFnac = parseInt(m[1]);
-  const aaFexp = parseInt(m[5]);
-  const fnac = m[3]+'/'+m[2]+'/'+(aaFnac <= 30 ? '20' : '19')+m[1];
-  const fexp = m[7]+'/'+m[6]+'/'+(aaFexp <= 30 ? '20' : '19')+m[5];
-  const gen  = m[4] === 'M' ? 'Masculino' : 'Femenino';
-  const ced  = m[8].replace(/</g,'');
+  var aNac = parseInt(m[1], 10);
+  var aExp = parseInt(m[5], 10);
+  var fnac = m[3] + '/' + m[2] + '/' + (aNac <= 30 ? '20' : '19') + m[1];
+  var fexp = m[7] + '/' + m[6] + '/' + (aExp <= 30 ? '20' : '19') + m[5];
+  var gen  = m[4] === 'M' ? 'Masculino' : 'Femenino';
+  var ced  = m[8].replace(/</g, '');
 
-  // ─── Parsear Línea 3 (nombres) ─────────────────────────────────
-  let ap1='', ap2='', nom1='', nom2='';
+  // Parsear L3: AP1<AP2<<NOM1<NOM2
+  var ap1='', ap2='', nom1='', nom2='';
   if (L3) {
-    const lim = L3.replace(/^<+|<+$/g,'');
-    // << separa apellidos de nombres
-    const pp = lim.split('<<');
+    var lim = L3.replace(/^<+|<+$/g, '');
+    var pp  = lim.split('<<');
     if (pp.length >= 2) {
-      const aps  = pp[0].split('<').filter(Boolean);
-      const noms = pp[1].split('<').filter(Boolean);
-      ap1=aps[0]||''; ap2=aps[1]||'';
-      nom1=noms[0]||''; nom2=noms[1]||'';
+      var aps  = pp[0].split('<').filter(Boolean);
+      var noms = pp[1].split('<').filter(Boolean);
+      ap1  = aps[0]  || '';  ap2  = aps[1]  || '';
+      nom1 = noms[0] || '';  nom2 = noms[1] || '';
     } else {
-      const pts = lim.split('<').filter(Boolean);
+      var pts = lim.split('<').filter(Boolean);
       ap1=pts[0]||''; ap2=pts[1]||''; nom1=pts[2]||''; nom2=pts[3]||'';
     }
   }
 
-  const cap = s => s ? s[0] + s.slice(1).toLowerCase() : '';
+  function cap(s) { return s ? s[0] + s.slice(1).toLowerCase() : ''; }
+
   return {
-    tipo:'NUEVA (MRZ)', cedula:ced,
-    apellido1:cap(ap1), apellido2:cap(ap2),
-    nombre1:cap(nom1),  nombre2:cap(nom2),
-    fechaNac:fnac, genero:gen, fechaExp:fexp, lugarExp:'Colombia'
+    tipo:     'NUEVA (MRZ)',
+    cedula:   ced,
+    apellido1: cap(ap1), apellido2: cap(ap2),
+    nombre1:  cap(nom1),  nombre2:  cap(nom2),
+    fechaNac: fnac, genero: gen, fechaExp: fexp, lugarExp: 'Colombia'
   };
 }
 
-// Parseo de texto libre si el usuario escribe/pega directamente
-function parseTextoLibre(raw) {
-  // Intentar extraer líneas manualmente del texto
-  const lineas = raw.split(/[\n\r]+/).map(l=>l.trim()).filter(Boolean);
-  // Buscar línea con nombres (tiene << y letras)
-  const L3c = lineas.find(l => l.includes('<<') && /[A-Z]{3,}/.test(l));
-  // Buscar línea con números y M/F
-  const L2c = lineas.find(l => /\d{6}[MF]\d{6}/.test(l));
-  if (L3c || L2c) return parseMRZ(raw);
-  return null;
-}
+// ══════════════════════════════════════════════
+// CÉDULA ANTIGUA
+// ══════════════════════════════════════════════
+function procesarAntigua() {
+  var raw = document.getElementById('lectorIn').value.trim();
+  if (!raw) { toast('Escanea o escribe el código primero.', 'warn'); return; }
 
-// ── CÉDULA ANTIGUA (lector físico) ───────────────────────────────
-function parsearAntigua() {
-  const raw = document.getElementById('barcodeIn').value.trim();
-  if (!raw) { toast('Escanea o pega el código primero.', 'warn'); return; }
   console.log('Código antiguo:', JSON.stringify(raw));
 
-  // Formato: P-XXXXX-XXXXX-M-NUMEROCEDULA-AAAAMMDD
-  const m = raw.match(/P[-][\d\w]+[-][\d\w]+[-]([MF])[-](\d{6,12})[-](\d{8})/i);
+  // Formato: P-XXXX-XXXX-M/F-NumCédula-AAAAMMDD
+  var m = raw.match(/P[-][\w\d]+[-][\w\d]+[-]([MF])[-](\d{6,12})[-](\d{8})/i);
   if (m) {
-    const d = m[3]; // AAAAMMDD
+    var d = m[3]; // AAAAMMDD
     mostrarPaso3({
-      tipo:'ANTIGUA (PDF417)',
-      cedula:m[2], apellido1:'', apellido2:'', nombre1:'', nombre2:'',
-      fechaNac:'',
-      genero: m[1].toUpperCase()==='M' ? 'Masculino' : 'Femenino',
-      fechaExp: d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4),
-      lugarExp:''
+      tipo:     'ANTIGUA (PDF417)',
+      cedula:   m[2],
+      apellido1:'', apellido2:'', nombre1:'', nombre2:'',
+      fechaNac: '',
+      genero:   m[1].toUpperCase() === 'M' ? 'Masculino' : 'Femenino',
+      fechaExp: d.slice(6,8) + '/' + d.slice(4,6) + '/' + d.slice(0,4),
+      lugarExp: ''
     });
     return;
   }
 
   // Solo número
-  const clean = raw.replace(/[\s.\-]/g,'');
+  var clean = raw.replace(/[\s.\-]/g, '');
   if (/^\d{6,12}$/.test(clean)) {
     mostrarPaso3({
       tipo:'ANTIGUA (PDF417)', cedula:clean,
@@ -707,157 +669,201 @@ function parsearAntigua() {
     return;
   }
 
-  // Mostrar crudo en el campo para que editen
-  toast('⚠️ Formato no reconocido. Revisa el código.', 'warn');
-  console.log('RAW:', JSON.stringify(raw));
+  toast('⚠️ Formato no reconocido. Revisa el código del lector.', 'warn');
 }
 
-// ── SIN DOCUMENTO ────────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// SIN DOCUMENTO
+// ══════════════════════════════════════════════
 function confirmarSinDoc() {
-  const ap1  = document.getElementById('sdAp1').value.trim();
-  const nom1 = document.getElementById('sdNom1').value.trim();
-  if (!ap1||!nom1) { toast('⚠️ Primer apellido y nombre son obligatorios.', 'warn'); return; }
-  const fecha = document.getElementById('sdFecha').value;
+  var ap1  = document.getElementById('sdAp1').value.trim();
+  var nom1 = document.getElementById('sdN1').value.trim();
+  if (!ap1 || !nom1) { toast('⚠️ Primer apellido y primer nombre son obligatorios.', 'warn'); return; }
+
+  var fec = document.getElementById('sdFec').value;
   mostrarPaso3({
-    tipo:'SIN DOCUMENTO',
-    cedula: document.getElementById('sdDoc').value.trim() || ('SD-'+Date.now()),
-    apellido1:ap1, apellido2:document.getElementById('sdAp2').value.trim(),
-    nombre1:nom1,  nombre2:document.getElementById('sdNom2').value.trim(),
-    fechaNac: fecha ? fecha.split('-').reverse().join('/') : '',
-    genero: document.getElementById('sdGenero').value,
-    fechaExp:'', lugarExp:''
+    tipo:     'SIN DOCUMENTO',
+    cedula:   document.getElementById('sdDoc').value.trim() || ('SD-' + Date.now()),
+    apellido1: ap1,
+    apellido2: document.getElementById('sdAp2').value.trim(),
+    nombre1:   nom1,
+    nombre2:   document.getElementById('sdN2').value.trim(),
+    fechaNac:  fec ? fec.split('-').reverse().join('/') : '',
+    genero:    document.getElementById('sdGen').value,
+    fechaExp:  '', lugarExp: ''
   });
 }
 
-// ── PASO 3 ────────────────────────────────────────────────────────
-function mostrarPaso3(data) {
-  datosAct = data;
-  document.getElementById('dCed').value  = data.cedula    || '';
-  document.getElementById('dAp1').value  = data.apellido1 || '';
-  document.getElementById('dAp2').value  = data.apellido2 || '';
-  document.getElementById('dNom1').value = data.nombre1   || '';
-  document.getElementById('dNom2').value = data.nombre2   || '';
-  document.getElementById('dFnac').value = data.fechaNac  || '';
-  document.getElementById('dGen').value  = data.genero    || '';
-  document.getElementById('dFexp').value = data.fechaExp  || '';
-  document.getElementById('dLug').value  = data.lugarExp  || '';
+// ══════════════════════════════════════════════
+// PASO 3: MOSTRAR DATOS
+// ══════════════════════════════════════════════
+function mostrarPaso3(d) {
+  datosActu = d;
 
-  const badge = document.getElementById('badgeTipo');
-  badge.textContent   = data.tipo;
+  document.getElementById('dCed').value  = d.cedula    || '';
+  document.getElementById('dAp1').value  = d.apellido1 || '';
+  document.getElementById('dAp2').value  = d.apellido2 || '';
+  document.getElementById('dN1').value   = d.nombre1   || '';
+  document.getElementById('dN2').value   = d.nombre2   || '';
+  document.getElementById('dFnac').value = d.fechaNac  || '';
+  document.getElementById('dGen').value  = d.genero    || '';
+  document.getElementById('dFexp').value = d.fechaExp  || '';
+  document.getElementById('dLug').value  = d.lugarExp  || '';
+
+  var badge = document.getElementById('badgeTipo');
+  badge.textContent   = d.tipo;
   badge.style.cssText = '';
-  if (data.tipo==='SIN DOCUMENTO')
-    badge.style.cssText='background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)';
-  else if (data.tipo.includes('ANTIGUA'))
-    badge.style.cssText='background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.3)';
+  if (d.tipo === 'SIN DOCUMENTO')
+    badge.style.cssText = 'background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,.3)';
+  else if (d.tipo.indexOf('ANTIGUA') >= 0)
+    badge.style.cssText = 'background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,.3)';
 
-  // Mostrar aviso edición si faltan datos
-  const faltan = !data.apellido1 || !data.nombre1;
-  document.getElementById('avisoEdit').style.display = faltan ? '' : 'none';
+  var falta = !d.apellido1 || !d.nombre1;
+  document.getElementById('avisoEdit').style.display = falta ? '' : 'none';
 
   document.getElementById('secData').style.display = '';
-  document.getElementById('secData').scrollIntoView({ behavior:'smooth', block:'start' });
-  toast('✓ Datos listos — completa la info SIVE y guarda', 'ok');
+  document.getElementById('secData').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  toast('✓ Datos listos — completa info SIVE y guarda', 'ok');
 }
 
-// ── GUARDAR ───────────────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// GUARDAR
+// ══════════════════════════════════════════════
 async function guardar() {
-  if (!datosAct) return;
-  const prog = document.getElementById('sProg').value.trim();
-  if (!prog) { toast('⚠️ Programa / Carrera es obligatorio.', 'warn'); document.getElementById('sProg').focus(); return; }
+  if (!datosActu) return;
 
-  const btn = document.getElementById('btnSave');
-  btn.disabled=true; btn.classList.add('loading'); btn.textContent='Guardando…';
+  var prog = document.getElementById('sProg').value.trim();
+  if (!prog) {
+    toast('⚠️ Programa / Carrera es obligatorio.', 'warn');
+    document.getElementById('sProg').focus();
+    return;
+  }
 
-  const p = {
-    action:'save',
-    cedula:    document.getElementById('dCed').value  || datosAct.cedula,
-    apellido1: document.getElementById('dAp1').value  || datosAct.apellido1,
-    apellido2: document.getElementById('dAp2').value  || datosAct.apellido2,
-    nombre1:   document.getElementById('dNom1').value || datosAct.nombre1,
-    nombre2:   document.getElementById('dNom2').value || datosAct.nombre2,
-    fechaNac:  document.getElementById('dFnac').value || datosAct.fechaNac,
-    genero:    document.getElementById('dGen').value  || datosAct.genero,
-    fechaExp:  document.getElementById('dFexp').value || datosAct.fechaExp,
-    lugarExp:  document.getElementById('dLug').value  || datosAct.lugarExp,
-    tipo:      datosAct.tipo,
+  var btn = document.getElementById('btnSave');
+  btn.disabled = true;
+  btn.classList.add('loading');
+  btn.textContent = 'Guardando…';
+
+  var payload = {
+    action:    'save',
+    cedula:    document.getElementById('dCed').value  || datosActu.cedula,
+    apellido1: document.getElementById('dAp1').value  || datosActu.apellido1,
+    apellido2: document.getElementById('dAp2').value  || datosActu.apellido2,
+    nombre1:   document.getElementById('dN1').value   || datosActu.nombre1,
+    nombre2:   document.getElementById('dN2').value   || datosActu.nombre2,
+    fechaNac:  document.getElementById('dFnac').value || datosActu.fechaNac,
+    genero:    document.getElementById('dGen').value  || datosActu.genero,
+    fechaExp:  document.getElementById('dFexp').value || datosActu.fechaExp,
+    lugarExp:  document.getElementById('dLug').value  || datosActu.lugarExp,
+    tipo:      datosActu.tipo,
     programa:  prog,
     semestre:  document.getElementById('sSem').value.trim(),
     jornada:   document.getElementById('sJor').value,
     observaciones: document.getElementById('sObs').value.trim(),
-    fechaRegistro: new Date().toLocaleString('es-CO',{timeZone:'America/Bogota'})
+    fechaRegistro: new Date().toLocaleString('es-CO', { timeZone: 'America/Bogota' })
   };
 
   try {
-    const r = await fetch(URL_GAS,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(p),mode:'cors'});
-    const j = await r.json();
-    if (j.status==='ok') {
-      toast('✅ Guardado en Google Sheets','ok');
-      cntHoy++; cntTotal++;
-      document.getElementById('cntHoy').textContent   = cntHoy;
-      document.getElementById('cntTotal').textContent = cntTotal;
-      cancelar(); cargarRecientes();
-    } else throw new Error(j.message||'Error');
+    var res  = await fetch(GAS, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload), mode:'cors' });
+    var json = await res.json();
+    if (json.status === 'ok') {
+      toast('✅ Registro guardado en Google Sheets', 'ok');
+      cHoy++; cTotal++;
+      document.getElementById('cHoy').textContent   = cHoy;
+      document.getElementById('cTotal').textContent = cTotal;
+      cancelar();
+      cargarRecientes();
+    } else {
+      throw new Error(json.message || 'Error del servidor');
+    }
   } catch(e) {
-    toast('❌ Error al guardar: '+e.message,'err');
+    toast('❌ Error al guardar: ' + e.message, 'err');
   } finally {
-    btn.disabled=false; btn.classList.remove('loading');
-    btn.innerHTML='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar en Google Sheets';
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar en Google Sheets';
   }
 }
 
-// ── CANCELAR ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// CANCELAR
+// ══════════════════════════════════════════════
 function cancelar() {
-  datosAct = null;
+  datosActu = null;
   document.getElementById('secData').style.display = 'none';
-  ['dCed','dAp1','dAp2','dNom1','dNom2','dFnac','dFexp','dLug'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('dGen').value='';
-  ['sProg','sSem','sObs'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('sJor').value='';
-  document.getElementById('ocrPanel').style.display='none';
-  document.getElementById('ocrTxt').value='';
-  document.getElementById('barcodeIn').value='';
+
+  ['dCed','dAp1','dAp2','dN1','dN2','dFnac','dFexp','dLug'].forEach(function(id) {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('dGen').value = '';
+  ['sProg','sSem','sObs'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('sJor').value = '';
+  document.getElementById('ocrTxt').value = '';
+  document.getElementById('ocrPanel').style.display = 'none';
+  document.getElementById('lectorIn').value = '';
+
+  var img = document.getElementById('ocrImg');
+  img.src = ''; img.style.display = 'none';
 }
 
-// ── RECIENTES ─────────────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// REGISTROS RECIENTES
+// ══════════════════════════════════════════════
 async function cargarRecientes() {
-  const tb = document.getElementById('tblBody');
-  tb.innerHTML='<tr><td colspan="5" class="empty">Cargando…</td></tr>';
+  var tb = document.getElementById('tblBody');
+  tb.innerHTML = '<tr><td colspan="5" class="empty">Cargando…</td></tr>';
   try {
-    const r = await fetch(URL_GAS+'?action=getRecent&limit=10',{mode:'cors'});
-    const j = await r.json();
-    if (!j.rows||j.rows.length===0){tb.innerHTML='<tr><td colspan="5" class="empty">Sin registros aún.</td></tr>';return;}
-    cntTotal=j.total||j.rows.length;
-    document.getElementById('cntTotal').textContent=cntTotal;
-    tb.innerHTML=j.rows.map((r,i)=>`<tr class="${i===0?'rnew':''}">
-      <td>${r.cedula||'—'}</td>
-      <td>${[r.apellido1,r.apellido2,r.nombre1,r.nombre2].filter(Boolean).join(' ')||'—'}</td>
-      <td>${r.programa||'—'}</td>
-      <td>${(r.tipo||'—').split(' ')[0]}</td>
-      <td>${r.fechaRegistro||'—'}</td>
-    </tr>`).join('');
-  } catch {
-    tb.innerHTML='<tr><td colspan="5" class="empty">Error de conexión.</td></tr>';
+    var res  = await fetch(GAS + '?action=getRecent&limit=10', { mode:'cors' });
+    var json = await res.json();
+    if (!json.rows || json.rows.length === 0) {
+      tb.innerHTML = '<tr><td colspan="5" class="empty">Sin registros aún.</td></tr>';
+      return;
+    }
+    cTotal = json.total || json.rows.length;
+    document.getElementById('cTotal').textContent = cTotal;
+    tb.innerHTML = json.rows.map(function(r, i) {
+      var nombre = [r.apellido1, r.apellido2, r.nombre1, r.nombre2].filter(Boolean).join(' ') || '—';
+      var tipo   = (r.tipo || '—').split(' ')[0];
+      return '<tr class="' + (i===0?'rnew':'') + '">' +
+        '<td>' + (r.cedula||'—') + '</td>' +
+        '<td>' + nombre + '</td>' +
+        '<td>' + (r.programa||'—') + '</td>' +
+        '<td>' + tipo + '</td>' +
+        '<td>' + (r.fechaRegistro||'—') + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch(e) {
+    tb.innerHTML = '<tr><td colspan="5" class="empty">Error de conexión.</td></tr>';
   }
 }
 
-// ── CONEXIÓN ──────────────────────────────────────────────────────
+// ══════════════════════════════════════════════
+// CONEXIÓN
+// ══════════════════════════════════════════════
 async function checkConn() {
-  const pill=document.getElementById('stPill'), txt=document.getElementById('statusTxt');
+  var pill = document.getElementById('stPill');
+  var txt  = document.getElementById('stTxt');
   try {
-    const r=await fetch(URL_GAS+'?action=ping',{mode:'cors'});
-    if(r.ok){pill.textContent='⬤ Conectado';pill.classList.add('online');txt.textContent='Conectado';}
-    else throw 0;
-  } catch {
-    pill.textContent='⬤ Sin conexión';pill.classList.add('offline');txt.textContent='Sin conexión';
+    var res = await fetch(GAS + '?action=ping', { mode:'cors' });
+    if (res.ok) {
+      pill.textContent = '⬤ Conectado'; pill.classList.add('online');
+      txt.textContent  = 'Conectado';
+    } else throw 0;
+  } catch(e) {
+    pill.textContent = '⬤ Sin conexión'; pill.classList.add('offline');
+    txt.textContent  = 'Sin conexión';
   }
 }
 
-// ── TOAST ─────────────────────────────────────────────────────────
-function toast(msg,type=''){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.className='toast show '+type;
-  clearTimeout(toastT);
-  toastT=setTimeout(()=>{t.className='toast';},4000);
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function toast(msg, tipo) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show ' + (tipo || '');
+  clearTimeout(toastTmr);
+  toastTmr = setTimeout(function() { t.className = 'toast'; }, 4200);
 }
 </script>
 </body>
