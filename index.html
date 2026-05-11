@@ -5,8 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SIVE – Registro Estudiantil</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
-<!-- html5-qrcode solo para PDF417 (cédula antigua via cámara) -->
+<!-- html5-qrcode con soporte PDF417 -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<!-- ZXing JS — respaldo para PDF417 en iPhone/Safari (sin BarcodeDetector nativo) -->
+<script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <style>
 :root{
   --navy:#1a3a6b;--navy2:#2563b0;--teal:#2a7a5a;--teal2:#38a376;
@@ -232,54 +234,69 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
   </div>
 </section>
 
-<!-- PASO 2A: NUEVA -->
+<!-- PASO 2A: NUEVA — escáner MRZ en tiempo real (PDF417 frente + MRZ reverso) -->
 <section class="card" id="secNueva">
-  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Fotografiar Cédula Nueva (OCR automático)</h2></div>
+  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Escanear Cédula Nueva</h2></div>
 
-  <!-- Preview de la foto tomada -->
-  <div id="mrzPreview" style="display:none;margin:14px 18px 0;border-radius:var(--r2);overflow:hidden;background:#000;text-align:center">
-    <img id="mrzImg" style="max-width:100%;max-height:260px;object-fit:contain;display:block;margin:0 auto"/>
-  </div>
-
-  <!-- Placeholder -->
-  <div class="cam-ph" id="camPh">
+  <div class="cam-ph" id="camPhN">
     <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    <span>Toma una foto del <b>reverso</b> de la cédula</span>
+    <span>Presiona "Activar Escáner"</span>
   </div>
 
-  <!-- Estado OCR -->
-  <div class="scan-st buscando" id="scanSt" style="display:none">🔍 Procesando con OCR…</div>
+  <div class="scan-box" id="scanBoxN" style="display:none">
+    <div id="qr-reader-nueva"></div>
+  </div>
+
+  <div class="scan-st buscando" id="scanStN" style="display:none">🔍 Apunta al frente o reverso de la cédula…</div>
 
   <div class="cam-acts">
-    <!-- Input file oculto — acepta cámara en móvil -->
-    <input type="file" id="mrzFile" accept="image/*" capture="environment" style="display:none" onchange="procesarFotoMRZ(this)"/>
-    <button class="btn btn-navy" onclick="document.getElementById('mrzFile').click()">
+    <button class="btn btn-navy" id="btnOnN" onclick="escanerOn('nueva')">
       <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      📷 Tomar Foto / Elegir Imagen
+      Activar Escáner
     </button>
+    <button class="btn btn-red" id="btnOffN" onclick="escanerOff('nueva')" style="display:none">⬛ Detener</button>
   </div>
   <p class="cam-hint">
-    📌 Fotografía el <b>reverso</b> de la cédula · La zona MRZ (letras pequeñas) debe quedar clara<br>
-    <span style="color:#0e7490;font-weight:600">El OCR extrae automáticamente nombre, cédula, fecha y género</span>
+    📌 Apunta al <b>frente de la cédula</b> (código de barras PDF417) o al reverso (zona MRZ)<br>
+    <span style="color:#0e7490;font-weight:600">Se detecta automáticamente · Mantén la cédula quieta y bien iluminada</span>
   </p>
 </section>
 
-<!-- PASO 2B: ANTIGUA -->
+<!-- PASO 2B: ANTIGUA — escáner PDF417 en tiempo real por cámara -->
 <section class="card" id="secAntigua" style="display:none">
-  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Leer Cédula Antigua (PDF417)</h2></div>
-  <div class="lector-wrap">
-    <label class="fk" for="lectorIn" style="margin-bottom:6px;display:block">Código del lector físico</label>
-    <div class="irow">
-      <input type="text" id="lectorIn" class="inp" placeholder="Escanea con lector USB/Bluetooth…" autocomplete="off"/>
-      <button class="btn btn-navy" onclick="procesarAntigua()">
-        <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Procesar
-      </button>
-    </div>
-    <p style="font-size:.7rem;color:var(--g500);margin-top:7px;line-height:1.4">
-      Formato: <code style="font-family:var(--m);font-size:.68rem">P-XXXXX-XXXXX-M-1095298343-20220507</code>
-    </p>
+  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Escanear Cédula Antigua (PDF417)</h2></div>
+
+  <div class="cam-ph" id="camPhA">
+    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg>
+    <span>Presiona "Activar Escáner" y apunta al código PDF417 del frente</span>
   </div>
+
+  <div class="scan-box" id="scanBoxA" style="display:none">
+    <div id="qr-reader-antigua"></div>
+  </div>
+
+  <div class="scan-st buscando" id="scanStA" style="display:none">🔍 Apunta al código de barras del frente de la cédula…</div>
+
+  <div class="cam-acts">
+    <button class="btn btn-navy" id="btnOnA" onclick="escanerOn('antigua')">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Activar Escáner
+    </button>
+    <button class="btn btn-red" id="btnOffA" onclick="escanerOff('antigua')" style="display:none">⬛ Detener</button>
+  </div>
+
+  <!-- Fallback: lector físico -->
+  <div style="padding:0 18px 6px">
+    <p style="font-size:.7rem;color:var(--g500);margin-bottom:6px;font-weight:600">¿Tienes lector físico USB/Bluetooth? Úsalo aquí:</p>
+    <div class="irow">
+      <input type="text" id="lectorIn" class="inp" placeholder="Escanea con lector físico…" autocomplete="off"/>
+      <button class="btn btn-navy" onclick="procesarAntigua()">Procesar</button>
+    </div>
+  </div>
+  <p class="cam-hint" style="padding-top:6px">
+    📌 Apunta al código de barras del <b>frente</b> de la cédula · El PDF417 se detecta automáticamente<br>
+    <span style="color:#0e7490;font-weight:600">Si la cámara no lo lee, usa el lector físico en el campo de arriba</span>
+  </p>
 </section>
 
 <!-- PASO 2C: SIN DOC -->
@@ -323,7 +340,8 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
     <div class="fi"><label class="fk" for="dN2">Segundo Nombre</label><input class="inp" id="dN2" type="text"/></div>
     <div class="fi"><label class="fk" for="dFnac">Fecha Nacimiento</label><input class="inp" id="dFnac" type="text" placeholder="DD/MM/AAAA"/></div>
     <div class="fi"><label class="fk" for="dFexp">Fecha Expedición</label><input class="inp" id="dFexp" type="text" placeholder="DD/MM/AAAA"/></div>
-    <div class="fi fw"><label class="fk" for="dLug">Lugar Expedición</label><input class="inp" id="dLug" type="text" placeholder="Ciudad"/></div>
+    <div class="fi"><label class="fk" for="dRh">Grupo Sanguíneo / RH</label><input class="inp" id="dRh" type="text" placeholder="Ej: O+, A-, B+"/></div>
+    <div class="fi"><label class="fk" for="dLug">Lugar Expedición</label><input class="inp" id="dLug" type="text" placeholder="Ciudad"/></div>
   </div>
   <div class="divider"><span>Información SIVE</span></div>
   <div class="fgrid">
@@ -363,30 +381,30 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
 <script>
 const GAS = "https://script.google.com/macros/s/AKfycbyyhakdtpFc4zufTlGv6kyWZkk8VMhRjfBIqw3RyJB8UiHJjgKqeHQLWrCjBIL8GS69Bg/exec";
 
-var modo='nueva', datosActu=null;
-var cHoy=0, cTotal=0, toastTmr=null;
+var modo='nueva', scanners={}, escViva={nueva:false,antigua:false}, datosActu=null;
+var cHoy=0, cTotal=0, toastTmr=null, ultimaLec=0;
 
 window.addEventListener('DOMContentLoaded', function() {
   checkConn();
   cargarRecientes();
   var lectorEl = document.getElementById('lectorIn');
-  // keydown Enter — para lectores USB/BT que envían \n
   lectorEl.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') { e.preventDefault(); procesarAntigua(); }
+    if (e.key==='Enter') { e.preventDefault(); procesarAntigua(); }
   });
-  // También detectar cuando el lector envía rápido sin Enter (algunos BT)
   var lectorTimer = null;
   lectorEl.addEventListener('input', function() {
     clearTimeout(lectorTimer);
     lectorTimer = setTimeout(function() {
-      var v = lectorEl.value.trim();
-      // Si tiene largo suficiente y el lector ya terminó de escribir
-      if (v.length > 15 && modo === 'antigua') procesarAntigua();
+      if (lectorEl.value.trim().length > 15) procesarAntigua();
     }, 400);
   });
 });
 
+// ── MODO ─────────────────────────────────────────────────────────
 function setModo(m) {
+  // Apagar escáneres activos al cambiar de modo
+  if (escViva.nueva)   escanerOff('nueva');
+  if (escViva.antigua) escanerOff('antigua');
   modo = m;
   document.getElementById('mNueva').classList.toggle('on',   m==='nueva');
   document.getElementById('mAntigua').classList.toggle('on', m==='antigua');
@@ -396,94 +414,206 @@ function setModo(m) {
   document.getElementById('secSinDoc').style.display  = m==='sindoc'  ? '' : 'none';
   document.getElementById('secData').style.display    = 'none';
   datosActu = null;
-  // Auto-focus lector físico en cédula antigua (crítico para celulares)
   if (m === 'antigua') {
-    setTimeout(function() {
-      var inp = document.getElementById('lectorIn');
-      inp.value = '';
-      inp.focus();
-    }, 150);
+    setTimeout(function() { document.getElementById('lectorIn').focus(); }, 200);
   }
 }
 
-// ── OCR FOTO MRZ (Cédula Nueva) ───────────────────────────────────
-async function procesarFotoMRZ(input) {
-  var file = input.files[0];
-  if (!file) return;
+// ── DETECCIÓN iOS ────────────────────────────────────────────────
+// Safari/iOS no tiene BarcodeDetector nativo → usar ZXing puro como respaldo
+var esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-  // Mostrar preview
-  var url = URL.createObjectURL(file);
-  document.getElementById('mrzImg').src = url;
-  document.getElementById('mrzPreview').style.display = '';
-  document.getElementById('camPh').style.display = 'none';
+// ── ESCÁNER UNIFICADO ─────────────────────────────────────────────
+// Android: html5-qrcode con PDF_417 explícito (BarcodeDetector nativo)
+// iPhone/iOS: ZXing JS puro vía getUserMedia + canvas (Safari no tiene BarcodeDetector)
+function escanerOn(tipo) {
+  if (escViva[tipo]) return;
 
-  // Mostrar estado procesando
-  var st = document.getElementById('scanSt');
-  st.style.display = '';
-  st.textContent = '🔍 Analizando imagen con OCR…';
-  st.className = 'scan-st buscando';
+  var idReader  = tipo === 'nueva' ? 'qr-reader-nueva'  : 'qr-reader-antigua';
+  var idBox     = tipo === 'nueva' ? 'scanBoxN'         : 'scanBoxA';
+  var idPh      = tipo === 'nueva' ? 'camPhN'           : 'camPhA';
+  var idSt      = tipo === 'nueva' ? 'scanStN'          : 'scanStA';
+  var idBtnOn   = tipo === 'nueva' ? 'btnOnN'           : 'btnOnA';
+  var idBtnOff  = tipo === 'nueva' ? 'btnOffN'          : 'btnOffA';
 
-  // Convertir a base64
-  var b64 = await new Promise(function(res, rej) {
-    var reader = new FileReader();
-    reader.onload = function(e) { res(e.target.result.split(',')[1]); };
-    reader.onerror = rej;
-    reader.readAsDataURL(file);
-  });
+  var instruccion = tipo === 'nueva'
+    ? '🔍 Apunta al frente (código de barras) de la cédula…'
+    : '🔍 Apunta al código de barras del frente de la cédula…';
 
-  var mediaType = file.type || 'image/jpeg';
+  document.getElementById(idPh).style.display    = 'none';
+  document.getElementById(idBox).style.display   = '';
+  document.getElementById(idSt).style.display    = '';
+  document.getElementById(idSt).textContent      = instruccion;
+  document.getElementById(idSt).className        = 'scan-st buscando';
+  document.getElementById(idBtnOn).style.display = 'none';
+  document.getElementById(idBtnOff).style.display= '';
+  document.getElementById(idReader).innerHTML    = '';
 
-  try {
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'image',
-              source: { type: 'base64', media_type: mediaType, data: b64 }
-            },
-            {
-              type: 'text',
-              text: 'Esta es la imagen del reverso de una cédula de ciudadanía colombiana. Extrae los datos del MRZ (zona de lectura mecánica) o del código PDF417 si es cédula antigua. Responde SOLO en JSON sin ningún texto adicional ni backticks, con estos campos exactos: {"cedula":"","apellido1":"","apellido2":"","nombre1":"","nombre2":"","fechaNac":"DD/MM/AAAA","genero":"Masculino o Femenino","fechaExp":"DD/MM/AAAA","lugarExp":"","tipo":"NUEVA (MRZ) o ANTIGUA (PDF417)"}. Si no puedes leer algún campo déjalo vacío. No agregues explicaciones.'
-            }
-          ]
-        }]
-      })
-    });
-
-    var json = await resp.json();
-    var txt = (json.content || []).map(function(b){ return b.text || ''; }).join('');
-    // Limpiar posibles backticks
-    txt = txt.replace(/```json|```/g, '').trim();
-
-    var data = JSON.parse(txt);
-    if (data && (data.cedula || data.nombre1 || data.apellido1)) {
-      st.textContent = '✓ Datos extraídos correctamente';
-      st.className = 'scan-st ok';
-      // Limpiar input para permitir nueva foto
-      input.value = '';
+  function onLeido(raw, fmt) {
+    var now = Date.now();
+    if (now - ultimaLec < 2500) return;
+    ultimaLec = now;
+    console.log('✅ [' + fmt + ']:', raw.slice(0, 300));
+    setScanSt(idSt, '✓ Detectado (' + fmt + ')…', 'ok');
+    var data = parsearCodigo(raw);
+    if (data) {
+      escanerOff(tipo);
       mostrarPaso3(data);
     } else {
-      throw new Error('No se encontraron datos en la imagen');
+      console.warn('Raw sin parsear:', JSON.stringify(raw));
+      setScanSt(idSt, '⚠️ Código leído pero no reconocido — ver consola', 'err');
+      setTimeout(function() {
+        if (escViva[tipo]) setScanSt(idSt, instruccion, 'buscando');
+      }, 3000);
     }
-  } catch(e) {
-    st.textContent = '⚠️ No se pudo leer — intenta con mejor iluminación o ángulo';
-    st.className = 'scan-st err';
-    document.getElementById('camPh').style.display = '';
-    document.getElementById('mrzPreview').style.display = 'none';
-    toast('❌ OCR fallido: ' + (e.message||e), 'err');
-    input.value = '';
-    console.error('OCR error:', e, txt);
+  }
+
+  if (esIOS) {
+    // ── iOS: ZXing JS puro ────────────────────────────────────
+    iniciarZXing(tipo, idReader, idBox, idSt, idBtnOn, instruccion, onLeido);
+  } else {
+    // ── Android / otros: html5-qrcode con PDF417 explícito ───
+    var formatos = [
+      Html5QrcodeSupportedFormats.PDF_417,
+      Html5QrcodeSupportedFormats.QR_CODE,
+      Html5QrcodeSupportedFormats.DATA_MATRIX,
+      Html5QrcodeSupportedFormats.AZTEC,
+      Html5QrcodeSupportedFormats.CODE_128,
+      Html5QrcodeSupportedFormats.CODE_39
+    ];
+    var sc = new Html5Qrcode(idReader, { verbose: false, formatsToSupport: formatos });
+    scanners[tipo] = sc;
+    var ancho = document.getElementById(idBox).offsetWidth || 320;
+    var config = {
+      fps: 10,
+      qrbox: { width: Math.floor(ancho * 0.90), height: Math.floor(ancho * 0.30) },
+      aspectRatio: 1.6,
+      disableFlip: false,
+      experimentalFeatures: { useBarCodeDetectorIfSupported: true }
+    };
+    sc.start({ facingMode: 'environment' }, config,
+      function(raw, result) {
+        var fmt = result && result.result && result.result.format
+          ? result.result.format.formatName : '?';
+        onLeido(raw, fmt);
+      },
+      function() {}
+    ).then(function() {
+      escViva[tipo] = true;
+      toast('📷 Escáner activo', '');
+    }).catch(function(err) {
+      escanerReset(tipo);
+      var msg = (err||'').toString();
+      if (msg.indexOf('NotAllowed')>=0 || msg.indexOf('denied')>=0)
+        toast('🚫 Permiso de cámara denegado. Actívalo en ajustes y recarga.', 'err');
+      else toast('⚠️ Error cámara: ' + msg.slice(0,60), 'warn');
+    });
   }
 }
 
-function setScanSt(txt, cls) {
-  var el = document.getElementById('scanSt');
+// ── ZXing para iOS ───────────────────────────────────────────────
+// Usa getUserMedia + canvas para capturar frames y ZXing JS los decodifica
+var zxingStream = null;
+var zxingLoop   = null;
+
+function iniciarZXing(tipo, idReader, idBox, idSt, idBtnOn, instruccion, onLeido) {
+  // Crear video + canvas manualmente dentro del contenedor
+  var contenedor = document.getElementById(idReader);
+  var ancho = document.getElementById(idBox).offsetWidth || 320;
+
+  contenedor.innerHTML =
+    '<video id="zxv-' + tipo + '" autoplay playsinline muted ' +
+    'style="width:100%;max-height:280px;object-fit:cover;display:block;background:#000"></video>' +
+    '<canvas id="zxc-' + tipo + '" style="display:none"></canvas>';
+
+  var video  = document.getElementById('zxv-' + tipo);
+  var canvas = document.getElementById('zxc-' + tipo);
+  var ctx    = canvas.getContext('2d');
+
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+  }).then(function(stream) {
+    zxingStream = stream;
+    video.srcObject = stream;
+    video.play();
+    escViva[tipo] = true;
+    toast('📷 Escáner activo', '');
+
+    // Instanciar lector ZXing con todos los formatos
+    var hints = new Map();
+    var fmts = [
+      ZXing.BarcodeFormat.PDF_417,
+      ZXing.BarcodeFormat.QR_CODE,
+      ZXing.BarcodeFormat.DATA_MATRIX,
+      ZXing.BarcodeFormat.CODE_128,
+      ZXing.BarcodeFormat.CODE_39,
+      ZXing.BarcodeFormat.AZTEC
+    ];
+    hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, fmts);
+    hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+    var reader = new ZXing.MultiFormatReader();
+    reader.setHints(hints);
+
+    function frame() {
+      if (!escViva[tipo]) return;
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        try {
+          var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          var lum = new ZXing.RGBLuminanceSource(imgData.data, canvas.width, canvas.height);
+          var bmp = new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(lum));
+          var result = reader.decode(bmp);
+          if (result) onLeido(result.getText(), result.getBarcodeFormat().toString());
+        } catch(e) {
+          // NotFoundException es normal en cada frame sin código
+        }
+      }
+      zxingLoop = setTimeout(frame, 120); // ~8 fps — suficiente para PDF417
+    }
+    frame();
+  }).catch(function(err) {
+    escanerReset(tipo);
+    var msg = (err||'').toString();
+    if (msg.indexOf('NotAllowed')>=0)
+      toast('🚫 Permiso de cámara denegado en Safari. Ve a Ajustes > Safari > Cámara.', 'err');
+    else toast('⚠️ Error cámara iOS: ' + msg.slice(0,60), 'warn');
+  });
+}
+
+function escanerOff(tipo) {
+  // Detener html5-qrcode (Android)
+  var sc = scanners[tipo];
+  if (sc) { sc.stop().catch(function(){}); scanners[tipo] = null; }
+  // Detener ZXing (iOS)
+  clearTimeout(zxingLoop); zxingLoop = null;
+  if (zxingStream) {
+    zxingStream.getTracks().forEach(function(t){ t.stop(); });
+    zxingStream = null;
+  }
+  escViva[tipo] = false;
+  escanerReset(tipo);
+}
+
+function escanerReset(tipo) {
+  var idBox    = tipo === 'nueva' ? 'scanBoxN'  : 'scanBoxA';
+  var idPh     = tipo === 'nueva' ? 'camPhN'    : 'camPhA';
+  var idSt     = tipo === 'nueva' ? 'scanStN'   : 'scanStA';
+  var idBtnOn  = tipo === 'nueva' ? 'btnOnN'    : 'btnOnA';
+  var idBtnOff = tipo === 'nueva' ? 'btnOffN'   : 'btnOffA';
+  var idReader = tipo === 'nueva' ? 'qr-reader-nueva' : 'qr-reader-antigua';
+  document.getElementById(idPh).style.display     = '';
+  document.getElementById(idBox).style.display    = 'none';
+  document.getElementById(idSt).style.display     = 'none';
+  document.getElementById(idBtnOn).style.display  = '';
+  document.getElementById(idBtnOff).style.display = 'none';
+  document.getElementById(idReader).innerHTML     = '';
+}
+
+function setScanSt(id, txt, cls) {
+  var el = document.getElementById(id);
   el.textContent = txt;
   el.className   = 'scan-st ' + cls;
 }
@@ -550,15 +680,79 @@ function parseMRZ(raw) {
     fechaNac:fnac,genero:gen,fechaExp:fexp,lugarExp:'Colombia'};
 }
 
-// PDF417 cédula antigua
+// ── PDF417 cédula de ciudadanía colombiana ────────────────────────
+// Formato real observado en el raw del escáner:
+//   ...993995051095298343FUENTES[basura]PARRA[basura]JERSSON[basura]ESTEBAN[basura]0M20031210270010B+...
+// Estructura: [prefijo numérico][cédula 10 dígitos][AP1][AP2][N1][N2][?][M/F][AAAAMMDD][???][RH]
+//
+// Los nombres están separados por caracteres no-ASCII (bytes de control del PDF417).
+// Estrategia: limpiar el raw, extraer el bloque continuo de datos conocidos.
 function parsePDF417(raw) {
-  var m=raw.match(/P[-][\w\d]+[-][\w\d]+[-]([MF])[-](\d{6,12})[-](\d{8})/i);
-  if (!m) return null;
-  var d=m[3];
-  return {tipo:'ANTIGUA (PDF417)',cedula:m[2],
-    apellido1:'',apellido2:'',nombre1:'',nombre2:'',fechaNac:'',
-    genero:m[1].toUpperCase()==='M'?'Masculino':'Femenino',
-    fechaExp:d.slice(6,8)+'/'+d.slice(4,6)+'/'+d.slice(0,4),lugarExp:''};
+  // Normalizar: reemplazar cualquier char no imprimible / no ASCII por un separador limpio
+  // Conservar letras A-Z, dígitos, +, -, espacio
+  var limpio = raw.replace(/[^A-Z0-9+\-\s]/gi, '|').replace(/\|+/g, '|');
+
+  // Extraer tokens: palabras en mayúsculas de 3+ letras (nombres/apellidos)
+  var palabras = [];
+  var tokens = limpio.split('|');
+  tokens.forEach(function(t) {
+    t = t.trim();
+    if (/^[A-Z]{3,}$/.test(t)) palabras.push(t);
+  });
+
+  // Buscar cédula: número de 7-10 dígitos que NO sea una fecha (8 dígitos AAAAMMDD)
+  // En el raw real: ...051095298343... → la cédula es 1095298343 (10 dígitos)
+  // El prefijo 03144715787 es un código interno, la cédula viene luego
+  var cedula = '';
+  var todosNums = limpio.match(/\d{6,12}/g) || [];
+  for (var i = 0; i < todosNums.length; i++) {
+    var n = todosNums[i];
+    // Fecha tiene 8 dígitos con mes 01-12 y día 01-31
+    var esFecha = n.length === 8 && parseInt(n.slice(4,6),10) <= 12 && parseInt(n.slice(6,8),10) <= 31;
+    if (!esFecha && n.length >= 7 && n.length <= 10) {
+      cedula = n;
+      break;
+    }
+  }
+
+  // Buscar género: 0M o 0F justo antes de la fecha AAAAMMDD
+  var genero = '';
+  var mgf = raw.match(/0([MF])(\d{8})/i);
+  var fechaNac = '';
+  if (mgf) {
+    genero = mgf[1].toUpperCase() === 'M' ? 'Masculino' : 'Femenino';
+    var fd = mgf[2]; // AAAAMMDD
+    if (parseInt(fd.slice(4,6),10) <= 12 && parseInt(fd.slice(6,8),10) <= 31) {
+      fechaNac = fd.slice(6,8) + '/' + fd.slice(4,6) + '/' + fd.slice(0,4);
+    }
+  }
+
+  // Buscar RH (ej: B+, O+, A-, AB+) en el raw
+  var rh = '';
+  var mrh = raw.match(/([ABO]{1,2}[+-])/i);
+  if (mrh) rh = mrh[1].toUpperCase();
+
+  // Asignar nombres/apellidos en orden (el PDF417 colombiano va: AP1, AP2, N1, N2)
+  var ap1  = palabras[0] ? cap(palabras[0]) : '';
+  var ap2  = palabras[1] ? cap(palabras[1]) : '';
+  var nom1 = palabras[2] ? cap(palabras[2]) : '';
+  var nom2 = palabras[3] ? cap(palabras[3]) : '';
+
+  if (!cedula && !ap1 && !nom1) return null;
+
+  function cap(s){ return s ? s[0] + s.slice(1).toLowerCase() : ''; }
+
+  return {
+    tipo: 'ANTIGUA (PDF417)',
+    cedula: cedula,
+    apellido1: ap1, apellido2: ap2,
+    nombre1: nom1,  nombre2: nom2,
+    fechaNac: fechaNac,
+    genero: genero,
+    fechaExp: '',
+    lugarExp: '',
+    rh: rh
+  };
 }
 
 function parseSoloNumero(raw) {
@@ -602,6 +796,7 @@ function mostrarPaso3(d) {
   document.getElementById('dFnac').value=d.fechaNac||'';
   document.getElementById('dGen').value =d.genero||'';
   document.getElementById('dFexp').value=d.fechaExp||'';
+  document.getElementById('dRh').value  =d.rh||'';
   document.getElementById('dLug').value =d.lugarExp||'';
   var badge=document.getElementById('badgeTipo');
   badge.textContent=d.tipo;badge.style.cssText='';
@@ -629,6 +824,7 @@ async function guardar() {
     fechaNac:document.getElementById('dFnac').value||datosActu.fechaNac,
     genero:document.getElementById('dGen').value||datosActu.genero,
     fechaExp:document.getElementById('dFexp').value||datosActu.fechaExp,
+    rh:document.getElementById('dRh').value||datosActu.rh||'',
     lugarExp:document.getElementById('dLug').value||datosActu.lugarExp,
     tipo:datosActu.tipo,programa:prog,
     semestre:document.getElementById('sSem').value.trim(),
@@ -658,16 +854,11 @@ async function guardar() {
 function cancelar() {
   datosActu=null;
   document.getElementById('secData').style.display='none';
-  ['dCed','dAp1','dAp2','dN1','dN2','dFnac','dFexp','dLug'].forEach(function(id){document.getElementById(id).value='';});
+  ['dCed','dAp1','dAp2','dN1','dN2','dFnac','dFexp','dRh','dLug'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('dGen').value='';
   ['sProg','sSem','sObs'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('sJor').value='';
   document.getElementById('lectorIn').value='';
-  // Reset foto MRZ
-  document.getElementById('mrzPreview').style.display='none';
-  document.getElementById('camPh').style.display='';
-  document.getElementById('scanSt').style.display='none';
-  document.getElementById('mrzFile').value='';
 }
 
 // ── RECIENTES ─────────────────────────────────────────────────────
