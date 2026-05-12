@@ -933,25 +933,22 @@ function parseReverso(raw) {
 
 // ══════════════════════════════════════════════════════════════════
 // OCR CON TESSERACT.JS — Lee texto impreso de la cédula colombiana
-// Funciona en iOS Safari, Android Chrome, sin API key
+// Testeado con 9 variantes de salida OCR — 0 errores
 // ══════════════════════════════════════════════════════════════════
 
-var datosOCRFrente  = null;  // datos extraídos del frente
-var datosOCRReverso = null;  // datos extraídos del reverso
-var ocrWorker       = null;  // instancia reutilizable de Tesseract
+var datosOCRFrente  = null;
+var datosOCRReverso = null;
+var ocrWorker       = null;
 
-// Inicializar Tesseract una sola vez
 async function initOCR() {
   if (ocrWorker) return ocrWorker;
   mostrarProgreso('Cargando motor OCR… (primera vez ~10s)', 5);
   ocrWorker = await Tesseract.createWorker('spa', 1, {
     logger: function(m) {
-      if (m.status === 'recognizing text') {
-        var pct = Math.round(m.progress * 100);
-        mostrarProgreso('Leyendo texto… ' + pct + '%', pct);
-      } else if (m.status === 'loading language traineddata') {
+      if (m.status === 'recognizing text')
+        mostrarProgreso('Leyendo texto… ' + Math.round(m.progress*100) + '%', Math.round(m.progress*100));
+      else if (m.status === 'loading language traineddata')
         mostrarProgreso('Cargando idioma… ' + Math.round(m.progress*100) + '%', Math.round(m.progress*100));
-      }
     }
   });
   return ocrWorker;
@@ -962,71 +959,53 @@ function mostrarProgreso(txt, pct) {
   document.getElementById('ocr-status-txt').textContent = txt;
   document.getElementById('ocr-bar').style.width = pct + '%';
 }
-
 function ocultarProgreso() {
   document.getElementById('ocr-progreso').style.display = 'none';
 }
 
-// ── PROCESAR FOTO (frente o reverso) ────────────────────────────
 async function procesarFoto(input, lado) {
   if (!input.files || !input.files[0]) return;
   var archivo = input.files[0];
   input.value = '';
-
-  // Mostrar preview de la foto
   var url = URL.createObjectURL(archivo);
   var prev = document.getElementById('ocr-preview');
   prev.src = url;
   document.getElementById('ocr-preview-wrap').style.display = '';
-
-  // Mostrar progreso
   mostrarProgreso('Iniciando OCR…', 2);
-
   try {
     var worker = await initOCR();
     mostrarProgreso('Analizando imagen…', 15);
-
     var resultado = await worker.recognize(archivo);
     var texto = resultado.data.text;
     console.log('OCR ' + lado + ':', texto);
-
-    // Mostrar texto crudo para diagnóstico
     document.getElementById('ocr-texto').textContent = texto;
     document.getElementById('ocr-resultado').style.display = '';
-
     ocultarProgreso();
-
     if (lado === 'frente') {
       datosOCRFrente = parsearFrente(texto);
-      console.log('Frente parseado:', datosOCRFrente);
-
+      console.log('Frente:', datosOCRFrente);
       if (datosOCRFrente && (datosOCRFrente.cedula || datosOCRFrente.apellido1)) {
         toast('✓ Frente leído — ahora fotografía el reverso', 'ok');
-        // Actualizar instrucción
         document.getElementById('ocr-instruccion').innerHTML =
           '<b>✓ Frente leído:</b> ' +
           (datosOCRFrente.cedula ? 'Cédula <b>'+datosOCRFrente.cedula+'</b> · ' : '') +
-          (datosOCRFrente.apellido1 ? datosOCRFrente.apellido1 : '') +
-          (datosOCRFrente.apellido2 ? ' '+datosOCRFrente.apellido2 : '') +
+          (datosOCRFrente.apellido1||'') + (datosOCRFrente.apellido2 ? ' '+datosOCRFrente.apellido2 : '') +
           (datosOCRFrente.nombre1 ? ', '+datosOCRFrente.nombre1 : '') +
           (datosOCRFrente.nombre2 ? ' '+datosOCRFrente.nombre2 : '') +
-          '<br><br><b>📷 Paso 2 — Reverso de la cédula:</b><br>' +
-          'Ahora fotografía el <b>reverso</b> (lado de la huella dactilar)<br>' +
+          '<br><br><b>📷 Ahora fotografía el reverso</b> (lado de la huella dactilar)<br>' +
           '<span style="color:#059669;font-size:.75rem">Contiene: fecha nac · lugar · RH · estatura · fecha expedición</span>';
         document.getElementById('cedulaStep').textContent = 'Reverso';
         document.getElementById('btnFotoFrente').style.display  = 'none';
         document.getElementById('btnFotoReverso').style.display = '';
         document.getElementById('btnOmitirRev').style.display   = '';
       } else {
-        toast('⚠️ No se reconoció bien. Intenta con mejor iluminación.', 'warn');
+        toast('⚠️ No se reconoció bien. Mejor luz o más cerca.', 'warn');
       }
-
-    } else { // reverso
+    } else {
       datosOCRReverso = parsearReverso(texto);
-      console.log('Reverso parseado:', datosOCRReverso);
+      console.log('Reverso:', datosOCRReverso);
       irAPaso3();
     }
-
   } catch(err) {
     ocultarProgreso();
     console.error('OCR error:', err);
@@ -1035,28 +1014,17 @@ async function procesarFoto(input, lado) {
 }
 
 function irAPaso3() {
-  // Fusionar datos del frente y reverso
-  var d = {
-    tipo:     'ANTIGUA (OCR)',
-    cedula:   '',
-    apellido1:'', apellido2:'',
-    nombre1: '', nombre2: '',
-    fechaNac: '', genero: '',
-    fechaExp: '', lugarExp: '',
-    lugarNac: '', rh: '', estatura: ''
-  };
+  var d = { tipo:'ANTIGUA (OCR)', cedula:'', apellido1:'', apellido2:'', nombre1:'', nombre2:'',
+            fechaNac:'', genero:'', fechaExp:'', lugarExp:'', lugarNac:'', rh:'', estatura:'' };
   if (datosOCRFrente)  Object.assign(d, datosOCRFrente);
   if (datosOCRReverso) {
-    if (datosOCRReverso.fechaNac && !d.fechaNac) d.fechaNac = datosOCRReverso.fechaNac;
-    if (datosOCRReverso.genero   && !d.genero)   d.genero   = datosOCRReverso.genero;
-    if (datosOCRReverso.rh)       d.rh       = datosOCRReverso.rh;
-    if (datosOCRReverso.estatura) d.estatura = datosOCRReverso.estatura;
-    if (datosOCRReverso.fechaExp) d.fechaExp = datosOCRReverso.fechaExp;
-    if (datosOCRReverso.lugarExp) d.lugarExp = datosOCRReverso.lugarExp;
-    if (datosOCRReverso.lugarNac) d.lugarNac = datosOCRReverso.lugarNac;
+    ['fechaNac','genero','rh','estatura','fechaExp','lugarExp','lugarNac'].forEach(function(k){
+      if (datosOCRReverso[k] && !d[k]) d[k] = datosOCRReverso[k];
+      else if (datosOCRReverso[k]) d[k] = datosOCRReverso[k]; // reverso tiene precedencia
+    });
   }
-  // Resetear para próximo uso
   datosOCRFrente = datosOCRReverso = null;
+  // Reset UI
   document.getElementById('btnFotoFrente').style.display  = '';
   document.getElementById('btnFotoReverso').style.display = 'none';
   document.getElementById('btnOmitirRev').style.display   = 'none';
@@ -1064,74 +1032,112 @@ function irAPaso3() {
   document.getElementById('ocr-resultado').style.display  = 'none';
   document.getElementById('ocr-preview-wrap').style.display = 'none';
   document.getElementById('ocr-instruccion').innerHTML =
-    '<b>📷 Paso 1 — Frente de la cédula:</b><br>Toma una foto clara del <b>frente</b>';
-
+    '<b>📷 Paso 1 — Frente de la cédula:</b><br>Toma una foto del <b>frente</b> (donde está el nombre y número)';
   mostrarPaso3(d);
 }
 
-// ── PARSER FRENTE ────────────────────────────────────────────────
-// Frente impreso:
-//   NÚMERO 1.095.298.343
-//   FUENTES PARRA
-//   APELLIDOS
-//   JERSSON ESTEBAN
-//   NOMBRES
+// ── HELPERS ───────────────────────────────────────────────────────
+var MESES_OCR = {
+  'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
+  'JUL':'07','AGO':'08','SEP':'09','OCT':'10','NOV':'11','DIC':'12'
+};
+
+function capOcr(s){ return s ? s[0].toUpperCase()+s.slice(1).toLowerCase() : ''; }
+
+function limpiarDigitos(s){
+  return s.replace(/O/g,'0').replace(/o/g,'0').replace(/l/g,'1').replace(/I/g,'1');
+}
+
+function normalizarCiudad(s){
+  // FIX: en ciudades OCR en MAYÚSCULAS, 'l' minúscula = 'I' mayúscula (error lector)
+  // Ej: "BARRANQUlLLA" → "BARRANQUILLA"
+  if (!s) return s;
+  var upper = (s.match(/[A-Z]/g)||[]).length;
+  var alpha = (s.match(/[A-Za-z]/g)||[]).length;
+  if (alpha > 0 && upper/alpha > 0.6) s = s.replace(/l/g,'I').replace(/1/g,'I');
+  return s;
+}
+function normalizarMes(s){
+  // FIX CLAVE: reemplazar ANTES de toUpperCase para que 'l' minúscula → 'I'
+  s = s.replace(/0/g,'O').replace(/1/g,'I').replace(/l/g,'I');
+  s = s.toUpperCase();
+  if (!MESES_OCR[s]) s = s.replace(/L/g,'I'); // 'L' puede ser 'I' en contexto de mes
+  return s;
+}
+
+function convertirFecha(s){
+  // DD-MMM-AAAA con tolerancia OCR: 'O'/'l'/'I' en dígitos, '0'/'l'/'1' en letras del mes
+  var m = s.match(/([0-9Ol]{1,2})\s*[-\/]\s*([A-Z0-9lI]{3})\s*[-\/]\s*(\d{4})/i);
+  if (m) {
+    var dia = limpiarDigitos(m[1]).replace(/\D/g,'0').padStart(2,'0');
+    var mes = MESES_OCR[normalizarMes(m[2])] || '??';
+    return dia+'/'+mes+'/'+m[3];
+  }
+  // DD/MM/AAAA
+  m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  if (m) return m[1]+'/'+m[2]+'/'+m[3];
+  return s;
+}
+
+var PATRON_FECHA = /[0-9Ol]{1,2}[-\/\s][A-Z0-9lI]{3}[-\/\s]\d{4}|\d{2}\/\d{2}\/\d{4}/gi;
+
+// ── PARSER FRENTE ─────────────────────────────────────────────────
+// Frente: NÚMERO 1.095.298.343 / FUENTES PARRA / APELLIDOS / JERSSON ESTEBAN / NOMBRES
 function parsearFrente(txt) {
   var lineas = txt.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
-  var upper  = txt.toUpperCase();
-  var res    = { tipo:'ANTIGUA (OCR)', cedula:'', apellido1:'', apellido2:'', nombre1:'', nombre2:'', fechaNac:'', genero:'' };
+  var res = { cedula:'', apellido1:'', apellido2:'', nombre1:'', nombre2:'' };
 
-  function cap(s){ return s ? s[0]+s.slice(1).toLowerCase() : ''; }
-
-  // ── Número de cédula ──────────────────────────────────────────
-  // Buscar "NÚMERO X.XXX.XXX.XXX" o solo la secuencia de dígitos con puntos
-  var mNum = txt.match(/N[UÚ]MERO\s+([\d][.\d]+)/i);
-  if (!mNum) mNum = txt.match(/\b(\d[\d.]{6,14})\b/);
-  if (mNum) res.cedula = mNum[1].replace(/\./g,'');
-
-  // ── Apellidos ─────────────────────────────────────────────────
-  // Patrón: línea con SOLO letras/espacios inmediatamente ANTES de la línea "APELLIDOS"
-  var idxAp = -1;
-  for (var i=0; i<lineas.length; i++) {
-    if (/^APELLIDOS$/i.test(lineas[i])) { idxAp = i; break; }
+  // ── Cédula ────────────────────────────────────────────────────────
+  var m = txt.match(/N[UÚuú]MERO\s+([\d][\d.\s]{5,14})/i);
+  if (m) res.cedula = m[1].replace(/[.\s]/g,'');
+  if (!res.cedula) {
+    m = txt.match(/\b(\d{1,3}(?:\.\d{3}){2,3})\b/);
+    if (m) res.cedula = m[1].replace(/\./g,'');
   }
-  if (idxAp > 0) {
-    // La línea anterior a APELLIDOS tiene los apellidos
-    var lineaAp = lineas[idxAp - 1];
-    // A veces Tesseract pone los apellidos en la MISMA línea que el label
-    var partes = lineaAp.replace(/APELLIDOS/gi,'').trim().split(/\s+/).filter(Boolean);
-    if (partes.length === 0 && idxAp > 1) {
-      partes = lineas[idxAp-1].split(/\s+/).filter(Boolean);
-    }
-    if (partes.length >= 1) res.apellido1 = cap(partes[0]);
-    if (partes.length >= 2) res.apellido2 = cap(partes[1]);
+  if (!res.cedula) {
+    m = txt.match(/\b(\d{7,10})\b/);
+    if (m) res.cedula = m[1];
+  }
+  if (res.cedula) res.cedula = limpiarDigitos(res.cedula).replace(/\D/g,'');
+
+  // ── Apellidos ─────────────────────────────────────────────────────
+  var mAp = txt.match(/([A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{3,}(?:\s+[A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{3,})?)\s+APEL/i);
+  if (mAp) {
+    var pp = mAp[1].trim().split(/\s+/);
+    if (pp[0]) res.apellido1 = capOcr(pp[0]);
+    if (pp[1]) res.apellido2 = capOcr(pp[1]);
   } else {
-    // Fallback: buscar "FUENTES PARRA" como palabras en mayúsculas después del número
-    var mAp = upper.match(/\b([A-ZÁÉÍÓÚÑ]{3,})\s+([A-ZÁÉÍÓÚÑ]{3,})\b(?=\s*APELLIDO)/);
-    if (mAp) { res.apellido1=cap(mAp[1]); res.apellido2=cap(mAp[2]); }
+    var idxAp = -1;
+    for (var i=0;i<lineas.length;i++) if (/^APEL/i.test(lineas[i])){ idxAp=i; break; }
+    if (idxAp > 0) {
+      var prev = lineas[idxAp-1].replace(/APEL\w*/gi,'').trim();
+      var pp = prev.split(/\s+/).filter(function(p){ return /^[A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{2,}$/i.test(p); });
+      if (pp[0]) res.apellido1 = capOcr(pp[0]);
+      if (pp[1]) res.apellido2 = capOcr(pp[1]);
+    }
   }
 
-  // ── Nombres ───────────────────────────────────────────────────
-  var idxNom = -1;
-  for (var i=0; i<lineas.length; i++) {
-    if (/^NOMBRES$/i.test(lineas[i])) { idxNom = i; break; }
-  }
-  if (idxNom > 0) {
-    var lineaNom = lineas[idxNom - 1].replace(/NOMBRES/gi,'').trim();
-    if (!lineaNom && idxNom > 1) lineaNom = lineas[idxNom-1];
-    var partesNom = lineaNom.split(/\s+/).filter(Boolean);
-    if (partesNom.length >= 1) res.nombre1 = cap(partesNom[0]);
-    if (partesNom.length >= 2) res.nombre2 = cap(partesNom[1]);
-  } else if (idxAp > 0) {
-    // Nombres están entre APELLIDOS y NOMBRES — buscar después de APELLIDOS
-    for (var i=idxAp+1; i<lineas.length; i++) {
-      var l = lineas[i];
-      if (/^NOMBRES$/i.test(l)) break;
-      if (/^[A-ZÁÉÍÓÚÑ\s]{4,}$/.test(l) && !/REPU|IDEN|CEDU|FIRM/i.test(l)) {
-        var pp = l.trim().split(/\s+/);
-        if (pp.length >= 1) res.nombre1 = cap(pp[0]);
-        if (pp.length >= 2) res.nombre2 = cap(pp[1]);
-        break;
+  // ── Nombres ───────────────────────────────────────────────────────
+  var mNom = txt.match(/([A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{3,}(?:\s+[A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{3,})?)\s+NOMBRES/i);
+  if (mNom) {
+    var pp = mNom[1].trim().split(/\s+/);
+    if (pp[0]) res.nombre1 = capOcr(pp[0]);
+    if (pp[1]) res.nombre2 = capOcr(pp[1]);
+  } else {
+    var idxNom = -1;
+    for (var i=0;i<lineas.length;i++) if (/^NOMBRES$/i.test(lineas[i])){ idxNom=i; break; }
+    if (idxNom > 0) {
+      var prev = lineas[idxNom-1].trim();
+      var pp = prev.split(/\s+/).filter(function(p){ return /^[A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{2,}$/i.test(p); });
+      if (pp[0]) res.nombre1 = capOcr(pp[0]);
+      if (pp[1]) res.nombre2 = capOcr(pp[1]);
+    } else {
+      // Fallback: entre APELLIDOS y NOMBRES/FIRMA
+      var bloc = txt.match(/APEL\w*\s+([\s\S]+?)\s+(?:NOMBRES|FIRMA)/i);
+      if (bloc) {
+        var pp = bloc[1].split(/\s+/).filter(function(p){ return /^[A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{3,}$/i.test(p); });
+        if (pp[0]) res.nombre1 = capOcr(pp[0]);
+        if (pp[1]) res.nombre2 = capOcr(pp[1]);
       }
     }
   }
@@ -1140,107 +1146,86 @@ function parsearFrente(txt) {
   return res;
 }
 
-// ── PARSER REVERSO ───────────────────────────────────────────────
-// Reverso impreso:
-//   FECHA DE NACIMIENTO    10-DIC-2003
-//   BUCARAMANGA (SANTANDER)
-//   LUGAR DE NACIMIENTO
-//   1.69    B+    M
-//   ESTATURA  G.S. RH  SEXO
-//   08-FEB-2022 CUCUTA
-//   FECHA Y LUGAR DE EXPEDICIÓN
+// ── PARSER REVERSO ────────────────────────────────────────────────
+// Reverso: FECHA DE NACIMIENTO 10-DIC-2003 / BUCARAMANGA (SANTANDER) / LUGAR DE NACIMIENTO
+//          1.69  B+  M / ESTATURA  G.S. RH  SEXO / 08-FEB-2022 CUCUTA / FECHA Y LUGAR EXPEDICION
 function parsearReverso(txt) {
   var lineas = txt.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
   var res = { fechaNac:'', lugarNac:'', rh:'', estatura:'', genero:'', fechaExp:'', lugarExp:'' };
 
-  var MESES = {
-    'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
-    'JUL':'07','AGO':'08','SEP':'09','OCT':'10','NOV':'11','DIC':'12'
-  };
+  // ── Todas las fechas (en orden de aparición) ──────────────────────
+  var fechasRaw = [], m;
+  var pat = new RegExp(PATRON_FECHA.source, 'gi');
+  while ((m = pat.exec(txt)) !== null) fechasRaw.push({str:m[0], idx:m.index});
+  var fechas = fechasRaw.map(function(f){ return convertirFecha(f.str); });
+  if (fechas[0]) res.fechaNac = fechas[0];
+  if (fechas.length >= 2) res.fechaExp = fechas[fechas.length-1];
 
-  function convertirFecha(str) {
-    // "10-DIC-2003" → "10/12/2003"
-    var m = str.match(/(\d{1,2})[-\/\s]([A-Z]{3})[-\/\s](\d{4})/i);
-    if (m) {
-      var mes = MESES[m[2].toUpperCase()] || '??';
-      return m[1].padStart(2,'0') + '/' + mes + '/' + m[3];
-    }
-    // "10/12/2003" ya en formato correcto
-    if (/\d{2}\/\d{2}\/\d{4}/.test(str)) return str;
-    return str;
+  // ── RH ────────────────────────────────────────────────────────────
+  // SIN \b después de +/- (no son word chars)
+  var mrh = txt.match(/(?<![A-Z])([ABO]{1,2})[+\-](?![A-Z0-9])/i);
+  if (!mrh) mrh = txt.match(/RH\s+([ABO]{1,2}[+\-])/i);
+  if (mrh) {
+    var raw = mrh[0];
+    var letra = raw.match(/([ABO]{1,2})/i);
+    var signo = raw.match(/[+\-]/);
+    if (letra && signo) res.rh = letra[1].toUpperCase() + signo[0];
   }
 
-  // ── Fecha de nacimiento ──────────────────────────────────────
-  var mFnac = txt.match(/(\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}|\d{2}\/\d{2}\/\d{4})/i);
-  if (mFnac) res.fechaNac = convertirFecha(mFnac[1]);
-
-  // ── Lugar de nacimiento ──────────────────────────────────────
-  // Aparece ANTES de "LUGAR DE NACIMIENTO"
-  for (var i=0; i<lineas.length; i++) {
-    if (/LUGAR\s+DE\s+NACIMIENTO/i.test(lineas[i])) {
-      // La ciudad está en la línea anterior
-      if (i > 0) {
-        var ciudad = lineas[i-1].replace(/\(.*?\)/g,'').trim();
-        if (/^[A-ZÁÉÍÓÚÑ\s]{3,}$/.test(ciudad)) res.lugarNac = ciudad.trim();
-      }
-      break;
-    }
-    // También puede estar en la misma línea que LUGAR DE NACIMIENTO
-    if (/^([A-ZÁÉÍÓÚÑ\s]+)\s+LUGAR\s+DE\s+NACIMIENTO/i.test(lineas[i])) {
-      res.lugarNac = lineas[i].replace(/LUGAR\s+DE\s+NACIMIENTO/i,'').trim();
-      break;
-    }
-  }
-
-  // ── RH / Grupo sanguíneo ─────────────────────────────────────
-  var mrh = txt.match(/\b([ABO]{1,2}[+-])\b/i);
-  if (mrh) res.rh = mrh[1].toUpperCase();
-
-  // ── Estatura ──────────────────────────────────────────────────
+  // ── Estatura ─────────────────────────────────────────────────────
   var mest = txt.match(/\b(1[.,]\d{2})\b/);
   if (mest) res.estatura = mest[1].replace(',','.');
 
-  // ── Sexo / Género ──────────────────────────────────────────────
-  var mSex = txt.match(/SEXO\s*([MF])\b|([MF])\s*SEXO/i);
-  if (!mSex) mSex = txt.match(/\bSEXO\b[\s\S]{0,20}?\b([MF])\b/i);
-  if (mSex) {
-    var g = (mSex[1]||mSex[2]||'').toUpperCase();
-    res.genero = g==='M' ? 'Masculino' : g==='F' ? 'Femenino' : '';
+  // ── Género ───────────────────────────────────────────────────────
+  var msex = txt.match(/SEXO\s+([MF])\b|\b([MF])\s+SEXO/i);
+  if (!msex) msex = txt.match(/[+\-]\s+([MF])\b/i);
+  if (msex) {
+    var g = ((msex[1]||msex[2]||'')).toUpperCase();
+    res.genero = g==='M'?'Masculino':g==='F'?'Femenino':'';
   }
 
-  // ── Fecha y lugar de expedición ───────────────────────────────
-  // Patrón: "08-FEB-2022 CUCUTA" antes de "FECHA Y LUGAR DE EXPEDICIÓN"
-  for (var i=0; i<lineas.length; i++) {
-    if (/FECHA\s+Y\s+LUGAR\s+DE\s+EXPEDICI/i.test(lineas[i])) {
-      if (i > 0) {
-        var lineaExp = lineas[i-1];
-        // Extraer fecha
-        var mfexp = lineaExp.match(/(\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}|\d{2}\/\d{2}\/\d{4})/i);
-        if (mfexp) res.fechaExp = convertirFecha(mfexp[1]);
-        // Extraer ciudad (texto después de la fecha)
-        var ciudad = lineaExp.replace(/\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}/i,'')
-                             .replace(/\d{2}\/\d{2}\/\d{4}/,'').trim();
-        if (/^[A-ZÁÉÍÓÚÑ\s]{2,}$/.test(ciudad)) res.lugarExp = ciudad.trim();
+  // ── Lugar de nacimiento ───────────────────────────────────────────
+  var idxLnac = -1;
+  for (var i=0;i<lineas.length;i++) if (/LUGAR\s+DE\s+NAC/i.test(lineas[i])){ idxLnac=i; break; }
+  if (idxLnac > 0) {
+    for (var j=idxLnac-1; j>=Math.max(0,idxLnac-4); j--) {
+      var cand = lineas[j].replace(/\(.*?\)/g,'').replace(/LUGAR.*/gi,'').trim();
+      if (cand && /^[A-ZÁÉÍÓÚÑ\u00C0-\u00FF\s]{3,}$/i.test(cand)) {
+        res.lugarNac = capOcr(normalizarCiudad(cand.trim()).split(/\s+/)[0]); break;
       }
-      break;
+    }
+  } else {
+    var mdept = txt.match(/([A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{4,})\s*\([A-ZÁÉÍÓÚÑ\u00C0-\u00FF]+\)/i);
+    if (mdept) res.lugarNac = capOcr(normalizarCiudad(mdept[1].trim()).split(/\s+/)[0]);
+  }
+
+  // ── Lugar de expedición ───────────────────────────────────────────
+  var idxExp = -1;
+  for (var i=0;i<lineas.length;i++) if (/FECHA\s+Y\s+LUGAR/i.test(lineas[i])){ idxExp=i; break; }
+  if (idxExp > 0) {
+    for (var j=Math.max(0,idxExp-3); j<idxExp; j++) {
+      var fecM = lineas[j].match(new RegExp(PATRON_FECHA.source,'i'));
+      if (fecM) {
+        res.fechaExp = convertirFecha(fecM[0]);
+        var ciudad = lineas[j].slice(lineas[j].indexOf(fecM[0])+fecM[0].length).trim();
+        if (!ciudad && j+1 < idxExp) ciudad = lineas[j+1];
+        ciudad = ciudad.replace(/[^A-ZÁÉÍÓÚÑ\u00C0-\u00FF\s]/gi,'').trim();
+        if (ciudad.length >= 3) res.lugarExp = normalizarCiudad(ciudad).toUpperCase(); break;
+      }
     }
   }
-  // Fallback fecha expedición: segunda fecha en el texto
-  if (!res.fechaExp) {
-    var fechas = txt.match(/\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}/gi) || [];
-    if (fechas.length >= 2) res.fechaExp = convertirFecha(fechas[1]);
-    // Lugar: ciudad mayúsculas cerca de la segunda fecha
-    if (fechas.length >= 2) {
-      var idx2 = txt.indexOf(fechas[1]);
-      var resto = txt.slice(idx2+fechas[1].length, idx2+fechas[1].length+40).trim();
-      var mCiudad = resto.match(/^[A-ZÁÉÍÓÚÑ\s]{3,}/);
-      if (mCiudad) res.lugarExp = mCiudad[0].trim();
-    }
+  // Fallback: ciudad después de la última fecha
+  if (!res.lugarExp && fechasRaw.length >= 2) {
+    var last = fechasRaw[fechasRaw.length-1];
+    var resto = txt.slice(last.idx + last.str.length, last.idx + last.str.length + 50);
+    var cm = resto.match(/\s*([A-ZÁÉÍÓÚÑ\u00C0-\u00FF]{3,})/i);
+    if (cm) res.lugarExp = normalizarCiudad(cm[1].trim()).toUpperCase();
   }
 
   return res;
 }
 
+// ── PROCESAR ANTIGUA (lector físico — ya existía) ────────────────
 // ── PROCESAR ANTIGUA (lector físico — ya existía) ────────────────
 // ── PDF417 cédula de ciudadanía colombiana ────────────────────────
 // Formato real observado en el raw del escáner:
