@@ -7,6 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <!-- html5-qrcode con soporte PDF417 -->
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<!-- Tesseract.js — OCR gratuito, funciona en iOS y Android sin API key -->
+<script src="https://unpkg.com/tesseract.js@5.0.4/dist/tesseract.min.js"></script>
 <!-- ZXing JS — respaldo para PDF417 en iPhone/Safari (sin BarcodeDetector nativo) -->
 <script src="https://unpkg.com/@zxing/library@0.19.1/umd/index.min.js"></script>
 <style>
@@ -262,113 +264,72 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
   </p>
 </section>
 
-<!-- PASO 2B: ANTIGUA — escáner PDF417 en tiempo real por cámara -->
+<!-- PASO 2B: ANTIGUA — OCR foto frente -->
 <section class="card" id="secAntigua" style="display:none">
-  <div class="card-hdr"><div class="ci">2</div><h2 class="ct">Escanear Cédula Antigua (PDF417)</h2></div>
-
-  <div class="cam-ph" id="camPhA">
-    <svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="12" y1="9" x2="12" y2="15"/><line x1="15" y1="9" x2="15" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg>
-    <span>Presiona "Activar Escáner" y apunta al código PDF417 del frente</span>
+  <div class="card-hdr">
+    <div class="ci">2</div>
+    <h2 class="ct">Fotografiar cédula antigua</h2>
+    <span class="btipo" id="cedulaStep">Frente</span>
   </div>
 
-  <div class="scan-box" id="scanBoxA" style="display:none">
-    <div id="qr-reader-antigua"></div>
+  <!-- Instrucción dinámica -->
+  <div id="ocr-instruccion" style="margin:14px 18px 0;padding:12px 14px;background:#eff6ff;border-radius:10px;border:1px solid #bfdbfe;font-size:.8rem;color:#1e40af;line-height:1.6">
+    <b>📷 Paso 1 — Frente de la cédula:</b><br>
+    Toma una foto clara del <b>frente</b> (donde está el nombre, apellido y número)<br>
+    <span style="color:#059669;font-size:.75rem">Buena iluminación · Sin sombras · Toda la cédula en el encuadre</span>
   </div>
 
-  <div class="scan-st buscando" id="scanStA" style="display:none">🔍 Apunta al código de barras del frente de la cédula…</div>
-
-  <div class="cam-acts">
-    <button class="btn btn-navy" id="btnOnA" onclick="escanerOn('antigua')">
-      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      Activar Escáner
-    </button>
-    <button class="btn btn-red" id="btnOffA" onclick="escanerOff('antigua')" style="display:none">⬛ Detener</button>
+  <!-- Vista previa de la foto -->
+  <div id="ocr-preview-wrap" style="margin:12px 18px 0;display:none">
+    <img id="ocr-preview" style="width:100%;border-radius:10px;border:2px solid #c8d0df;display:block" alt="Vista previa"/>
   </div>
 
-  <!-- Fallback: lector físico -->
-  <div style="padding:0 18px 6px">
-    <p style="font-size:.7rem;color:var(--g500);margin-bottom:6px;font-weight:600">¿Tienes lector físico USB/Bluetooth? Úsalo aquí:</p>
-    <div class="irow">
-      <input type="text" id="lectorIn" class="inp" placeholder="Escanea con lector físico…" autocomplete="off"/>
-      <button class="btn btn-navy" onclick="procesarAntigua()">Procesar</button>
+  <!-- Progreso OCR -->
+  <div id="ocr-progreso" style="display:none;margin:12px 18px 0;padding:14px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;text-align:center">
+    <div style="font-size:.85rem;font-weight:700;color:#1a3a6b;margin-bottom:8px" id="ocr-status-txt">Cargando motor OCR…</div>
+    <div style="background:#e2e8f0;border-radius:30px;height:8px;overflow:hidden">
+      <div id="ocr-bar" style="height:100%;background:linear-gradient(90deg,#2a7a5a,#38a376);border-radius:30px;width:0%;transition:width .3s ease"></div>
     </div>
   </div>
-  <p class="cam-hint" style="padding-top:6px">
-    📌 Apunta al código de barras del <b>frente</b> de la cédula · El PDF417 se detecta automáticamente<br>
-    <span style="color:#0e7490;font-weight:600">Si la cámara no lo lee, usa el lector físico en el campo de arriba</span>
+
+  <!-- Resultado OCR crudo (diagnóstico) -->
+  <div id="ocr-resultado" style="display:none;margin:12px 18px 0;padding:12px 14px;background:#1e293b;border-radius:10px">
+    <p style="font-size:.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Texto reconocido:</p>
+    <pre id="ocr-texto" style="font-family:var(--m);font-size:.72rem;color:#7dd3fc;white-space:pre-wrap;word-break:break-all;max-height:140px;overflow:auto;line-height:1.5"></pre>
+  </div>
+
+  <!-- Botones de acción -->
+  <div class="cam-acts" style="padding-top:12px">
+    <!-- Botón principal: tomar foto -->
+    <label class="btn btn-navy" id="btnFotoFrente" style="cursor:pointer">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Fotografiar Frente
+      <input type="file" id="inputFrente" accept="image/*" capture="environment" style="display:none" onchange="procesarFoto(this,'frente')"/>
+    </label>
+    <!-- Botón paso 2: foto del reverso (aparece después del frente) -->
+    <label class="btn btn-teal" id="btnFotoReverso" style="display:none;cursor:pointer">
+      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Fotografiar Reverso
+      <input type="file" id="inputReverso" accept="image/*" capture="environment" style="display:none" onchange="procesarFoto(this,'reverso')"/>
+    </label>
+    <!-- Omitir reverso -->
+    <button class="btn btn-sec" id="btnOmitirRev" style="display:none" onclick="irAPaso3()">Omitir reverso →</button>
+  </div>
+
+  <!-- Lector físico como alternativa -->
+  <div style="padding:8px 18px 14px">
+    <p style="font-size:.7rem;color:var(--g500);margin-bottom:5px">¿Tienes lector físico USB/Bluetooth? Úsalo aquí:</p>
+    <div class="irow">
+      <input type="text" id="lectorIn" class="inp" placeholder="Escanea con lector físico…" autocomplete="off" style="font-size:.78rem"/>
+      <button class="btn btn-navy" style="font-size:.78rem" onclick="procesarAntigua()">Procesar</button>
+    </div>
+  </div>
+  <p class="cam-hint" style="padding-top:2px">
+    La cámara lee el texto impreso de ambas caras · No necesita leer códigos de barras
   </p>
 </section>
 
-<!-- PASO 2B-REVERSO: Reverso cédula antigua -->
-<section class="card" id="secAntiguaRev" style="display:none">
-  <div class="card-hdr">
-    <div class="ci" style="background:linear-gradient(135deg,#2a7a5a,#38a376)">2</div>
-    <h2 class="ct">Ahora lee el <b>reverso</b> de la cédula</h2>
-  </div>
-
-  <!-- Datos ya capturados del frente -->
-  <div id="revDatosFrente" style="margin:14px 18px 0;padding:12px 14px;background:#e8f5e9;border-radius:10px;border:1px solid rgba(42,122,90,.25);font-size:.8rem;color:#2e7d32;line-height:1.7">
-    <b>✓ Del frente ya tenemos:</b>
-    <span id="revResumen">…</span>
-  </div>
-
-  <!-- Instrucción visual -->
-  <div style="margin:12px 18px 0;padding:11px 14px;background:#eff6ff;border-radius:10px;border:1px solid #bfdbfe;font-size:.78rem;color:#1e40af;line-height:1.6">
-    📌 Voltea la cédula y apunta el escáner al <b>código de barras del reverso</b><br>
-    El reverso contiene: Lugar de expedición · RH · Fecha de expedición · Estatura<br>
-    <span style="color:#059669;font-weight:600">Si no hay código en el reverso, completa los campos manualmente y continúa.</span>
-  </div>
-
-  <!-- Escáner del reverso -->
-  <div class="cam-ph" id="camPhRev" style="margin:12px 18px 0;min-height:160px">
-    <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-    <span>Presiona "Escanear Reverso" o completa los campos manualmente</span>
-  </div>
-  <div class="scan-box" id="scanBoxRev" style="display:none;margin:12px 18px 0">
-    <div id="qr-reader-reverso"></div>
-  </div>
-  <div class="scan-st buscando" id="scanStRev" style="display:none">🔍 Apunta al código del reverso…</div>
-
-  <div class="cam-acts" style="padding-top:10px">
-    <button class="btn btn-navy" id="btnOnRev" onclick="escanerReversoOn()">
-      <svg viewBox="0 0 24 24" width="16" height="16"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-      Escanear Reverso
-    </button>
-    <button class="btn btn-red" id="btnOffRev" onclick="escanerReversoOff()" style="display:none">⬛ Detener</button>
-  </div>
-
-  <!-- Campos manuales del reverso -->
-  <div style="margin:4px 0 0">
-    <div class="fgrid">
-      <div class="fi fw">
-        <label class="fk" for="revFecExp">Fecha de Expedición</label>
-        <input class="inp" id="revFecExp" type="text" placeholder="DD/MM/AAAA — ej: 08-FEB-2022 → 08/02/2022"/>
-      </div>
-      <div class="fi fw">
-        <label class="fk" for="revLugar">Lugar de Expedición</label>
-        <input class="inp" id="revLugar" type="text" placeholder="Ej: CUCUTA, BOGOTA DC…"/>
-      </div>
-      <div class="fi">
-        <label class="fk" for="revRH">Grupo Sanguíneo / RH</label>
-        <input class="inp" id="revRH" type="text" placeholder="Ej: O+, A-, B+, AB+"/>
-      </div>
-      <div class="fi">
-        <label class="fk" for="revEstatura">Estatura</label>
-        <input class="inp" id="revEstatura" type="text" placeholder="Ej: 1.69"/>
-      </div>
-    </div>
-  </div>
-
-  <div class="acts">
-    <button class="btn btn-sec" onclick="omitirReverso()">Omitir este paso</button>
-    <button class="btn btn-teal" onclick="confirmarReverso()">
-      <svg viewBox="0 0 24 24" width="15" height="15"><polyline points="9 11 12 14 22 4"/></svg>
-      Continuar con estos datos →
-    </button>
-  </div>
-</section>
-
-<!-- PASO 2C: SIN DOC -->
+<!-- PASO 2C: SIN DOC --><!-- PASO 2C: SIN DOC -->
 <section class="card" id="secSinDoc" style="display:none">
   <div class="card-hdr">
     <div class="ci" style="background:linear-gradient(135deg,#e65100,#ff6d00)">2</div>
@@ -411,7 +372,8 @@ footer{text-align:center;padding:16px;font-size:.7rem;color:var(--g500);display:
     <div class="fi"><label class="fk" for="dFexp">Fecha Expedición</label><input class="inp" id="dFexp" type="text" placeholder="DD/MM/AAAA"/></div>
     <div class="fi"><label class="fk" for="dRh">Grupo Sanguíneo / RH</label><input class="inp" id="dRh" type="text" placeholder="Ej: O+, A-, B+"/></div>
     <div class="fi"><label class="fk" for="dEstatura">Estatura</label><input class="inp" id="dEstatura" type="text" placeholder="Ej: 1.69"/></div>
-    <div class="fi fw"><label class="fk" for="dLug">Lugar Expedición</label><input class="inp" id="dLug" type="text" placeholder="Ciudad de expedición"/></div>
+    <div class="fi"><label class="fk" for="dLug">Lugar Expedición</label><input class="inp" id="dLug" type="text" placeholder="Ciudad expedición"/></div>
+    <div class="fi"><label class="fk" for="dLugNac">Lugar Nacimiento</label><input class="inp" id="dLugNac" type="text" placeholder="Ciudad nacimiento"/></div>
   </div>
   <div class="divider"><span>Información SIVE</span></div>
   <div class="fgrid">
@@ -513,7 +475,7 @@ function escanerOn(tipo) {
 
   var instruccion = tipo === 'nueva'
     ? '🔍 Apunta al frente (código de barras) de la cédula…'
-    : '🔍 Apunta al código de barras del frente de la cédula…';
+    : '🔍 Apunta al código de barras 2D del reverso de la cédula…';
 
   document.getElementById(idPh).style.display    = 'none';
   document.getElementById(idBox).style.display   = '';
@@ -969,6 +931,317 @@ function parseReverso(raw) {
   return encontro ? resultado : null;
 }
 
+// ══════════════════════════════════════════════════════════════════
+// OCR CON TESSERACT.JS — Lee texto impreso de la cédula colombiana
+// Funciona en iOS Safari, Android Chrome, sin API key
+// ══════════════════════════════════════════════════════════════════
+
+var datosOCRFrente  = null;  // datos extraídos del frente
+var datosOCRReverso = null;  // datos extraídos del reverso
+var ocrWorker       = null;  // instancia reutilizable de Tesseract
+
+// Inicializar Tesseract una sola vez
+async function initOCR() {
+  if (ocrWorker) return ocrWorker;
+  mostrarProgreso('Cargando motor OCR… (primera vez ~10s)', 5);
+  ocrWorker = await Tesseract.createWorker('spa', 1, {
+    logger: function(m) {
+      if (m.status === 'recognizing text') {
+        var pct = Math.round(m.progress * 100);
+        mostrarProgreso('Leyendo texto… ' + pct + '%', pct);
+      } else if (m.status === 'loading language traineddata') {
+        mostrarProgreso('Cargando idioma… ' + Math.round(m.progress*100) + '%', Math.round(m.progress*100));
+      }
+    }
+  });
+  return ocrWorker;
+}
+
+function mostrarProgreso(txt, pct) {
+  document.getElementById('ocr-progreso').style.display = '';
+  document.getElementById('ocr-status-txt').textContent = txt;
+  document.getElementById('ocr-bar').style.width = pct + '%';
+}
+
+function ocultarProgreso() {
+  document.getElementById('ocr-progreso').style.display = 'none';
+}
+
+// ── PROCESAR FOTO (frente o reverso) ────────────────────────────
+async function procesarFoto(input, lado) {
+  if (!input.files || !input.files[0]) return;
+  var archivo = input.files[0];
+  input.value = '';
+
+  // Mostrar preview de la foto
+  var url = URL.createObjectURL(archivo);
+  var prev = document.getElementById('ocr-preview');
+  prev.src = url;
+  document.getElementById('ocr-preview-wrap').style.display = '';
+
+  // Mostrar progreso
+  mostrarProgreso('Iniciando OCR…', 2);
+
+  try {
+    var worker = await initOCR();
+    mostrarProgreso('Analizando imagen…', 15);
+
+    var resultado = await worker.recognize(archivo);
+    var texto = resultado.data.text;
+    console.log('OCR ' + lado + ':', texto);
+
+    // Mostrar texto crudo para diagnóstico
+    document.getElementById('ocr-texto').textContent = texto;
+    document.getElementById('ocr-resultado').style.display = '';
+
+    ocultarProgreso();
+
+    if (lado === 'frente') {
+      datosOCRFrente = parsearFrente(texto);
+      console.log('Frente parseado:', datosOCRFrente);
+
+      if (datosOCRFrente && (datosOCRFrente.cedula || datosOCRFrente.apellido1)) {
+        toast('✓ Frente leído — ahora fotografía el reverso', 'ok');
+        // Actualizar instrucción
+        document.getElementById('ocr-instruccion').innerHTML =
+          '<b>✓ Frente leído:</b> ' +
+          (datosOCRFrente.cedula ? 'Cédula <b>'+datosOCRFrente.cedula+'</b> · ' : '') +
+          (datosOCRFrente.apellido1 ? datosOCRFrente.apellido1 : '') +
+          (datosOCRFrente.apellido2 ? ' '+datosOCRFrente.apellido2 : '') +
+          (datosOCRFrente.nombre1 ? ', '+datosOCRFrente.nombre1 : '') +
+          (datosOCRFrente.nombre2 ? ' '+datosOCRFrente.nombre2 : '') +
+          '<br><br><b>📷 Paso 2 — Reverso de la cédula:</b><br>' +
+          'Ahora fotografía el <b>reverso</b> (lado de la huella dactilar)<br>' +
+          '<span style="color:#059669;font-size:.75rem">Contiene: fecha nac · lugar · RH · estatura · fecha expedición</span>';
+        document.getElementById('cedulaStep').textContent = 'Reverso';
+        document.getElementById('btnFotoFrente').style.display  = 'none';
+        document.getElementById('btnFotoReverso').style.display = '';
+        document.getElementById('btnOmitirRev').style.display   = '';
+      } else {
+        toast('⚠️ No se reconoció bien. Intenta con mejor iluminación.', 'warn');
+      }
+
+    } else { // reverso
+      datosOCRReverso = parsearReverso(texto);
+      console.log('Reverso parseado:', datosOCRReverso);
+      irAPaso3();
+    }
+
+  } catch(err) {
+    ocultarProgreso();
+    console.error('OCR error:', err);
+    toast('❌ Error OCR: ' + err.message, 'err');
+  }
+}
+
+function irAPaso3() {
+  // Fusionar datos del frente y reverso
+  var d = {
+    tipo:     'ANTIGUA (OCR)',
+    cedula:   '',
+    apellido1:'', apellido2:'',
+    nombre1: '', nombre2: '',
+    fechaNac: '', genero: '',
+    fechaExp: '', lugarExp: '',
+    lugarNac: '', rh: '', estatura: ''
+  };
+  if (datosOCRFrente)  Object.assign(d, datosOCRFrente);
+  if (datosOCRReverso) {
+    if (datosOCRReverso.fechaNac && !d.fechaNac) d.fechaNac = datosOCRReverso.fechaNac;
+    if (datosOCRReverso.genero   && !d.genero)   d.genero   = datosOCRReverso.genero;
+    if (datosOCRReverso.rh)       d.rh       = datosOCRReverso.rh;
+    if (datosOCRReverso.estatura) d.estatura = datosOCRReverso.estatura;
+    if (datosOCRReverso.fechaExp) d.fechaExp = datosOCRReverso.fechaExp;
+    if (datosOCRReverso.lugarExp) d.lugarExp = datosOCRReverso.lugarExp;
+    if (datosOCRReverso.lugarNac) d.lugarNac = datosOCRReverso.lugarNac;
+  }
+  // Resetear para próximo uso
+  datosOCRFrente = datosOCRReverso = null;
+  document.getElementById('btnFotoFrente').style.display  = '';
+  document.getElementById('btnFotoReverso').style.display = 'none';
+  document.getElementById('btnOmitirRev').style.display   = 'none';
+  document.getElementById('cedulaStep').textContent       = 'Frente';
+  document.getElementById('ocr-resultado').style.display  = 'none';
+  document.getElementById('ocr-preview-wrap').style.display = 'none';
+  document.getElementById('ocr-instruccion').innerHTML =
+    '<b>📷 Paso 1 — Frente de la cédula:</b><br>Toma una foto clara del <b>frente</b>';
+
+  mostrarPaso3(d);
+}
+
+// ── PARSER FRENTE ────────────────────────────────────────────────
+// Frente impreso:
+//   NÚMERO 1.095.298.343
+//   FUENTES PARRA
+//   APELLIDOS
+//   JERSSON ESTEBAN
+//   NOMBRES
+function parsearFrente(txt) {
+  var lineas = txt.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  var upper  = txt.toUpperCase();
+  var res    = { tipo:'ANTIGUA (OCR)', cedula:'', apellido1:'', apellido2:'', nombre1:'', nombre2:'', fechaNac:'', genero:'' };
+
+  function cap(s){ return s ? s[0]+s.slice(1).toLowerCase() : ''; }
+
+  // ── Número de cédula ──────────────────────────────────────────
+  // Buscar "NÚMERO X.XXX.XXX.XXX" o solo la secuencia de dígitos con puntos
+  var mNum = txt.match(/N[UÚ]MERO\s+([\d][.\d]+)/i);
+  if (!mNum) mNum = txt.match(/\b(\d[\d.]{6,14})\b/);
+  if (mNum) res.cedula = mNum[1].replace(/\./g,'');
+
+  // ── Apellidos ─────────────────────────────────────────────────
+  // Patrón: línea con SOLO letras/espacios inmediatamente ANTES de la línea "APELLIDOS"
+  var idxAp = -1;
+  for (var i=0; i<lineas.length; i++) {
+    if (/^APELLIDOS$/i.test(lineas[i])) { idxAp = i; break; }
+  }
+  if (idxAp > 0) {
+    // La línea anterior a APELLIDOS tiene los apellidos
+    var lineaAp = lineas[idxAp - 1];
+    // A veces Tesseract pone los apellidos en la MISMA línea que el label
+    var partes = lineaAp.replace(/APELLIDOS/gi,'').trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 0 && idxAp > 1) {
+      partes = lineas[idxAp-1].split(/\s+/).filter(Boolean);
+    }
+    if (partes.length >= 1) res.apellido1 = cap(partes[0]);
+    if (partes.length >= 2) res.apellido2 = cap(partes[1]);
+  } else {
+    // Fallback: buscar "FUENTES PARRA" como palabras en mayúsculas después del número
+    var mAp = upper.match(/\b([A-ZÁÉÍÓÚÑ]{3,})\s+([A-ZÁÉÍÓÚÑ]{3,})\b(?=\s*APELLIDO)/);
+    if (mAp) { res.apellido1=cap(mAp[1]); res.apellido2=cap(mAp[2]); }
+  }
+
+  // ── Nombres ───────────────────────────────────────────────────
+  var idxNom = -1;
+  for (var i=0; i<lineas.length; i++) {
+    if (/^NOMBRES$/i.test(lineas[i])) { idxNom = i; break; }
+  }
+  if (idxNom > 0) {
+    var lineaNom = lineas[idxNom - 1].replace(/NOMBRES/gi,'').trim();
+    if (!lineaNom && idxNom > 1) lineaNom = lineas[idxNom-1];
+    var partesNom = lineaNom.split(/\s+/).filter(Boolean);
+    if (partesNom.length >= 1) res.nombre1 = cap(partesNom[0]);
+    if (partesNom.length >= 2) res.nombre2 = cap(partesNom[1]);
+  } else if (idxAp > 0) {
+    // Nombres están entre APELLIDOS y NOMBRES — buscar después de APELLIDOS
+    for (var i=idxAp+1; i<lineas.length; i++) {
+      var l = lineas[i];
+      if (/^NOMBRES$/i.test(l)) break;
+      if (/^[A-ZÁÉÍÓÚÑ\s]{4,}$/.test(l) && !/REPU|IDEN|CEDU|FIRM/i.test(l)) {
+        var pp = l.trim().split(/\s+/);
+        if (pp.length >= 1) res.nombre1 = cap(pp[0]);
+        if (pp.length >= 2) res.nombre2 = cap(pp[1]);
+        break;
+      }
+    }
+  }
+
+  if (!res.cedula && !res.apellido1) return null;
+  return res;
+}
+
+// ── PARSER REVERSO ───────────────────────────────────────────────
+// Reverso impreso:
+//   FECHA DE NACIMIENTO    10-DIC-2003
+//   BUCARAMANGA (SANTANDER)
+//   LUGAR DE NACIMIENTO
+//   1.69    B+    M
+//   ESTATURA  G.S. RH  SEXO
+//   08-FEB-2022 CUCUTA
+//   FECHA Y LUGAR DE EXPEDICIÓN
+function parsearReverso(txt) {
+  var lineas = txt.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+  var res = { fechaNac:'', lugarNac:'', rh:'', estatura:'', genero:'', fechaExp:'', lugarExp:'' };
+
+  var MESES = {
+    'ENE':'01','FEB':'02','MAR':'03','ABR':'04','MAY':'05','JUN':'06',
+    'JUL':'07','AGO':'08','SEP':'09','OCT':'10','NOV':'11','DIC':'12'
+  };
+
+  function convertirFecha(str) {
+    // "10-DIC-2003" → "10/12/2003"
+    var m = str.match(/(\d{1,2})[-\/\s]([A-Z]{3})[-\/\s](\d{4})/i);
+    if (m) {
+      var mes = MESES[m[2].toUpperCase()] || '??';
+      return m[1].padStart(2,'0') + '/' + mes + '/' + m[3];
+    }
+    // "10/12/2003" ya en formato correcto
+    if (/\d{2}\/\d{2}\/\d{4}/.test(str)) return str;
+    return str;
+  }
+
+  // ── Fecha de nacimiento ──────────────────────────────────────
+  var mFnac = txt.match(/(\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}|\d{2}\/\d{2}\/\d{4})/i);
+  if (mFnac) res.fechaNac = convertirFecha(mFnac[1]);
+
+  // ── Lugar de nacimiento ──────────────────────────────────────
+  // Aparece ANTES de "LUGAR DE NACIMIENTO"
+  for (var i=0; i<lineas.length; i++) {
+    if (/LUGAR\s+DE\s+NACIMIENTO/i.test(lineas[i])) {
+      // La ciudad está en la línea anterior
+      if (i > 0) {
+        var ciudad = lineas[i-1].replace(/\(.*?\)/g,'').trim();
+        if (/^[A-ZÁÉÍÓÚÑ\s]{3,}$/.test(ciudad)) res.lugarNac = ciudad.trim();
+      }
+      break;
+    }
+    // También puede estar en la misma línea que LUGAR DE NACIMIENTO
+    if (/^([A-ZÁÉÍÓÚÑ\s]+)\s+LUGAR\s+DE\s+NACIMIENTO/i.test(lineas[i])) {
+      res.lugarNac = lineas[i].replace(/LUGAR\s+DE\s+NACIMIENTO/i,'').trim();
+      break;
+    }
+  }
+
+  // ── RH / Grupo sanguíneo ─────────────────────────────────────
+  var mrh = txt.match(/\b([ABO]{1,2}[+-])\b/i);
+  if (mrh) res.rh = mrh[1].toUpperCase();
+
+  // ── Estatura ──────────────────────────────────────────────────
+  var mest = txt.match(/\b(1[.,]\d{2})\b/);
+  if (mest) res.estatura = mest[1].replace(',','.');
+
+  // ── Sexo / Género ──────────────────────────────────────────────
+  var mSex = txt.match(/SEXO\s*([MF])\b|([MF])\s*SEXO/i);
+  if (!mSex) mSex = txt.match(/\bSEXO\b[\s\S]{0,20}?\b([MF])\b/i);
+  if (mSex) {
+    var g = (mSex[1]||mSex[2]||'').toUpperCase();
+    res.genero = g==='M' ? 'Masculino' : g==='F' ? 'Femenino' : '';
+  }
+
+  // ── Fecha y lugar de expedición ───────────────────────────────
+  // Patrón: "08-FEB-2022 CUCUTA" antes de "FECHA Y LUGAR DE EXPEDICIÓN"
+  for (var i=0; i<lineas.length; i++) {
+    if (/FECHA\s+Y\s+LUGAR\s+DE\s+EXPEDICI/i.test(lineas[i])) {
+      if (i > 0) {
+        var lineaExp = lineas[i-1];
+        // Extraer fecha
+        var mfexp = lineaExp.match(/(\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}|\d{2}\/\d{2}\/\d{4})/i);
+        if (mfexp) res.fechaExp = convertirFecha(mfexp[1]);
+        // Extraer ciudad (texto después de la fecha)
+        var ciudad = lineaExp.replace(/\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}/i,'')
+                             .replace(/\d{2}\/\d{2}\/\d{4}/,'').trim();
+        if (/^[A-ZÁÉÍÓÚÑ\s]{2,}$/.test(ciudad)) res.lugarExp = ciudad.trim();
+      }
+      break;
+    }
+  }
+  // Fallback fecha expedición: segunda fecha en el texto
+  if (!res.fechaExp) {
+    var fechas = txt.match(/\d{1,2}[-\/\s][A-Z]{3}[-\/\s]\d{4}/gi) || [];
+    if (fechas.length >= 2) res.fechaExp = convertirFecha(fechas[1]);
+    // Lugar: ciudad mayúsculas cerca de la segunda fecha
+    if (fechas.length >= 2) {
+      var idx2 = txt.indexOf(fechas[1]);
+      var resto = txt.slice(idx2+fechas[1].length, idx2+fechas[1].length+40).trim();
+      var mCiudad = resto.match(/^[A-ZÁÉÍÓÚÑ\s]{3,}/);
+      if (mCiudad) res.lugarExp = mCiudad[0].trim();
+    }
+  }
+
+  return res;
+}
+
+// ── PROCESAR ANTIGUA (lector físico — ya existía) ────────────────
 // ── PDF417 cédula de ciudadanía colombiana ────────────────────────
 // Formato real observado en el raw del escáner:
 //   ...993995051095298343FUENTES[basura]PARRA[basura]JERSSON[basura]ESTEBAN[basura]0M20031210270010B+...
@@ -977,74 +1250,98 @@ function parseReverso(raw) {
 // Los nombres están separados por caracteres no-ASCII (bytes de control del PDF417).
 // Estrategia: limpiar el raw, extraer el bloque continuo de datos conocidos.
 function parsePDF417(raw) {
-  // ── Normalizar el raw ────────────────────────────────────────────
-  // El PDF417 colombiano usa separadores de byte no-ASCII entre campos.
-  // Los reemplazamos por '|' para tokenizar.
-  var limpio = raw.replace(/[^A-Z0-9+\-\s]/gi, '|').replace(/\|+/g, '|');
-  console.log('PDF417 limpio:', limpio.slice(0,200));
+  // ═══════════════════════════════════════════════════════════════
+  // Parser PDF417 cédula antigua Colombia (RNEC)
+  //
+  // El raw del barcode contiene los datos separados por chars no-ASCII:
+  // [prefijo][cedula][sep]AP1[sep]AP2[sep]N1[sep]N2[sep]0M/0F[AAAAMMDD]...[RH]
+  //
+  // Ejemplo real: 993995051095298343\x1cFUENTES\x1cPARRA\x1cJERSSON\x1cESTEBAN\x1c0M20031210B+
+  //
+  // También puede venir en formato: P-municipio-reg-M-cedula-AAAAMMDD
+  // ═══════════════════════════════════════════════════════════════
 
-  function cap(s){ return s ? s[0] + s.slice(1).toLowerCase() : ''; }
+  function cap(s){ return s ? s[0]+s.slice(1).toLowerCase() : ''; }
 
-  // ── Extraer palabras en MAYÚSCULAS de 2+ letras (nombres/apellidos) ──
-  var palabras = [];
-  limpio.split('|').forEach(function(t) {
-    t = t.trim();
-    if (/^[A-Z]{2,}$/.test(t)) palabras.push(t);
-  });
-
-  // ── Buscar cédula ────────────────────────────────────────────────
-  // Puede ser de 6 a 10 dígitos; NO es una fecha AAAAMMDD
-  // En el raw colombiano la cédula aparece después de un prefijo largo
-  var cedula = '';
-  var todosNums = limpio.match(/\d+/g) || [];
-  for (var i = 0; i < todosNums.length; i++) {
-    var n = todosNums[i];
-    if (n.length < 6 || n.length > 10) continue;
-    var esFecha8 = n.length===8 && parseInt(n.slice(4,6),10)>=1 &&
-                   parseInt(n.slice(4,6),10)<=12 && parseInt(n.slice(6,8),10)<=31;
-    if (!esFecha8) { cedula = n; break; }
-  }
-
-  // ── Buscar género + fecha nacimiento ─────────────────────────────
-  // Patrón: 0M20031210 ó 0F19901220 → género + AAAAMMDD
-  var genero = '', fechaNac = '';
-  var mgf = raw.match(/0([MF])(\d{8})/i);
-  if (!mgf) mgf = raw.match(/([MF])(\d{8})(?!\d)/i); // alternativa sin el 0
-  if (mgf) {
-    genero = mgf[1].toUpperCase()==='M' ? 'Masculino' : 'Femenino';
-    var fd = mgf[2];
-    var mes = parseInt(fd.slice(4,6),10), dia = parseInt(fd.slice(6,8),10);
-    if (mes>=1 && mes<=12 && dia>=1 && dia<=31)
-      fechaNac = fd.slice(6,8)+'/'+fd.slice(4,6)+'/'+fd.slice(0,4);
-  }
-
-  // ── Buscar RH ────────────────────────────────────────────────────
-  var rh = '';
-  var mrh = raw.match(/\b([ABO]{1,2}[+-])\b/i);
-  if (mrh) rh = mrh[1].toUpperCase();
-
-  // ── Asignar nombres/apellidos ────────────────────────────────────
-  // Formato PDF417 RNEC Colombia: [AP1] [AP2] [N1] [N2]
-  // Palabras de 2 letras suelen ser partículas (DE, LA, etc.) — las incluimos
-  var ap1='', ap2='', nom1='', nom2='';
-  if (palabras.length >= 1) ap1  = cap(palabras[0]);
-  if (palabras.length >= 2) ap2  = cap(palabras[1]);
-  if (palabras.length >= 3) nom1 = cap(palabras[2]);
-  if (palabras.length >= 4) nom2 = cap(palabras[3]);
-
-  if (!cedula && !ap1 && !nom1) return null;
-
-  return {
-    tipo:     'ANTIGUA (PDF417)',
-    cedula:   cedula,
-    apellido1:ap1, apellido2:ap2,
-    nombre1:  nom1, nombre2:nom2,
-    fechaNac: fechaNac,
-    genero:   genero,
-    fechaExp: '',
-    lugarExp: '',
-    rh:       rh
+  var resultado = {
+    tipo:'ANTIGUA (PDF417)',
+    cedula:'', apellido1:'', apellido2:'', nombre1:'', nombre2:'',
+    fechaNac:'', genero:'', fechaExp:'', lugarExp:'', rh:'', estatura:''
   };
+
+  console.log('PDF417 raw (primeros 200):', JSON.stringify(raw.slice(0,200)));
+
+  // ── PASO 1: Detectar formato P-xxx-xxx-M-cedula-fecha ────────────
+  var mP = raw.match(/P[-](\d+)[-](\d+)[-]([MF])[-](\d{6,10})[-](\d{8})/i);
+  if (mP) {
+    resultado.cedula  = mP[4];
+    resultado.genero  = mP[3].toUpperCase()==='M' ? 'Masculino' : 'Femenino';
+    var dP = mP[5];
+    resultado.fechaExp = dP.slice(6,8)+'/'+dP.slice(4,6)+'/'+dP.slice(0,4);
+    // En este formato no vienen nombres — se pedirán en paso 2 reverso
+  }
+
+  // ── PASO 2: Tokenizar el raw ─────────────────────────────────────
+  // Reemplazar cualquier char no-alfanumérico por |
+  // Y además añadir | en transiciones dígito→letra y letra→dígito
+  var limpio = raw
+    .replace(/[^A-Z0-9]/gi, '|')  // no-alfanumérico → |
+    .replace(/(\d)([A-Z])/gi, '$1|$2')  // dígito→letra
+    .replace(/([A-Z])(\d)/gi, '$1|$2')  // letra→dígito
+    .replace(/\|+/g, '|');
+  var tokens = limpio.split('|').map(function(t){return t.trim();}).filter(Boolean);
+
+  // ── PASO 3: Extraer palabras (candidatos a nombre/apellido) ──────
+  // Solo letras mayúsculas de 2+ chars
+  var palabras = tokens.filter(function(t){ return /^[A-Z]{2,}$/.test(t); });
+  console.log('Palabras encontradas:', palabras);
+
+  // ── PASO 4: Buscar cédula ────────────────────────────────────────
+  if (!resultado.cedula) {
+    var nums = tokens.filter(function(t){ return /^\d+$/.test(t); });
+    for (var i=0; i<nums.length; i++) {
+      var n = nums[i];
+      if (n.length >= 7 && n.length <= 10) {
+        var esFecha = n.length===8 && parseInt(n.slice(4,6),10)<=12 && parseInt(n.slice(6,8),10)<=31;
+        if (!esFecha) { resultado.cedula = n; break; }
+      } else if (n.length > 10) {
+        // Cédula embebida al final del número largo (prefijo + cédula)
+        resultado.cedula = n.slice(-10); break;
+      }
+    }
+  }
+
+  // ── PASO 5: Género + Fecha de Nacimiento ─────────────────────────
+  // Patrón: 0M o 0F seguido de 8 dígitos (AAAAMMDD)
+  var mgf = raw.match(/0([MF])(\d{8})/i);
+  if (!mgf) mgf = raw.match(/\b([MF])(\d{8})\b/i); // sin el 0
+  if (mgf) {
+    if (!resultado.genero)
+      resultado.genero = mgf[1].toUpperCase()==='M' ? 'Masculino' : 'Femenino';
+    var fd = mgf[2];
+    var mes=parseInt(fd.slice(4,6),10), dia=parseInt(fd.slice(6,8),10);
+    if (mes>=1 && mes<=12 && dia>=1 && dia<=31)
+      resultado.fechaNac = fd.slice(6,8)+'/'+fd.slice(4,6)+'/'+fd.slice(0,4);
+  }
+
+  // ── PASO 6: RH sanguíneo ─────────────────────────────────────────
+  var mrh = raw.match(/([ABO]{1,2}[+-])/i);
+  if (mrh) resultado.rh = mrh[1].toUpperCase();
+
+  // ── PASO 7: Estatura (patrón 1.XX) ───────────────────────────────
+  var mest = raw.match(/\b(1\.\d{2})\b/);
+  if (mest) resultado.estatura = mest[1];
+
+  // ── PASO 8: Asignar nombres en orden AP1, AP2, N1, N2 ────────────
+  if (palabras[0]) resultado.apellido1 = cap(palabras[0]);
+  if (palabras[1]) resultado.apellido2 = cap(palabras[1]);
+  if (palabras[2]) resultado.nombre1   = cap(palabras[2]);
+  if (palabras[3]) resultado.nombre2   = cap(palabras[3]);
+
+  if (!resultado.cedula && !resultado.apellido1 && !resultado.nombre1) return null;
+
+  console.log('PDF417 parseado:', resultado.cedula, resultado.apellido1, resultado.apellido2, resultado.nombre1, resultado.nombre2);
+  return resultado;
 }
 
 function parseSoloNumero(raw) {
@@ -1093,6 +1390,7 @@ function mostrarPaso3(d) {
   document.getElementById('dFexp').value=d.fechaExp||'';
   document.getElementById('dRh').value      = d.rh      ||'';
   document.getElementById('dEstatura').value = d.estatura||'';
+  if(document.getElementById('dLugNac')) document.getElementById('dLugNac').value = d.lugarNac||'';
   document.getElementById('dLug').value =d.lugarExp||'';
   var badge=document.getElementById('badgeTipo');
   badge.textContent=d.tipo;badge.style.cssText='';
@@ -1123,6 +1421,7 @@ async function guardar() {
     rh:document.getElementById('dRh').value||datosActu.rh||'',
     estatura:document.getElementById('dEstatura').value||datosActu.estatura||'',
     lugarExp:document.getElementById('dLug').value||datosActu.lugarExp,
+    lugarNac:document.getElementById('dLugNac')?document.getElementById('dLugNac').value||datosActu.lugarNac||'':'',
     tipo:datosActu.tipo,programa:prog,
     semestre:document.getElementById('sSem').value.trim(),
     jornada:document.getElementById('sJor').value,
@@ -1151,7 +1450,7 @@ async function guardar() {
 function cancelar() {
   datosActu=null;
   document.getElementById('secData').style.display='none';
-  ['dCed','dAp1','dAp2','dN1','dN2','dFnac','dFexp','dRh','dLug','dEstatura'].forEach(function(id){document.getElementById(id).value='';});
+  ['dCed','dAp1','dAp2','dN1','dN2','dFnac','dFexp','dRh','dLug','dEstatura','dLugNac'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('dGen').value='';
   ['sProg','sSem','sObs'].forEach(function(id){document.getElementById(id).value='';});
   document.getElementById('sJor').value='';
